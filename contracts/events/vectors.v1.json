@@ -1,5 +1,5 @@
 {
-  "schema_id": "almira.public.event-conformance-vectors.v1",
+  "schema_id": "cavern.public.event-conformance-vectors.v1",
   "format_version": 1,
   "vectors": [
     {
@@ -8,7 +8,7 @@
       "expected": "valid",
       "instance": {
         "schema_version": 1,
-        "event_type_id": "almira.file.available.v1",
+        "event_type_id": "cavern.file.available.v1",
         "environment_id": "018f0000-0000-7000-8000-000000000001",
         "collection_instance_id": "018f0000-0000-7000-8000-000000000002",
         "entry_id": "018f0000-0000-7000-8000-000000000003",
@@ -25,7 +25,7 @@
       "expected": "valid",
       "instance": {
         "schema_version": 1,
-        "event_type_id": "almira.media.processing.completed.v1",
+        "event_type_id": "cavern.media.processing.completed.v1",
         "environment_id": "018f0000-0000-7000-8000-000000000001",
         "collection_instance_id": "018f0000-0000-7000-8000-000000000002",
         "entry_id": "018f0000-0000-7000-8000-000000000003",
@@ -44,7 +44,7 @@
       "expected": "valid",
       "instance": {
         "schema_version": 1,
-        "event_type_id": "almira.delivery.configuration.changed.v1",
+        "event_type_id": "cavern.delivery.configuration.changed.v1",
         "environment_id": "018f0000-0000-7000-8000-000000000001",
         "collection_instance_id": "018f0000-0000-7000-8000-000000000002",
         "configuration_revision": 7,
@@ -60,7 +60,7 @@
       "expected": "invalid",
       "instance": {
         "schema_version": 1,
-        "event_type_id": "almira.delivery.configuration.changed.v1",
+        "event_type_id": "cavern.delivery.configuration.changed.v1",
         "environment_id": "018f0000-0000-7000-8000-000000000001",
         "collection_instance_id": "018f0000-0000-7000-8000-000000000002",
         "configuration_revision": 7,
@@ -77,7 +77,7 @@
       "expected": "invalid",
       "instance": {
         "schema_version": 1,
-        "event_type_id": "almira.file.extraction.completed.v1",
+        "event_type_id": "cavern.file.extraction.completed.v1",
         "environment_id": "018f0000-0000-7000-8000-000000000001",
         "collection_instance_id": "018f0000-0000-7000-8000-000000000002",
         "entry_id": "018f0000-0000-7000-8000-000000000003",
@@ -96,7 +96,7 @@
       "expected": "invalid",
       "instance": {
         "schema_version": 1,
-        "event_type_id": "almira.file.available.v1",
+        "event_type_id": "cavern.file.available.v1",
         "environment_id": "018f0000-0000-7000-8000-000000000001",
         "collection_instance_id": "018f0000-0000-7000-8000-000000000002",
         "entry_id": "018f0000-0000-7000-8000-000000000003",

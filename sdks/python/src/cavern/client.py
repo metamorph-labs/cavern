@@ -1,0 +1,614 @@
+"""Capability-only application data client for Cavern."""
+
+from __future__ import annotations
+
+import json
+import re
+import time
+from dataclasses import dataclass
+from datetime import datetime
+from email.message import Message
+from http.client import HTTPMessage
+from typing import Any, BinaryIO, Callable, Iterable, Mapping, Protocol
+from urllib.error import HTTPError, URLError
+from urllib.parse import quote, urlencode, urlsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener
+
+UUID_V7 = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
+CAPABILITY = re.compile(r"^cav_(?:cap|local)_v1\.[A-Za-z0-9_.-]{20,24576}$")
+SHARE_TOKEN = re.compile(r"^cav_share_v1\.[A-Za-z0-9_-]{43}$")
+API_ERROR = re.compile(r"^CAVERN_[A-Z0-9_]{1,120}$")
+BYTE_RANGE = re.compile(r"^bytes=[0-9]+-[0-9]*$")
+VARIANT = re.compile(r"^[a-z0-9](?:[a-z0-9._/-]*[a-z0-9])?$")
+
+
+class CavernClientError(Exception):
+    """A stable local SDK failure that does not disclose response or credential content."""
+
+    def __init__(self, code: str) -> None:
+        super().__init__(code)
+        self.code = code
+
+
+class CavernApiError(Exception):
+    """A stable error returned by the Cavern API."""
+
+    def __init__(
+        self,
+        code: str,
+        request_id: str,
+        status: int,
+        retry_after_seconds: int | None,
+    ) -> None:
+        super().__init__(code)
+        self.code = code
+        self.request_id = request_id
+        self.status = status
+        self.retry_after_seconds = retry_after_seconds
+
+
+@dataclass(frozen=True, slots=True)
+class CollectionReference:
+    tenant_id: str
+    project_id: str
+    environment_id: str
+    collection_instance_id: str
+
+
+@dataclass(frozen=True, slots=True)
+class FileReference(CollectionReference):
+    entry_id: str
+
+
+@dataclass(frozen=True, slots=True)
+class ImmutableGenerationReference(FileReference):
+    generation_id: str
+
+
+@dataclass(frozen=True, slots=True)
+class DerivativeReference(ImmutableGenerationReference):
+    variant_key: str
+
+
+@dataclass(slots=True)
+class HttpResponse:
+    status: int
+    headers: Mapping[str, str]
+    body: BinaryIO
+
+    def close(self) -> None:
+        self.body.close()
+
+
+@dataclass(slots=True)
+class BinaryResponse:
+    status: int
+    headers: Mapping[str, str]
+    body: BinaryIO
+    content_length: int | None
+    content_range: str | None
+    content_type: str | None
+    etag: str | None
+
+    def iter_bytes(self, chunk_size: int = 64 * 1024) -> Iterable[bytes]:
+        if chunk_size < 1 or chunk_size > 8 * 1024 * 1024:
+            raise CavernClientError("CAVERN_CLIENT_INPUT_INVALID")
+        while True:
+            try:
+                chunk = self.body.read(chunk_size)
+            except Exception as error:
+                self.close()
+                raise CavernClientError("CAVERN_CLIENT_NETWORK") from error
+            if not chunk:
+                return
+            if not isinstance(chunk, bytes):
+                self.close()
+                _invalid_response()
+            yield chunk
+
+    def close(self) -> None:
+        self.body.close()
+
+    def __enter__(self) -> BinaryResponse:
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        self.close()
+
+
+class Transport(Protocol):
+    def __call__(
+        self,
+        method: str,
+        url: str,
+        headers: Mapping[str, str],
+        body: bytes | None,
+    ) -> HttpResponse: ...
+
+
+CapabilityProvider = Callable[[], str]
+
+
+@dataclass(frozen=True, slots=True)
+class RetryPolicy:
+    """Opt-in retry policy for safe data reads and read-only search."""
+
+    max_attempts: int
+    base_delay_seconds: float = 0.1
+    maximum_delay_seconds: float = 2.0
+
+
+class _NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, *_: object, **__: object) -> None:
+        return None
+
+
+class _UrllibTransport:
+    def __init__(self, timeout: float) -> None:
+        self._timeout = timeout
+        self._opener = build_opener(_NoRedirect())
+
+    def __call__(
+        self,
+        method: str,
+        url: str,
+        headers: Mapping[str, str],
+        body: bytes | None,
+    ) -> HttpResponse:
+        request = Request(url, data=body, headers=dict(headers), method=method)
+        try:
+            response = self._opener.open(request, timeout=self._timeout)
+        except HTTPError as error:
+            response = error
+        except (OSError, URLError, TimeoutError) as error:
+            raise CavernClientError("CAVERN_CLIENT_NETWORK") from error
+        return HttpResponse(
+            status=response.status,
+            headers=_headers(response.headers),
+            body=response,
+        )
+
+
+class CavernDataClient:
+    """Application data-plane client accepting only Cavern capability tokens."""
+
+    def __init__(
+        self,
+        *,
+        base_url: str,
+        capability: str | CapabilityProvider | None = None,
+        origin: str | None = None,
+        transport: Transport | None = None,
+        timeout: float = 30.0,
+        retry: RetryPolicy | None = None,
+    ) -> None:
+        parsed = urlsplit(base_url)
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.netloc
+            or parsed.query
+            or parsed.fragment
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.path not in {"", "/"}
+            or any(ord(character) <= 32 or ord(character) == 127 for character in base_url)
+        ):
+            _invalid_input()
+        if origin is not None:
+            origin_parts = urlsplit(origin)
+            if (
+                origin_parts.scheme not in {"http", "https"}
+                or not origin_parts.netloc
+                or origin_parts.path
+                or origin_parts.query
+                or origin_parts.fragment
+                or origin_parts.username is not None
+                or origin_parts.password is not None
+                or any(ord(character) <= 32 or ord(character) == 127 for character in origin)
+            ):
+                _invalid_input()
+        if timeout <= 0 or timeout > 300:
+            _invalid_input()
+        retry = retry or RetryPolicy(max_attempts=1)
+        if (
+            isinstance(retry.max_attempts, bool)
+            or not isinstance(retry.max_attempts, int)
+            or not 1 <= retry.max_attempts <= 5
+            or isinstance(retry.base_delay_seconds, bool)
+            or not isinstance(retry.base_delay_seconds, (int, float))
+            or not 0 <= retry.base_delay_seconds <= 10
+            or isinstance(retry.maximum_delay_seconds, bool)
+            or not isinstance(retry.maximum_delay_seconds, (int, float))
+            or not retry.base_delay_seconds <= retry.maximum_delay_seconds <= 60
+        ):
+            _invalid_input()
+        self._base_url = base_url.rstrip("/")
+        self._capability = capability
+        self._origin = origin
+        self._transport = transport or _UrllibTransport(timeout)
+        self._retry = retry
+
+    def list_files_with_capability(
+        self,
+        reference: CollectionReference,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        path_prefix: str | None = None,
+        tag: str | None = None,
+        metadata_key: str | None = None,
+        metadata_value: bool | int | str | None = None,
+        verified_media_type: str | None = None,
+        minimum_size_bytes: int | None = None,
+        maximum_size_bytes: int | None = None,
+        created_after: str | None = None,
+        created_before: str | None = None,
+        extraction_kind: str | None = None,
+        extraction_state: str | None = None,
+    ) -> Any:
+        query: list[tuple[str, str]] = []
+        if limit is not None:
+            if not 1 <= limit <= 100:
+                _invalid_input()
+            query.append(("limit", str(limit)))
+        if cursor is not None:
+            if not cursor or len(cursor) > 2048:
+                _invalid_input()
+            query.append(("cursor", cursor))
+        if path_prefix is not None:
+            query.append(("path_prefix", _logical_path(path_prefix)))
+        if tag is not None:
+            query.append(("tag", _metadata_name(tag)))
+        if (metadata_key is None) != (metadata_value is None):
+            _invalid_input()
+        if metadata_key is not None:
+            query.append(("metadata_key", _metadata_name(metadata_key)))
+            query.append(("metadata_value", _metadata_scalar(metadata_value)))
+        if verified_media_type is not None:
+            if not re.fullmatch(r"[a-z0-9!#$&^_.+-]+/[a-z0-9!#$&^_.+-]+", verified_media_type):
+                _invalid_input()
+            query.append(("verified_media_type", verified_media_type))
+        if minimum_size_bytes is not None:
+            query.append(("minimum_size_bytes", str(_positive_size(minimum_size_bytes))))
+        if maximum_size_bytes is not None:
+            query.append(("maximum_size_bytes", str(_positive_size(maximum_size_bytes))))
+        if (
+            minimum_size_bytes is not None
+            and maximum_size_bytes is not None
+            and minimum_size_bytes > maximum_size_bytes
+        ):
+            _invalid_input()
+        if created_after is not None:
+            query.append(("created_after", _timestamp(created_after)))
+        if created_before is not None:
+            query.append(("created_before", _timestamp(created_before)))
+        if (extraction_kind is None) != (extraction_state is None):
+            _invalid_input()
+        if extraction_kind is not None and extraction_state is not None:
+            if extraction_kind not in {"technical", "content", "ocr", "transcription"}:
+                _invalid_input()
+            if extraction_state not in {"pending", "running", "succeeded", "failed", "unsupported"}:
+                _invalid_input()
+            query.extend((("extraction_kind", extraction_kind), ("extraction_state", extraction_state)))
+        return self._json("GET", _with_query(_data_collection_path(reference, "/files"), query))
+
+    def search_files_with_capability(
+        self,
+        reference: CollectionReference,
+        search: Mapping[str, Any],
+    ) -> Any:
+        if not isinstance(search, Mapping):
+            _invalid_input()
+        return self._json("POST", _data_collection_path(reference, "/search"), dict(search))
+
+    def get_file_metadata_with_capability(self, reference: FileReference) -> Any:
+        return self._json(
+            "GET",
+            f"{_data_collection_path(reference, '/files')}/{_uuid(reference.entry_id)}",
+        )
+
+    def list_derivatives_with_capability(
+        self,
+        reference: ImmutableGenerationReference,
+    ) -> Any:
+        return self._json(
+            "GET",
+            f"{_data_collection_path(reference, '/files')}/{_uuid(reference.entry_id)}"
+            f"/versions/{_uuid(reference.generation_id)}/derivatives",
+        )
+
+    def read_immutable_generation(
+        self,
+        reference: ImmutableGenerationReference,
+        *,
+        byte_range: str | None = None,
+        if_none_match: str | None = None,
+    ) -> BinaryResponse:
+        path = (
+            f"/v1/delivery/{_uuid(reference.tenant_id)}/{_uuid(reference.project_id)}"
+            f"/{_uuid(reference.environment_id)}/{_uuid(reference.collection_instance_id)}"
+            f"/{_uuid(reference.entry_id)}/{_uuid(reference.generation_id)}"
+        )
+        return self._binary(path, byte_range, if_none_match, capability_mode="optional")
+
+    def read_derivative(
+        self,
+        reference: DerivativeReference,
+        *,
+        byte_range: str | None = None,
+        if_none_match: str | None = None,
+    ) -> BinaryResponse:
+        path = (
+            f"/v1/delivery/{_uuid(reference.tenant_id)}/{_uuid(reference.project_id)}"
+            f"/{_uuid(reference.environment_id)}/{_uuid(reference.collection_instance_id)}"
+            f"/{_uuid(reference.entry_id)}/{_uuid(reference.generation_id)}"
+            f"/variants/{_variant(reference.variant_key)}"
+        )
+        return self._binary(path, byte_range, if_none_match, capability_mode="optional")
+
+    def read_share(
+        self,
+        share_token: str,
+        *,
+        byte_range: str | None = None,
+        if_none_match: str | None = None,
+    ) -> BinaryResponse:
+        if not SHARE_TOKEN.fullmatch(share_token):
+            _invalid_input()
+        return self._binary(
+            f"/v1/shares/{share_token}",
+            byte_range,
+            if_none_match,
+            capability_mode="forbidden",
+        )
+
+    def _json(self, method: str, path: str, value: Any = None) -> Any:
+        headers = {"accept": "application/json"}
+        body = None
+        if value is not None:
+            headers["content-type"] = "application/json"
+            try:
+                body = json.dumps(value, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+            except (TypeError, ValueError) as error:
+                raise CavernClientError("CAVERN_CLIENT_INPUT_INVALID") from error
+        response = self._request(method, path, headers, body, capability_mode="required")
+        if not 200 <= response.status < 300:
+            self._raise_api_error(response)
+        content_type = response.headers.get("content-type", "").split(";", 1)[0].strip().lower()
+        if content_type != "application/json":
+            response.close()
+            _invalid_response()
+        raw = _bounded_read(response, 2 * 1024 * 1024)
+        try:
+            return json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID") from error
+
+    def _binary(
+        self,
+        path: str,
+        byte_range: str | None,
+        if_none_match: str | None,
+        *,
+        capability_mode: str,
+    ) -> BinaryResponse:
+        headers = {"accept": "application/octet-stream"}
+        if byte_range is not None:
+            if len(byte_range) > 64 or not BYTE_RANGE.fullmatch(byte_range):
+                _invalid_input()
+            headers["range"] = byte_range
+        if if_none_match is not None:
+            if not if_none_match or len(if_none_match) > 512 or "\r" in if_none_match or "\n" in if_none_match:
+                _invalid_input()
+            headers["if-none-match"] = if_none_match
+        response = self._request("GET", path, headers, None, capability_mode=capability_mode)
+        if response.status not in {200, 206, 304}:
+            self._raise_api_error(response)
+        return BinaryResponse(
+            status=response.status,
+            headers=response.headers,
+            body=response.body,
+            content_length=_safe_integer(response.headers.get("content-length")),
+            content_range=response.headers.get("content-range"),
+            content_type=response.headers.get("content-type"),
+            etag=response.headers.get("etag"),
+        )
+
+    def _request(
+        self,
+        method: str,
+        path: str,
+        headers: dict[str, str],
+        body: bytes | None,
+        *,
+        capability_mode: str,
+    ) -> HttpResponse:
+        for attempt in range(1, self._retry.max_attempts + 1):
+            request_headers = dict(headers)
+            if capability_mode != "forbidden" and self._origin is not None:
+                request_headers["origin"] = self._origin
+            if capability_mode != "forbidden" and self._capability is not None:
+                try:
+                    capability = self._capability() if callable(self._capability) else self._capability
+                except Exception as error:
+                    raise CavernClientError("CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE") from error
+                if not isinstance(capability, str) or not CAPABILITY.fullmatch(capability):
+                    _invalid_input()
+                request_headers["authorization"] = f"Bearer {capability}"
+            elif capability_mode == "required":
+                _invalid_input()
+            try:
+                response = self._transport(
+                    method,
+                    f"{self._base_url}{path}",
+                    request_headers,
+                    body,
+                )
+            except CavernClientError as error:
+                if error.code != "CAVERN_CLIENT_NETWORK" or attempt == self._retry.max_attempts:
+                    raise
+                self._wait_before_retry(attempt, None)
+                continue
+            except Exception as error:
+                if attempt == self._retry.max_attempts:
+                    raise CavernClientError("CAVERN_CLIENT_NETWORK") from error
+                self._wait_before_retry(attempt, None)
+                continue
+            if (
+                not isinstance(response, HttpResponse)
+                or isinstance(response.status, bool)
+                or not isinstance(response.status, int)
+                or not 100 <= response.status <= 599
+                or not callable(getattr(response.body, "read", None))
+                or not callable(getattr(response.body, "close", None))
+            ):
+                _invalid_response()
+            try:
+                items = response.headers.items()
+                normalized_headers = {
+                    key.lower(): value
+                    for key, value in items
+                    if isinstance(key, str) and isinstance(value, str)
+                }
+            except Exception as error:
+                response.close()
+                raise CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID") from error
+            if len(normalized_headers) != len(response.headers):
+                response.close()
+                _invalid_response()
+            response.headers = normalized_headers
+            if response.status not in {429, 502, 503, 504} or attempt == self._retry.max_attempts:
+                return response
+            response.close()
+            self._wait_before_retry(attempt, normalized_headers.get("retry-after"))
+        raise CavernClientError("CAVERN_CLIENT_NETWORK")
+
+    def _wait_before_retry(self, failed_attempt: int, retry_after: str | None) -> None:
+        if retry_after is not None and re.fullmatch(r"0|[1-9][0-9]{0,7}", retry_after):
+            delay = float(int(retry_after))
+        else:
+            delay = self._retry.base_delay_seconds * (2 ** (failed_attempt - 1))
+        time.sleep(min(delay, self._retry.maximum_delay_seconds))
+
+    def _raise_api_error(self, response: HttpResponse) -> None:
+        raw = _bounded_read(response, 64 * 1024)
+        try:
+            value = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID") from error
+        if (
+            not isinstance(value, dict)
+            or set(value) != {"code", "request_id"}
+            or not isinstance(value["code"], str)
+            or not API_ERROR.fullmatch(value["code"])
+            or not isinstance(value["request_id"], str)
+            or not UUID_V7.fullmatch(value["request_id"])
+        ):
+            _invalid_response()
+        retry_after = response.headers.get("retry-after")
+        retry_seconds = int(retry_after) if retry_after is not None and re.fullmatch(r"[0-9]{1,8}", retry_after) else None
+        raise CavernApiError(value["code"], value["request_id"], response.status, retry_seconds)
+
+
+def _data_collection_path(reference: CollectionReference, suffix: str) -> str:
+    return (
+        f"/v1/data/{_uuid(reference.tenant_id)}/{_uuid(reference.project_id)}"
+        f"/{_uuid(reference.environment_id)}/{_uuid(reference.collection_instance_id)}{suffix}"
+    )
+
+
+def _uuid(value: str) -> str:
+    if not isinstance(value, str) or not UUID_V7.fullmatch(value):
+        _invalid_input()
+    return value
+
+
+def _variant(value: str) -> str:
+    if (
+        not isinstance(value, str)
+        or not 1 <= len(value) <= 160
+        or not VARIANT.fullmatch(value)
+        or "//" in value
+        or any(segment in {".", ".."} for segment in value.split("/"))
+    ):
+        _invalid_input()
+    return "/".join(quote(segment, safe="") for segment in value.split("/"))
+
+
+def _with_query(path: str, values: list[tuple[str, str]]) -> str:
+    return path if not values else f"{path}?{urlencode(values)}"
+
+
+def _metadata_name(value: str) -> str:
+    if not isinstance(value, str) or not re.fullmatch(r"[a-z](?:[a-z0-9._-]{0,62}[a-z0-9])?", value):
+        _invalid_input()
+    return value
+
+
+def _logical_path(value: str) -> str:
+    if not isinstance(value, str) or not 1 <= len(value) <= 1024:
+        _invalid_input()
+    segments = value.split("/")
+    if any(
+        not 1 <= len(segment) <= 255
+        or segment in {".", ".."}
+        or re.fullmatch(r"[A-Za-z0-9._~-]+", segment) is None
+        for segment in segments
+    ):
+        _invalid_input()
+    return value
+
+
+def _metadata_scalar(value: object) -> str:
+    if not isinstance(value, (bool, int, str)) or isinstance(value, str) and not 1 <= len(value) <= 512:
+        _invalid_input()
+    return json.dumps(value, separators=(",", ":"), ensure_ascii=False)
+
+
+def _positive_size(value: int) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= 10_737_418_240:
+        _invalid_input()
+    return value
+
+
+def _timestamp(value: str) -> str:
+    if not isinstance(value, str) or not value or len(value) > 64:
+        _invalid_input()
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            _invalid_input()
+    except ValueError as error:
+        raise CavernClientError("CAVERN_CLIENT_INPUT_INVALID") from error
+    return value
+
+
+def _bounded_read(response: HttpResponse, limit: int) -> bytes:
+    try:
+        raw = response.body.read(limit + 1)
+    except Exception as error:
+        response.close()
+        raise CavernClientError("CAVERN_CLIENT_NETWORK") from error
+    response.close()
+    if not isinstance(raw, bytes) or not raw or len(raw) > limit:
+        _invalid_response()
+    return raw
+
+
+def _safe_integer(value: str | None) -> int | None:
+    if value is None or not re.fullmatch(r"0|[1-9][0-9]{0,15}", value):
+        return None
+    parsed = int(value)
+    return parsed if parsed <= 9_007_199_254_740_991 else None
+
+
+def _headers(value: Message | HTTPMessage) -> Mapping[str, str]:
+    return {key.lower(): item for key, item in value.items()}
+
+
+def _invalid_input() -> None:
+    raise CavernClientError("CAVERN_CLIENT_INPUT_INVALID")
+
+
+def _invalid_response() -> None:
+    raise CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID")

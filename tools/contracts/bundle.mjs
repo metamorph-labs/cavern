@@ -135,11 +135,6 @@ export function compareVersions(leftValue, rightValue) {
   return 0;
 }
 
-function compatibilityLine(version) {
-  const parsed = parseVersion(version);
-  return parsed.major === 0 ? `0.${parsed.minor}` : `${parsed.major}`;
-}
-
 function inspectPath(path) {
   if (path === "manifest.json") {
     throw new Error("manifest.json cannot list itself");
@@ -175,12 +170,12 @@ function inspectContent(path, bytes) {
 }
 
 function validateManifestShape(manifest) {
-  if (manifest.formatVersion !== 1 || manifest.product !== "almira") {
+  if (manifest.formatVersion !== 1 || manifest.product !== "cavern") {
     throw new Error("unsupported contract bundle identity or format");
   }
   parseVersion(manifest.contractVersion);
   if (
-    manifest.source?.repository !== "metamorph-labs/almira-core" ||
+    manifest.source?.repository !== "metamorph-labs/cavern-core" ||
     manifest.source?.algorithm !== "sha256" ||
     !digestPattern.test(manifest.source?.digest ?? "")
   ) {
@@ -266,7 +261,7 @@ export async function verifyBundle(rootArgument = installedBundleRoot) {
   return manifest;
 }
 
-export function assertCompatible(current, candidate) {
+export function assertCandidateProgression(current, candidate) {
   if (current.formatVersion !== candidate.formatVersion || current.product !== candidate.product) {
     throw new Error("candidate changes the contract bundle identity or format");
   }
@@ -276,20 +271,6 @@ export function assertCompatible(current, candidate) {
   }
   if (order === 0 && candidate.bundle.digest !== current.bundle.digest) {
     throw new Error("candidate changes content without changing contractVersion");
-  }
-  if (
-    order > 0 &&
-    compatibilityLine(candidate.contractVersion) === compatibilityLine(current.contractVersion)
-  ) {
-    const candidatePaths = new Set(candidate.files.map((file) => file.path));
-    const removed = current.files
-      .map((file) => file.path)
-      .filter((path) => !candidatePaths.has(path));
-    if (removed.length > 0) {
-      throw new Error(
-        `candidate removes files within a compatibility line: ${removed.join(", ")}`,
-      );
-    }
   }
 }
 
@@ -310,7 +291,7 @@ export async function acceptBundle(candidateArgument, destinationRoot = installe
   let current;
   if (await exists(destinationRoot)) {
     current = await verifyBundle(destinationRoot);
-    assertCompatible(current, candidate);
+    assertCandidateProgression(current, candidate);
     if (current.bundle.digest === candidate.bundle.digest) {
       return candidate;
     }

@@ -1,4 +1,4 @@
-package almira
+package cavern
 
 import (
 	"bytes"
@@ -19,9 +19,9 @@ import (
 
 var (
 	uuidV7Pattern       = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
-	capabilityPattern   = regexp.MustCompile(`^alm_(?:cap|local)_v1\.[A-Za-z0-9_.-]{20,}$`)
-	sharePattern        = regexp.MustCompile(`^alm_share_v1\.[A-Za-z0-9_-]{43}$`)
-	apiErrorPattern     = regexp.MustCompile(`^ALMIRA_[A-Z0-9_]{1,120}$`)
+	capabilityPattern   = regexp.MustCompile(`^cav_(?:cap|local)_v1\.[A-Za-z0-9_.-]{20,}$`)
+	sharePattern        = regexp.MustCompile(`^cav_share_v1\.[A-Za-z0-9_-]{43}$`)
+	apiErrorPattern     = regexp.MustCompile(`^CAVERN_[A-Z0-9_]{1,120}$`)
 	byteRangePattern    = regexp.MustCompile(`^bytes=[0-9]+-[0-9]*$`)
 	variantPattern      = regexp.MustCompile(`^[a-z0-9](?:[a-z0-9._/-]*[a-z0-9])?$`)
 	metadataNamePattern = regexp.MustCompile(`^[a-z](?:[a-z0-9._-]{0,62}[a-z0-9])?$`)
@@ -325,7 +325,7 @@ func (c *Client) do(
 				var err error
 				capability, err = c.capabilityProvider(ctx)
 				if err != nil {
-					return nil, clientFailure("ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE")
+					return nil, clientFailure("CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE")
 				}
 			}
 			if capability != "" {
@@ -345,10 +345,10 @@ func (c *Client) do(
 		response, err := c.http.Do(request)
 		if err != nil {
 			if ctx.Err() != nil {
-				return nil, clientFailure("ALMIRA_CLIENT_ABORTED")
+				return nil, clientFailure("CAVERN_CLIENT_ABORTED")
 			}
 			if attempt == c.retry.MaxAttempts {
-				return nil, clientFailure("ALMIRA_CLIENT_NETWORK")
+				return nil, clientFailure("CAVERN_CLIENT_NETWORK")
 			}
 			if err := waitForRetry(ctx, retryDelay(c.retry, attempt, "")); err != nil {
 				return nil, err
@@ -369,7 +369,7 @@ func (c *Client) do(
 			return nil, err
 		}
 	}
-	return nil, clientFailure("ALMIRA_CLIENT_NETWORK")
+	return nil, clientFailure("CAVERN_CLIENT_NETWORK")
 }
 
 func retryableStatus(status int) bool {
@@ -398,7 +398,7 @@ func waitForRetry(ctx context.Context, delay time.Duration) error {
 	case <-timer.C:
 		return nil
 	case <-ctx.Done():
-		return clientFailure("ALMIRA_CLIENT_ABORTED")
+		return clientFailure("CAVERN_CLIENT_ABORTED")
 	}
 }
 
@@ -429,7 +429,7 @@ func boundedBody(response *http.Response, limit int64) ([]byte, error) {
 	defer response.Body.Close()
 	raw, err := io.ReadAll(io.LimitReader(response.Body, limit+1))
 	if err != nil {
-		return nil, clientFailure("ALMIRA_CLIENT_NETWORK")
+		return nil, clientFailure("CAVERN_CLIENT_NETWORK")
 	}
 	if len(raw) == 0 || int64(len(raw)) > limit {
 		return nil, invalidResponse()
@@ -722,5 +722,5 @@ func safeContentLength(value string) *int64 {
 }
 
 func clientFailure(code string) error { return &ClientError{Code: code} }
-func invalidInput() error             { return clientFailure("ALMIRA_CLIENT_INPUT_INVALID") }
-func invalidResponse() error          { return clientFailure("ALMIRA_CLIENT_RESPONSE_INVALID") }
+func invalidInput() error             { return clientFailure("CAVERN_CLIENT_INPUT_INVALID") }
+func invalidResponse() error          { return clientFailure("CAVERN_CLIENT_RESPONSE_INVALID") }

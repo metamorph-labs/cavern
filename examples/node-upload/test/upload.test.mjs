@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { AlmiraClient } from "@metamorph-labs/almira-sdk";
+import { CavernClient } from "@metamorph-labs/cavern-sdk";
 
 import { cleanupVerifiedUpload, uploadAndVerifyFile, uploadFile } from "../dist/upload.js";
 import { createNextUploadRoute } from "../dist/next-route-handler.js";
@@ -24,8 +24,8 @@ function json(value, status = 200) {
 
 test("example performs create, direct PUT and finalize without credential crossover", async () => {
   const controlCalls = [];
-  const client = new AlmiraClient({
-    baseUrl: "https://almira.test",
+  const client = new CavernClient({
+    baseUrl: "https://cavern.test",
     credential: "mm_sak_v1.test",
     fetch: async (input, init) => {
       controlCalls.push({ input, init });
@@ -83,7 +83,7 @@ test("example performs create, direct PUT and finalize without credential crosso
   assert.equal(controlCalls.length, 2);
   assert.equal(controlCalls[0].init.headers.get("authorization"), "Bearer mm_sak_v1.test");
   assert.equal(controlCalls[1].init.headers.get("authorization"), "Bearer mm_sak_v1.test");
-  assert.equal(controlCalls[0].init.headers.get("x-almira-tenant-id"), tenantId);
+  assert.equal(controlCalls[0].init.headers.get("x-cavern-tenant-id"), tenantId);
   assert.equal(directAuthorization, null);
   assert.equal(generation.entry_id, entryId);
   assert.equal(generation.generation_id, generationId);
@@ -92,7 +92,7 @@ test("example performs create, direct PUT and finalize without credential crosso
 test("example obtains multipart grants only after hashing each exact part", async () => {
   const controlCalls = [];
   const partDigests = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_sak_v1.test",
     fetch: async (input, init) => {
       controlCalls.push({ input, init });
@@ -179,12 +179,12 @@ test("example obtains and verifies the canonical positive, retry, refusal, and s
   const publicKey = Buffer.from(await crypto.subtle.exportKey("raw", pair.publicKey)).toString("base64url");
   const calls = [];
   let verificationAttempts = 0;
-  const client = new AlmiraClient({
-    baseUrl: "https://almira.test",
+  const client = new CavernClient({
+    baseUrl: "https://cavern.test",
     credential: "mm_sak_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
-      if (input.endsWith("/.well-known/almira-verification-keys.json")) {
+      if (input.endsWith("/.well-known/cavern-verification-keys.json")) {
         return json({
           format_version: 1,
           keys: [{ key_id: "key-1", algorithm: "ed25519", public_key: publicKey }],
@@ -221,13 +221,13 @@ test("example obtains and verifies the canonical positive, retry, refusal, and s
       }
       if (input.endsWith("/verifications") && verificationAttempts++ === 0) {
         return json({
-          code: "ALMIRA_VERIFICATION_CHECK_FAILED",
+          code: "CAVERN_VERIFICATION_CHECK_FAILED",
           request_id: "018f0000-0000-7000-8000-000000000013",
         }, 409);
       }
       const receipt = {
-        receipt_version: "almira.verification.v1",
-        contract_version: "0.1.0-dev.60",
+        receipt_version: "cavern.verification.v1",
+        contract_version: "0.1.0-dev.64",
         verification_id: verificationId,
         realm_id: realmId,
         tenant_id: tenantId,
@@ -291,14 +291,14 @@ test("Next.js-compatible route delegates app authorization before storage work",
   });
   const refused = await route(new Request("https://app.test/api/files", { method: "POST" }));
   assert.equal(refused.status, 403);
-  assert.deepEqual(await refused.json(), { code: "ALMIRA_EXAMPLE_FORBIDDEN" });
+  assert.deepEqual(await refused.json(), { code: "CAVERN_EXAMPLE_FORBIDDEN" });
   authorized = true;
   const invalid = await route(new Request("https://app.test/api/files", {
     method: "POST",
     body: new FormData(),
   }));
   assert.equal(invalid.status, 400);
-  assert.deepEqual(await invalid.json(), { code: "ALMIRA_EXAMPLE_INPUT_INVALID" });
+  assert.deepEqual(await invalid.json(), { code: "CAVERN_EXAMPLE_INPUT_INVALID" });
 });
 
 test("verified canary cleanup reads the current revision before deletion", async () => {

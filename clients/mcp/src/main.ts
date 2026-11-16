@@ -1,25 +1,25 @@
 #!/usr/bin/env node
 
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
-import { AlmiraClient } from "@metamorph-labs/almira-sdk";
+import { CavernClient } from "@metamorph-labs/cavern-sdk";
 
-import { createAlmiraMcpServer } from "./server.js";
+import { createCavernMcpServer } from "./server.js";
 
-const baseUrl = process.env.ALMIRA_BASE_URL;
+const baseUrl = process.env.CAVERN_BASE_URL;
 const credential = process.env.METAMORPH_TOKEN;
 
 if (baseUrl === undefined || baseUrl.length === 0) {
-  console.error(JSON.stringify({ code: "ALMIRA_MCP_BASE_URL_REQUIRED" }));
+  console.error(JSON.stringify({ code: "CAVERN_MCP_BASE_URL_REQUIRED" }));
   process.exitCode = 2;
 } else if (credential === undefined || credential.length === 0) {
-  console.error(JSON.stringify({ code: "ALMIRA_MCP_TOKEN_REQUIRED" }));
+  console.error(JSON.stringify({ code: "CAVERN_MCP_TOKEN_REQUIRED" }));
   process.exitCode = 2;
 } else {
   try {
-    const client = new AlmiraClient({ baseUrl, credential });
-    await serveStdio(() => createAlmiraMcpServer(client));
+    const client = new CavernClient({ baseUrl, credential });
+    await serveStdio(() => createCavernMcpServer(client));
   } catch {
-    console.error(JSON.stringify({ code: "ALMIRA_MCP_RUNTIME_FAILED" }));
+    console.error(JSON.stringify({ code: "CAVERN_MCP_RUNTIME_FAILED" }));
     process.exitCode = 1;
   }
 }

@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart';
 
-const _contractVersion = '0.1.0-dev.60';
+const _contractVersion = '0.1.0-dev.64';
 final _uuidV7 = RegExp(
     r'^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$');
 final _digest = RegExp(r'^sha256:[0-9a-f]{64}$');
@@ -82,7 +82,7 @@ bool _validReceipt(Map<String, Object?> receipt) {
   };
   final size = receipt['expected_size_bytes'];
   if (!_exactKeys(receipt, fields) ||
-      receipt['receipt_version'] != 'almira.verification.v1' ||
+      receipt['receipt_version'] != 'cavern.verification.v1' ||
       receipt['contract_version'] != _contractVersion ||
       receipt['signing_key_id'] is! String ||
       !_keyId.hasMatch(receipt['signing_key_id'] as String) ||

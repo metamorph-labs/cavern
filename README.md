@@ -1,40 +1,40 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/brand/almira-horizontal-on-dark.svg">
-  <img alt="Almira" src="assets/brand/almira-horizontal-on-light.svg" width="203">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/brand/cavern-horizontal-on-dark.svg">
+  <img alt="Cavern" src="assets/brand/cavern-horizontal-on-light.svg" width="203">
 </picture>
 
-# Almira
+# Cavern
 
-This is the public developer repository for Almira, Metamorph's application file-storage and media
+This is the public developer repository for Cavern, Metamorph's application file-storage and media
 delivery product.
 
 It contains the open-source application SDKs, released schemas, CLI, MCP server, Codex and Claude
-Code plugins, and examples. Almira's backend, console, embedded helper, deployment assets, platform
+Code plugins, and examples. Cavern's backend, console, embedded helper, deployment assets, platform
 registrations, product architecture and private qualification evidence live in the private
-`almira-core` repository and are not mirrored here.
+`cavern-core` repository and are not mirrored here.
 
 The repository is licensed under [Apache-2.0](LICENSE). Packages are added only with an
 independently buildable client or contract slice; empty future SDK/client scaffolding is not kept
 here.
 
 Released public contracts are installed under [`contracts/`](contracts/) from a deterministic,
-digest-bound bundle produced by `almira-core`. Run `pnpm contracts:verify` to verify the installed
+digest-bound bundle produced by `cavern-core`. Run `pnpm contracts:verify` to verify the installed
 bundle independently; see [`AGENTS.md`](AGENTS.md) before proposing a contract change.
 
-[`contracts/apps`](contracts/apps/) contains Almira's reviewed and admitted `APP-01`
+[`contracts/apps`](contracts/apps/) contains Cavern's reviewed and admitted `APP-01`
 product-surface contribution: exact operation/event schemas, stable-ID ceilings, separately
-disclosed byte and external-processing permissions, and refusal vectors. Almira exposes all 17
+disclosed byte and external-processing permissions, and refusal vectors. Cavern exposes all 17
 operations as one complete app-authenticated plane; admission, installation authentication,
 suspension, uninstall and webhook delivery remain owned by the common Metamorph Apps capability.
 
-Declarative setup uses the closed [`almira.yaml`](examples/almira.yaml) v1 format. Preview is
+Declarative setup uses the closed [`cavern.yaml`](examples/cavern.yaml) v1 format. Preview is
 read-only and additive; apply preserves unlisted resources and executes the same scoped operations
 available individually through the SDK, CLI, MCP server, and console. A class-only collection
 change starts the same governed, resumable storage migration exposed by those surfaces.
 Collection malware policy is equally declarative: changing it affects new generations only, while
 an exact-generation rescan immediately gates delivery until FileService returns a clean verdict.
 The same operation is replayed with current authority to refresh queued, retrying, cleanup or
-terminal FileService state; no Almira client or worker stores caller credentials for polling.
+terminal FileService state; no Cavern client or worker stores caller credentials for polling.
 
 Projects may also enroll customer-owned AWS S3, Google Cloud Storage, or Azure Blob targets. The
 enrollment request contains provider coordinates and a workload-federation identity, never a cloud
@@ -49,7 +49,7 @@ realization, then one revision-bound operation atomically restores the environme
 
 The dependency-light TypeScript client is in [`sdks/typescript`](sdks/typescript). It covers every
 operation in the promoted contract and supports same-origin browser sessions, PATs, SAKs and
-short-lived workload evidence through the standard Fetch API. Its separate `AlmiraDataClient`
+short-lived workload evidence through the standard Fetch API. Its separate `CavernDataClient`
 accepts only end-user capability tokens and exposes capability-backed metadata, immutable CDN
 generation reads, and share reads without admitting management credentials. The server-side
 capability helper exchanges current workload evidence for that isolated data client in one call.
@@ -85,8 +85,8 @@ The .NET 8+ SDK is in [`sdks/dotnet`](sdks/dotnet). It provides asynchronous `Ht
 data and server clients, disposable streaming responses, seekable direct transfer and exact
 APP-01 webhook verification without admitting PAT/SAK management credentials.
 
-The Swift 6 package is in [`sdks/swift`](sdks/swift). Its mobile-safe `Almira` module contains only
-capability data access and file-backed direct transfer; the separate `AlmiraServer` module contains
+The Swift 6 package is in [`sdks/swift`](sdks/swift). Its mobile-safe `Cavern` module contains only
+capability data access and file-backed direct transfer; the separate `CavernServer` module contains
 the short-lived workload and webhook surface for trusted server processes.
 
 The PHP 8.2+ and Ruby 3.2+ SDKs are in [`sdks/php`](sdks/php) and [`sdks/ruby`](sdks/ruby). Both
@@ -94,10 +94,10 @@ use closeable file-backed binary responses, resolve capabilities for each retry 
 workload clients plus direct-transfer and webhook helpers. They contain no management operations.
 
 The Dart and Flutter SDK is in [`sdks/dart`](sdks/dart). Its default library is capability-only
-and streams binary responses and direct uploads; the separate `almira_server.dart` library is an
+and streams binary responses and direct uploads; the separate `cavern_server.dart` library is an
 explicit trusted-server import for workload exchange and webhook verification.
 
-Every application SDK verifies the complete Ed25519-signed Almira behavior receipt with the same
+Every application SDK verifies the complete Ed25519-signed Cavern behavior receipt with the same
 closed shape and exact resource-binding checks as TypeScript. Kotlin delegates to the Java
 verifier. The language suites consume the shared
 [`conformance/application-sdk.v1.json`](conformance/application-sdk.v1.json) vector for the signed
@@ -148,7 +148,7 @@ Environment compliance engineering profiles use the same management plane. The T
 CLI, MCP server and coding-agent plugins can list, preview, activate and remove the initial
 GDPR-supporting and HIPAA-eligible storage profiles. Preview exposes exact technical blockers,
 enforced effects and customer responsibilities; activation is revision-bound and replay-safe. A
-profile covers only that Almira storage environment and is never application or organization
+profile covers only that Cavern storage environment and is never application or organization
 certification. External review, owner-fact materialization, provider/deployment evidence and
 signed CMP catalog admission gate only publication or marketing of the corresponding claim; they
 do not prevent selecting or enforcing the non-certifying technical profile.
@@ -160,7 +160,7 @@ approval layer.
 
 [`examples/node-upload`](examples/node-upload) exercises the complete SDK upload path: create a
 transfer, choose single-put or multipart from the returned descriptor, obtain each checksum-bound
-multipart part grant only when needed, PUT bytes without an Almira credential, and finalize the
+multipart part grant only when needed, PUT bytes without an Cavern credential, and finalize the
 resulting generation.
 
 [`examples/frameworks`](examples/frameworks) adds executable Spring Boot, Ktor, ASP.NET, FastAPI,

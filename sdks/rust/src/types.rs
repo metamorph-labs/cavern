@@ -235,6 +235,6 @@ impl BinaryResponse {
             .chunk()
             .await
             .map(|chunk| chunk.map(|value| value.to_vec()))
-            .map_err(|_| client_error("ALMIRA_CLIENT_NETWORK"))
+            .map_err(|_| client_error("CAVERN_CLIENT_NETWORK"))
     }
 }

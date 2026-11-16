@@ -1,17 +1,17 @@
 {
-  "author_product_id": "almira",
-  "product_id": "almira",
+  "author_product_id": "cavern",
+  "product_id": "cavern",
   "surface_version": 1,
   "supported_project_kind_ids": [
-    "almira.storage"
+    "cavern.storage"
   ],
   "schemas": [
     {
-      "schema_id": "almira.app.delivery-create.input.v1",
+      "schema_id": "cavern.app.delivery-create.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/delivery-create.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/delivery-create.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -85,11 +85,11 @@
       }
     },
     {
-      "schema_id": "almira.app.delivery-create.output.v1",
+      "schema_id": "cavern.app.delivery-create.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/delivery-create.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/delivery-create.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -153,11 +153,11 @@
       }
     },
     {
-      "schema_id": "almira.app.diagnostics-read.input.v1",
+      "schema_id": "cavern.app.diagnostics-read.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/diagnostics-read.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/diagnostics-read.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -249,11 +249,11 @@
       }
     },
     {
-      "schema_id": "almira.app.diagnostics-read.output.v1",
+      "schema_id": "cavern.app.diagnostics-read.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/diagnostics-read.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/diagnostics-read.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -306,11 +306,11 @@
       }
     },
     {
-      "schema_id": "almira.app.external-job-complete.input.v1",
+      "schema_id": "cavern.app.external-job-complete.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/external-job-complete.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/external-job-complete.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -406,7 +406,7 @@
                   "parts": {
                     "type": "array",
                     "minItems": 1,
-                    "maxItems": 10000,
+                    "maxItems": 256,
                     "items": {
                       "type": "object",
                       "additionalProperties": false,
@@ -474,11 +474,11 @@
       }
     },
     {
-      "schema_id": "almira.app.external-job-complete.output.v1",
+      "schema_id": "cavern.app.external-job-complete.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/external-job-complete.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/external-job-complete.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -580,11 +580,11 @@
       }
     },
     {
-      "schema_id": "almira.app.external-job-create.input.v1",
+      "schema_id": "cavern.app.external-job-create.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/external-job-create.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/external-job-create.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -675,11 +675,11 @@
       }
     },
     {
-      "schema_id": "almira.app.external-job-create.output.v1",
+      "schema_id": "cavern.app.external-job-create.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/external-job-create.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/external-job-create.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -781,11 +781,11 @@
       }
     },
     {
-      "schema_id": "almira.app.external-job-input.input.v1",
+      "schema_id": "cavern.app.external-job-input.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/external-job-input.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/external-job-input.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -860,11 +860,11 @@
       }
     },
     {
-      "schema_id": "almira.app.external-job-input.output.v1",
+      "schema_id": "cavern.app.external-job-input.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/external-job-input.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/external-job-input.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -959,11 +959,11 @@
       }
     },
     {
-      "schema_id": "almira.app.external-job-output-part-create.input.v1",
+      "schema_id": "cavern.app.external-job-output-part-create.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/external-job-output-part-create.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/external-job-output-part-create.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1059,11 +1059,11 @@
       }
     },
     {
-      "schema_id": "almira.app.external-job-output-part-create.output.v1",
+      "schema_id": "cavern.app.external-job-output-part-create.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/external-job-output-part-create.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/external-job-output-part-create.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1175,11 +1175,11 @@
       }
     },
     {
-      "schema_id": "almira.app.external-job-output.input.v1",
+      "schema_id": "cavern.app.external-job-output.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/external-job-output.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/external-job-output.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1271,11 +1271,11 @@
       }
     },
     {
-      "schema_id": "almira.app.external-job-output.output.v1",
+      "schema_id": "cavern.app.external-job-output.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/external-job-output.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/external-job-output.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1525,11 +1525,11 @@
       }
     },
     {
-      "schema_id": "almira.app.external-job-status.input.v1",
+      "schema_id": "cavern.app.external-job-status.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/external-job-status.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/external-job-status.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1622,11 +1622,11 @@
       }
     },
     {
-      "schema_id": "almira.app.external-job-status.output.v1",
+      "schema_id": "cavern.app.external-job-status.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/external-job-status.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/external-job-status.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1715,11 +1715,11 @@
       }
     },
     {
-      "schema_id": "almira.app.file-search.input.v1",
+      "schema_id": "cavern.app.file-search.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/file-search.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/file-search.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1850,11 +1850,11 @@
       }
     },
     {
-      "schema_id": "almira.app.file-search.output.v1",
+      "schema_id": "cavern.app.file-search.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/file-search.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/file-search.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1952,11 +1952,11 @@
       }
     },
     {
-      "schema_id": "almira.app.metadata-replace.input.v1",
+      "schema_id": "cavern.app.metadata-replace.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/metadata-replace.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/metadata-replace.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2068,11 +2068,11 @@
       }
     },
     {
-      "schema_id": "almira.app.metadata-replace.output.v1",
+      "schema_id": "cavern.app.metadata-replace.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/metadata-replace.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/metadata-replace.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2166,11 +2166,11 @@
       }
     },
     {
-      "schema_id": "almira.app.operation-get.input.v1",
+      "schema_id": "cavern.app.operation-get.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/operation-get.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/operation-get.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2263,11 +2263,11 @@
       }
     },
     {
-      "schema_id": "almira.app.operation-get.output.v1",
+      "schema_id": "cavern.app.operation-get.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/operation-get.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/operation-get.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2349,11 +2349,11 @@
       }
     },
     {
-      "schema_id": "almira.app.processing-request.input.v1",
+      "schema_id": "cavern.app.processing-request.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/processing-request.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/processing-request.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2436,11 +2436,11 @@
       }
     },
     {
-      "schema_id": "almira.app.processing-request.output.v1",
+      "schema_id": "cavern.app.processing-request.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/processing-request.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/processing-request.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2542,11 +2542,11 @@
       }
     },
     {
-      "schema_id": "almira.app.resource-discover.input.v1",
+      "schema_id": "cavern.app.resource-discover.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/resource-discover.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/resource-discover.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2667,11 +2667,11 @@
       }
     },
     {
-      "schema_id": "almira.app.resource-discover.output.v1",
+      "schema_id": "cavern.app.resource-discover.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/resource-discover.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/resource-discover.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2766,11 +2766,11 @@
       }
     },
     {
-      "schema_id": "almira.app.transfer-create.input.v1",
+      "schema_id": "cavern.app.transfer-create.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/transfer-create.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/transfer-create.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2872,11 +2872,11 @@
       }
     },
     {
-      "schema_id": "almira.app.transfer-create.output.v1",
+      "schema_id": "cavern.app.transfer-create.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/transfer-create.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/transfer-create.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3121,11 +3121,11 @@
       }
     },
     {
-      "schema_id": "almira.app.transfer-finalize.input.v1",
+      "schema_id": "cavern.app.transfer-finalize.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/transfer-finalize.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/transfer-finalize.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3227,7 +3227,7 @@
                   "parts": {
                     "type": "array",
                     "minItems": 1,
-                    "maxItems": 10000,
+                    "maxItems": 256,
                     "items": {
                       "type": "object",
                       "additionalProperties": false,
@@ -3293,11 +3293,11 @@
       }
     },
     {
-      "schema_id": "almira.app.transfer-finalize.output.v1",
+      "schema_id": "cavern.app.transfer-finalize.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/transfer-finalize.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/transfer-finalize.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3374,11 +3374,11 @@
       }
     },
     {
-      "schema_id": "almira.app.transfer-part-create.input.v1",
+      "schema_id": "cavern.app.transfer-part-create.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/transfer-part-create.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/transfer-part-create.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3473,11 +3473,11 @@
       }
     },
     {
-      "schema_id": "almira.app.transfer-part-create.output.v1",
+      "schema_id": "cavern.app.transfer-part-create.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/transfer-part-create.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/transfer-part-create.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3579,11 +3579,11 @@
       }
     },
     {
-      "schema_id": "almira.app.transfer-read.input.v1",
+      "schema_id": "cavern.app.transfer-read.input.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/transfer-read.input.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/transfer-read.input.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3653,11 +3653,11 @@
       }
     },
     {
-      "schema_id": "almira.app.transfer-read.output.v1",
+      "schema_id": "cavern.app.transfer-read.output.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/apps/transfer-read.output.v1.schema.json",
+        "$id": "https://contracts.cavern.dev/apps/transfer-read.output.v1.schema.json",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3747,12 +3747,12 @@
       }
     },
     {
-      "schema_id": "almira.delivery.event-payload.v1",
+      "schema_id": "cavern.delivery.event-payload.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/events/delivery-event.v1.schema.json",
-        "title": "Almira safe delivery configuration event payload",
+        "$id": "https://contracts.cavern.dev/events/delivery-event.v1.schema.json",
+        "title": "Cavern safe delivery configuration event payload",
         "type": "object",
         "additionalProperties": false,
         "required": [
@@ -3771,7 +3771,7 @@
             "const": 1
           },
           "event_type_id": {
-            "const": "almira.delivery.configuration.changed.v1"
+            "const": "cavern.delivery.configuration.changed.v1"
           },
           "environment_id": {
             "$ref": "#/$defs/uuid_v7"
@@ -3826,12 +3826,12 @@
       }
     },
     {
-      "schema_id": "almira.file.event-payload.v1",
+      "schema_id": "cavern.file.event-payload.v1",
       "schema_version": 1,
       "canonical_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://contracts.almira.dev/events/file-event.v1.schema.json",
-        "title": "Almira safe file event payload",
+        "$id": "https://contracts.cavern.dev/events/file-event.v1.schema.json",
+        "title": "Cavern safe file event payload",
         "allOf": [
           {
             "oneOf": [
@@ -3839,10 +3839,10 @@
                 "properties": {
                   "event_type_id": {
                     "enum": [
-                      "almira.file.upload.started.v1",
-                      "almira.file.upload.completed.v1",
-                      "almira.file.available.v1",
-                      "almira.file.generation.replaced.v1"
+                      "cavern.file.upload.started.v1",
+                      "cavern.file.upload.completed.v1",
+                      "cavern.file.available.v1",
+                      "cavern.file.generation.replaced.v1"
                     ]
                   }
                 },
@@ -3857,8 +3857,8 @@
                 "properties": {
                   "event_type_id": {
                     "enum": [
-                      "almira.file.deleted.v1",
-                      "almira.file.restored.v1"
+                      "cavern.file.deleted.v1",
+                      "cavern.file.restored.v1"
                     ]
                   }
                 },
@@ -3870,9 +3870,9 @@
                 "properties": {
                   "event_type_id": {
                     "enum": [
-                      "almira.file.protection.scan-completed.v1",
-                      "almira.file.protection.scan-failed.v1",
-                      "almira.file.protection.malware-detected.v1"
+                      "cavern.file.protection.scan-completed.v1",
+                      "cavern.file.protection.scan-failed.v1",
+                      "cavern.file.protection.malware-detected.v1"
                     ]
                   }
                 },
@@ -3887,7 +3887,7 @@
               {
                 "properties": {
                   "event_type_id": {
-                    "const": "almira.file.metadata.updated.v1"
+                    "const": "cavern.file.metadata.updated.v1"
                   }
                 },
                 "required": [
@@ -3898,8 +3898,8 @@
                 "properties": {
                   "event_type_id": {
                     "enum": [
-                      "almira.file.extraction.completed.v1",
-                      "almira.file.extraction.failed.v1"
+                      "cavern.file.extraction.completed.v1",
+                      "cavern.file.extraction.failed.v1"
                     ]
                   }
                 },
@@ -3915,8 +3915,8 @@
                 "properties": {
                   "event_type_id": {
                     "enum": [
-                      "almira.media.processing.completed.v1",
-                      "almira.media.processing.failed.v1"
+                      "cavern.media.processing.completed.v1",
+                      "cavern.media.processing.failed.v1"
                     ]
                   }
                 },
@@ -4063,18 +4063,20 @@
   ],
   "operations": [
     {
-      "operation_id": "almira.integration.delivery.create",
-      "input_schema_id": "almira.app.delivery-create.input.v1",
-      "output_schema_id": "almira.app.delivery-create.output.v1",
-      "permission_id": "almira.delivery.create",
+      "operation_id": "cavern.integration.delivery.create",
+      "consent_label": "Create file deliveries",
+      "consent_description": "Create deliveries for files and processing outputs in this project.",
+      "input_schema_id": "cavern.app.delivery-create.input.v1",
+      "output_schema_id": "cavern.app.delivery-create.output.v1",
+      "permission_id": "cavern.cavern_delivery.create",
       "actor_modes": [
         "autonomous",
         "user_delegated"
       ],
       "effect": "mutation",
       "idempotency": "operation_id_with_outcome_query",
-      "outcome_query_operation_id": "almira.integration.operation.get",
-      "audit_event_type_id": "almira.integration.delivery.create.v1",
+      "outcome_query_operation_id": "cavern.integration.operation.get",
+      "audit_event_type_id": "cavern.integration.delivery.create.v1",
       "data_categories": [
         {
           "category_id": "file_content",
@@ -4086,10 +4088,12 @@
       }
     },
     {
-      "operation_id": "almira.integration.diagnostics.read",
-      "input_schema_id": "almira.app.diagnostics-read.input.v1",
-      "output_schema_id": "almira.app.diagnostics-read.output.v1",
-      "permission_id": "almira.storage.read",
+      "operation_id": "cavern.integration.diagnostics.read",
+      "consent_label": "Read project diagnostics",
+      "consent_description": "View processing and storage diagnostic information for this project.",
+      "input_schema_id": "cavern.app.diagnostics-read.input.v1",
+      "output_schema_id": "cavern.app.diagnostics-read.output.v1",
+      "permission_id": "cavern.cavern_storage.read",
       "actor_modes": [
         "autonomous",
         "user_delegated"
@@ -4097,7 +4101,7 @@
       "effect": "read",
       "idempotency": "none",
       "outcome_query_operation_id": null,
-      "audit_event_type_id": "almira.integration.diagnostics.read.v1",
+      "audit_event_type_id": "cavern.integration.diagnostics.read.v1",
       "data_categories": [
         {
           "category_id": "operational_diagnostics",
@@ -4109,18 +4113,20 @@
       }
     },
     {
-      "operation_id": "almira.integration.external-job-output-part.create",
-      "input_schema_id": "almira.app.external-job-output-part-create.input.v1",
-      "output_schema_id": "almira.app.external-job-output-part-create.output.v1",
-      "permission_id": "almira.external_processing.execute",
+      "operation_id": "cavern.integration.external-job-output-part.create",
+      "consent_label": "Write external job output parts",
+      "consent_description": "Submit one part of output data for an external processing job.",
+      "input_schema_id": "cavern.app.external-job-output-part-create.input.v1",
+      "output_schema_id": "cavern.app.external-job-output-part-create.output.v1",
+      "permission_id": "cavern.cavern_external_processing.execute",
       "actor_modes": [
         "autonomous",
         "user_delegated"
       ],
       "effect": "mutation",
       "idempotency": "operation_id_with_outcome_query",
-      "outcome_query_operation_id": "almira.integration.operation.get",
-      "audit_event_type_id": "almira.integration.external-job-output-part.create.v1",
+      "outcome_query_operation_id": "cavern.integration.operation.get",
+      "audit_event_type_id": "cavern.integration.external-job-output-part.create.v1",
       "data_categories": [
         {
           "category_id": "file_content",
@@ -4132,18 +4138,20 @@
       }
     },
     {
-      "operation_id": "almira.integration.external-job.complete",
-      "input_schema_id": "almira.app.external-job-complete.input.v1",
-      "output_schema_id": "almira.app.external-job-complete.output.v1",
-      "permission_id": "almira.external_processing.execute",
+      "operation_id": "cavern.integration.external-job.complete",
+      "consent_label": "Complete external jobs",
+      "consent_description": "Submit completion results for external processing jobs in this project.",
+      "input_schema_id": "cavern.app.external-job-complete.input.v1",
+      "output_schema_id": "cavern.app.external-job-complete.output.v1",
+      "permission_id": "cavern.cavern_external_processing.execute",
       "actor_modes": [
         "autonomous",
         "user_delegated"
       ],
       "effect": "mutation",
       "idempotency": "operation_id_with_outcome_query",
-      "outcome_query_operation_id": "almira.integration.operation.get",
-      "audit_event_type_id": "almira.integration.external-job.complete.v1",
+      "outcome_query_operation_id": "cavern.integration.operation.get",
+      "audit_event_type_id": "cavern.integration.external-job.complete.v1",
       "data_categories": [
         {
           "category_id": "file_content",
@@ -4155,18 +4163,20 @@
       }
     },
     {
-      "operation_id": "almira.integration.external-job.create",
-      "input_schema_id": "almira.app.external-job-create.input.v1",
-      "output_schema_id": "almira.app.external-job-create.output.v1",
-      "permission_id": "almira.external_processing.execute",
+      "operation_id": "cavern.integration.external-job.create",
+      "consent_label": "Create external jobs",
+      "consent_description": "Start external processing jobs for project files.",
+      "input_schema_id": "cavern.app.external-job-create.input.v1",
+      "output_schema_id": "cavern.app.external-job-create.output.v1",
+      "permission_id": "cavern.cavern_external_processing.execute",
       "actor_modes": [
         "autonomous",
         "user_delegated"
       ],
       "effect": "mutation",
       "idempotency": "operation_id_with_outcome_query",
-      "outcome_query_operation_id": "almira.integration.operation.get",
-      "audit_event_type_id": "almira.integration.external-job.create.v1",
+      "outcome_query_operation_id": "cavern.integration.operation.get",
+      "audit_event_type_id": "cavern.integration.external-job.create.v1",
       "data_categories": [
         {
           "category_id": "file_content",
@@ -4178,18 +4188,20 @@
       }
     },
     {
-      "operation_id": "almira.integration.external-job.input",
-      "input_schema_id": "almira.app.external-job-input.input.v1",
-      "output_schema_id": "almira.app.external-job-input.output.v1",
-      "permission_id": "almira.file_content.read",
+      "operation_id": "cavern.integration.external-job.input",
+      "consent_label": "Read external job inputs",
+      "consent_description": "Obtain input data for an external processing job.",
+      "input_schema_id": "cavern.app.external-job-input.input.v1",
+      "output_schema_id": "cavern.app.external-job-input.output.v1",
+      "permission_id": "cavern.cavern_file_content.read",
       "actor_modes": [
         "autonomous",
         "user_delegated"
       ],
       "effect": "mutation",
       "idempotency": "operation_id_with_outcome_query",
-      "outcome_query_operation_id": "almira.integration.operation.get",
-      "audit_event_type_id": "almira.integration.external-job.input.v1",
+      "outcome_query_operation_id": "cavern.integration.operation.get",
+      "audit_event_type_id": "cavern.integration.external-job.input.v1",
       "data_categories": [
         {
           "category_id": "file_content",
@@ -4201,18 +4213,20 @@
       }
     },
     {
-      "operation_id": "almira.integration.external-job.output",
-      "input_schema_id": "almira.app.external-job-output.input.v1",
-      "output_schema_id": "almira.app.external-job-output.output.v1",
-      "permission_id": "almira.external_processing.execute",
+      "operation_id": "cavern.integration.external-job.output",
+      "consent_label": "Write external job outputs",
+      "consent_description": "Submit output data for an external processing job.",
+      "input_schema_id": "cavern.app.external-job-output.input.v1",
+      "output_schema_id": "cavern.app.external-job-output.output.v1",
+      "permission_id": "cavern.cavern_external_processing.execute",
       "actor_modes": [
         "autonomous",
         "user_delegated"
       ],
       "effect": "mutation",
       "idempotency": "operation_id_with_outcome_query",
-      "outcome_query_operation_id": "almira.integration.operation.get",
-      "audit_event_type_id": "almira.integration.external-job.output.v1",
+      "outcome_query_operation_id": "cavern.integration.operation.get",
+      "audit_event_type_id": "cavern.integration.external-job.output.v1",
       "data_categories": [
         {
           "category_id": "file_content",
@@ -4224,10 +4238,12 @@
       }
     },
     {
-      "operation_id": "almira.integration.external-job.status",
-      "input_schema_id": "almira.app.external-job-status.input.v1",
-      "output_schema_id": "almira.app.external-job-status.output.v1",
-      "permission_id": "almira.external_processing.execute",
+      "operation_id": "cavern.integration.external-job.status",
+      "consent_label": "Read external job status",
+      "consent_description": "View the progress and outcome of an external processing job.",
+      "input_schema_id": "cavern.app.external-job-status.input.v1",
+      "output_schema_id": "cavern.app.external-job-status.output.v1",
+      "permission_id": "cavern.cavern_external_processing.execute",
       "actor_modes": [
         "autonomous",
         "user_delegated"
@@ -4235,7 +4251,7 @@
       "effect": "read",
       "idempotency": "none",
       "outcome_query_operation_id": null,
-      "audit_event_type_id": "almira.integration.external-job.status.v1",
+      "audit_event_type_id": "cavern.integration.external-job.status.v1",
       "data_categories": [
         {
           "category_id": "processing_metadata",
@@ -4247,10 +4263,12 @@
       }
     },
     {
-      "operation_id": "almira.integration.file.search",
-      "input_schema_id": "almira.app.file-search.input.v1",
-      "output_schema_id": "almira.app.file-search.output.v1",
-      "permission_id": "almira.storage.read",
+      "operation_id": "cavern.integration.file.search",
+      "consent_label": "Search project files",
+      "consent_description": "Search file metadata in this project.",
+      "input_schema_id": "cavern.app.file-search.input.v1",
+      "output_schema_id": "cavern.app.file-search.output.v1",
+      "permission_id": "cavern.cavern_storage.read",
       "actor_modes": [
         "autonomous",
         "user_delegated"
@@ -4258,7 +4276,7 @@
       "effect": "read",
       "idempotency": "none",
       "outcome_query_operation_id": null,
-      "audit_event_type_id": "almira.integration.file.search.v1",
+      "audit_event_type_id": "cavern.integration.file.search.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4270,18 +4288,20 @@
       }
     },
     {
-      "operation_id": "almira.integration.metadata.replace",
-      "input_schema_id": "almira.app.metadata-replace.input.v1",
-      "output_schema_id": "almira.app.metadata-replace.output.v1",
-      "permission_id": "almira.app_metadata.update",
+      "operation_id": "cavern.integration.metadata.replace",
+      "consent_label": "Replace file metadata",
+      "consent_description": "Replace metadata for files in this project.",
+      "input_schema_id": "cavern.app.metadata-replace.input.v1",
+      "output_schema_id": "cavern.app.metadata-replace.output.v1",
+      "permission_id": "cavern.cavern_app_metadata.update",
       "actor_modes": [
         "autonomous",
         "user_delegated"
       ],
       "effect": "mutation",
       "idempotency": "operation_id_with_outcome_query",
-      "outcome_query_operation_id": "almira.integration.operation.get",
-      "audit_event_type_id": "almira.integration.metadata.replace.v1",
+      "outcome_query_operation_id": "cavern.integration.operation.get",
+      "audit_event_type_id": "cavern.integration.metadata.replace.v1",
       "data_categories": [
         {
           "category_id": "app_metadata",
@@ -4293,10 +4313,12 @@
       }
     },
     {
-      "operation_id": "almira.integration.operation.get",
-      "input_schema_id": "almira.app.operation-get.input.v1",
-      "output_schema_id": "almira.app.operation-get.output.v1",
-      "permission_id": "almira.storage.read",
+      "operation_id": "cavern.integration.operation.get",
+      "consent_label": "Read operation outcomes",
+      "consent_description": "View the status and result of a previously submitted operation.",
+      "input_schema_id": "cavern.app.operation-get.input.v1",
+      "output_schema_id": "cavern.app.operation-get.output.v1",
+      "permission_id": "cavern.cavern_storage.read",
       "actor_modes": [
         "autonomous",
         "user_delegated"
@@ -4304,7 +4326,7 @@
       "effect": "read",
       "idempotency": "none",
       "outcome_query_operation_id": null,
-      "audit_event_type_id": "almira.integration.operation.get.v1",
+      "audit_event_type_id": "cavern.integration.operation.get.v1",
       "data_categories": [
         {
           "category_id": "operational_diagnostics",
@@ -4316,18 +4338,20 @@
       }
     },
     {
-      "operation_id": "almira.integration.processing.request",
-      "input_schema_id": "almira.app.processing-request.input.v1",
-      "output_schema_id": "almira.app.processing-request.output.v1",
-      "permission_id": "almira.storage.update",
+      "operation_id": "cavern.integration.processing.request",
+      "consent_label": "Request file processing",
+      "consent_description": "Submit processing requests for project files.",
+      "input_schema_id": "cavern.app.processing-request.input.v1",
+      "output_schema_id": "cavern.app.processing-request.output.v1",
+      "permission_id": "cavern.cavern_storage.update",
       "actor_modes": [
         "autonomous",
         "user_delegated"
       ],
       "effect": "mutation",
       "idempotency": "operation_id_with_outcome_query",
-      "outcome_query_operation_id": "almira.integration.operation.get",
-      "audit_event_type_id": "almira.integration.processing.request.v1",
+      "outcome_query_operation_id": "cavern.integration.operation.get",
+      "audit_event_type_id": "cavern.integration.processing.request.v1",
       "data_categories": [
         {
           "category_id": "file_content",
@@ -4339,10 +4363,12 @@
       }
     },
     {
-      "operation_id": "almira.integration.resource.discover",
-      "input_schema_id": "almira.app.resource-discover.input.v1",
-      "output_schema_id": "almira.app.resource-discover.output.v1",
-      "permission_id": "almira.storage.read",
+      "operation_id": "cavern.integration.resource.discover",
+      "consent_label": "Discover project resources",
+      "consent_description": "List the resources available to this integration in the project.",
+      "input_schema_id": "cavern.app.resource-discover.input.v1",
+      "output_schema_id": "cavern.app.resource-discover.output.v1",
+      "permission_id": "cavern.cavern_storage.read",
       "actor_modes": [
         "autonomous",
         "user_delegated"
@@ -4350,7 +4376,7 @@
       "effect": "read",
       "idempotency": "none",
       "outcome_query_operation_id": null,
-      "audit_event_type_id": "almira.integration.resource.discover.v1",
+      "audit_event_type_id": "cavern.integration.resource.discover.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4362,45 +4388,20 @@
       }
     },
     {
-      "operation_id": "almira.integration.transfer-part.create",
-      "input_schema_id": "almira.app.transfer-part-create.input.v1",
-      "output_schema_id": "almira.app.transfer-part-create.output.v1",
-      "permission_id": "almira.storage.create",
+      "operation_id": "cavern.integration.transfer-part.create",
+      "consent_label": "Create file transfer parts",
+      "consent_description": "Submit one part of data for an in-progress file transfer.",
+      "input_schema_id": "cavern.app.transfer-part-create.input.v1",
+      "output_schema_id": "cavern.app.transfer-part-create.output.v1",
+      "permission_id": "cavern.cavern_storage.create",
       "actor_modes": [
         "autonomous",
         "user_delegated"
       ],
       "effect": "mutation",
       "idempotency": "operation_id_with_outcome_query",
-      "outcome_query_operation_id": "almira.integration.operation.get",
-      "audit_event_type_id": "almira.integration.transfer-part.create.v1",
-      "data_categories": [
-        {
-          "category_id": "file_content",
-          "classification": "restricted"
-        },
-        {
-          "category_id": "storage_metadata",
-          "classification": "confidential"
-        }
-      ],
-      "lifecycle": {
-        "state": "active"
-      }
-    },
-    {
-      "operation_id": "almira.integration.transfer.create",
-      "input_schema_id": "almira.app.transfer-create.input.v1",
-      "output_schema_id": "almira.app.transfer-create.output.v1",
-      "permission_id": "almira.storage.create",
-      "actor_modes": [
-        "autonomous",
-        "user_delegated"
-      ],
-      "effect": "mutation",
-      "idempotency": "operation_id_with_outcome_query",
-      "outcome_query_operation_id": "almira.integration.operation.get",
-      "audit_event_type_id": "almira.integration.transfer.create.v1",
+      "outcome_query_operation_id": "cavern.integration.operation.get",
+      "audit_event_type_id": "cavern.integration.transfer-part.create.v1",
       "data_categories": [
         {
           "category_id": "file_content",
@@ -4416,18 +4417,20 @@
       }
     },
     {
-      "operation_id": "almira.integration.transfer.finalize",
-      "input_schema_id": "almira.app.transfer-finalize.input.v1",
-      "output_schema_id": "almira.app.transfer-finalize.output.v1",
-      "permission_id": "almira.storage.update",
+      "operation_id": "cavern.integration.transfer.create",
+      "consent_label": "Create file transfers",
+      "consent_description": "Create a transfer for project file data.",
+      "input_schema_id": "cavern.app.transfer-create.input.v1",
+      "output_schema_id": "cavern.app.transfer-create.output.v1",
+      "permission_id": "cavern.cavern_storage.create",
       "actor_modes": [
         "autonomous",
         "user_delegated"
       ],
       "effect": "mutation",
       "idempotency": "operation_id_with_outcome_query",
-      "outcome_query_operation_id": "almira.integration.operation.get",
-      "audit_event_type_id": "almira.integration.transfer.finalize.v1",
+      "outcome_query_operation_id": "cavern.integration.operation.get",
+      "audit_event_type_id": "cavern.integration.transfer.create.v1",
       "data_categories": [
         {
           "category_id": "file_content",
@@ -4443,18 +4446,49 @@
       }
     },
     {
-      "operation_id": "almira.integration.transfer.read",
-      "input_schema_id": "almira.app.transfer-read.input.v1",
-      "output_schema_id": "almira.app.transfer-read.output.v1",
-      "permission_id": "almira.file_content.read",
+      "operation_id": "cavern.integration.transfer.finalize",
+      "consent_label": "Finalize file transfers",
+      "consent_description": "Commit the completion of a file transfer.",
+      "input_schema_id": "cavern.app.transfer-finalize.input.v1",
+      "output_schema_id": "cavern.app.transfer-finalize.output.v1",
+      "permission_id": "cavern.cavern_storage.update",
       "actor_modes": [
         "autonomous",
         "user_delegated"
       ],
       "effect": "mutation",
       "idempotency": "operation_id_with_outcome_query",
-      "outcome_query_operation_id": "almira.integration.operation.get",
-      "audit_event_type_id": "almira.integration.transfer.read.v1",
+      "outcome_query_operation_id": "cavern.integration.operation.get",
+      "audit_event_type_id": "cavern.integration.transfer.finalize.v1",
+      "data_categories": [
+        {
+          "category_id": "file_content",
+          "classification": "restricted"
+        },
+        {
+          "category_id": "storage_metadata",
+          "classification": "confidential"
+        }
+      ],
+      "lifecycle": {
+        "state": "active"
+      }
+    },
+    {
+      "operation_id": "cavern.integration.transfer.read",
+      "consent_label": "Read transfer data",
+      "consent_description": "Retrieve data for a transfer and record its progress.",
+      "input_schema_id": "cavern.app.transfer-read.input.v1",
+      "output_schema_id": "cavern.app.transfer-read.output.v1",
+      "permission_id": "cavern.cavern_file_content.read",
+      "actor_modes": [
+        "autonomous",
+        "user_delegated"
+      ],
+      "effect": "mutation",
+      "idempotency": "operation_id_with_outcome_query",
+      "outcome_query_operation_id": "cavern.integration.operation.get",
+      "audit_event_type_id": "cavern.integration.transfer.read.v1",
       "data_categories": [
         {
           "category_id": "file_content",
@@ -4468,9 +4502,9 @@
   ],
   "events": [
     {
-      "event_type_id": "almira.delivery.configuration.changed.v1",
-      "payload_schema_id": "almira.delivery.event-payload.v1",
-      "audit_event_type_id": "almira.delivery.configuration.changed.v1",
+      "event_type_id": "cavern.delivery.configuration.changed.v1",
+      "payload_schema_id": "cavern.delivery.event-payload.v1",
+      "audit_event_type_id": "cavern.delivery.configuration.changed.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4482,9 +4516,9 @@
       }
     },
     {
-      "event_type_id": "almira.file.available.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.file.available.v1",
+      "event_type_id": "cavern.file.available.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.file.available.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4496,9 +4530,9 @@
       }
     },
     {
-      "event_type_id": "almira.file.deleted.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.file.deleted.v1",
+      "event_type_id": "cavern.file.deleted.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.file.deleted.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4510,9 +4544,9 @@
       }
     },
     {
-      "event_type_id": "almira.file.extraction.completed.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.file.extraction.completed.v1",
+      "event_type_id": "cavern.file.extraction.completed.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.file.extraction.completed.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4524,9 +4558,9 @@
       }
     },
     {
-      "event_type_id": "almira.file.extraction.failed.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.file.extraction.failed.v1",
+      "event_type_id": "cavern.file.extraction.failed.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.file.extraction.failed.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4538,9 +4572,9 @@
       }
     },
     {
-      "event_type_id": "almira.file.generation.replaced.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.file.generation.replaced.v1",
+      "event_type_id": "cavern.file.generation.replaced.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.file.generation.replaced.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4552,9 +4586,9 @@
       }
     },
     {
-      "event_type_id": "almira.file.metadata.updated.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.file.metadata.updated.v1",
+      "event_type_id": "cavern.file.metadata.updated.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.file.metadata.updated.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4566,9 +4600,9 @@
       }
     },
     {
-      "event_type_id": "almira.file.protection.malware-detected.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.file.protection.malware-detected.v1",
+      "event_type_id": "cavern.file.protection.malware-detected.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.file.protection.malware-detected.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4580,9 +4614,9 @@
       }
     },
     {
-      "event_type_id": "almira.file.protection.scan-completed.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.file.protection.scan-completed.v1",
+      "event_type_id": "cavern.file.protection.scan-completed.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.file.protection.scan-completed.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4594,9 +4628,9 @@
       }
     },
     {
-      "event_type_id": "almira.file.protection.scan-failed.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.file.protection.scan-failed.v1",
+      "event_type_id": "cavern.file.protection.scan-failed.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.file.protection.scan-failed.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4608,9 +4642,9 @@
       }
     },
     {
-      "event_type_id": "almira.file.restored.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.file.restored.v1",
+      "event_type_id": "cavern.file.restored.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.file.restored.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4622,9 +4656,9 @@
       }
     },
     {
-      "event_type_id": "almira.file.upload.completed.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.file.upload.completed.v1",
+      "event_type_id": "cavern.file.upload.completed.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.file.upload.completed.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4636,9 +4670,9 @@
       }
     },
     {
-      "event_type_id": "almira.file.upload.started.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.file.upload.started.v1",
+      "event_type_id": "cavern.file.upload.started.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.file.upload.started.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4650,9 +4684,9 @@
       }
     },
     {
-      "event_type_id": "almira.media.processing.completed.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.media.processing.completed.v1",
+      "event_type_id": "cavern.media.processing.completed.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.media.processing.completed.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",
@@ -4664,9 +4698,9 @@
       }
     },
     {
-      "event_type_id": "almira.media.processing.failed.v1",
-      "payload_schema_id": "almira.file.event-payload.v1",
-      "audit_event_type_id": "almira.media.processing.failed.v1",
+      "event_type_id": "cavern.media.processing.failed.v1",
+      "payload_schema_id": "cavern.file.event-payload.v1",
+      "audit_event_type_id": "cavern.media.processing.failed.v1",
       "data_categories": [
         {
           "category_id": "storage_metadata",

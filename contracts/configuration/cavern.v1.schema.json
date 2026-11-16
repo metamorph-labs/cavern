@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.cavern.dev/configuration/cavern.v1.schema.json",
+  "title": "Cavern declarative configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "api_version",
+    "environments"
+  ],
+  "properties": {
+    "api_version": {
+      "const": "cavern/v1"
+    },
+    "environments": {
+      "type": "array",
+      "maxItems": 10,
+      "x-cavern-unique-by": "key",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "display_name",
+          "collections"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 48,
+            "pattern": "^[a-z][a-z0-9-]{0,46}[a-z0-9]$"
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[^\\s\\u0000-\\u001f\\u007f](?:[^\\u0000-\\u001f\\u007f]*[^\\s\\u0000-\\u001f\\u007f])?$"
+          },
+          "browser_origins": {
+            "type": "array",
+            "maxItems": 32,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255,
+              "x-cavern-canonical-origin": true
+            }
+          },
+          "collections": {
+            "type": "array",
+            "x-cavern-unique-by": "key",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "key",
+                "display_name",
+                "malware_scan_required"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[a-z]([a-z0-9_-]{0,62}[a-z0-9])?$"
+                },
+                "display_name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80,
+                  "pattern": "^[^\\s\\u0000-\\u001f\\u007f](?:[^\\u0000-\\u001f\\u007f]*[^\\s\\u0000-\\u001f\\u007f])?$"
+                },
+                "malware_scan_required": {
+                  "type": "boolean"
+                },
+                "storage_class": {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "express"
+                  ],
+                  "default": "normal"
+                },
+                "recycle_retention_days": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 3650,
+                  "default": 30
+                },
+                "extraction": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "content",
+                    "ocr",
+                    "transcription",
+                    "vector_indexing"
+                  ],
+                  "properties": {
+                    "content": {
+                      "type": "boolean"
+                    },
+                    "ocr": {
+                      "type": "boolean"
+                    },
+                    "transcription": {
+                      "type": "boolean"
+                    },
+                    "vector_indexing": {
+                      "type": "boolean"
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "vector_indexing": {
+                            "const": true
+                          }
+                        },
+                        "required": [
+                          "vector_indexing"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "content": {
+                            "const": true
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "media": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "image_presets": {
+                      "type": "object",
+                      "maxProperties": 16,
+                      "propertyNames": {
+                        "pattern": "^[a-z]([a-z0-9._-]{0,62}[a-z0-9])?$"
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "widths",
+                          "height",
+                          "fit",
+                          "formats",
+                          "without_enlargement"
+                        ],
+                        "properties": {
+                          "widths": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 8,
+                            "uniqueItems": true,
+                            "x-cavern-strictly-increasing": true,
+                            "items": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 8192
+                            }
+                          },
+                          "height": {
+                            "oneOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 8192
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "fit": {
+                            "type": "string",
+                            "enum": [
+                              "contain",
+                              "cover",
+                              "inside"
+                            ]
+                          },
+                          "formats": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 4,
+                            "uniqueItems": true,
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "avif",
+                                "webp",
+                                "jpeg",
+                                "png"
+                              ]
+                            }
+                          },
+                          "without_enlargement": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "default": {}
+                    },
+                    "document_previews": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "video_profile": {
+                      "oneOf": [
+                        {
+                          "const": "web_hls_v1"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,9 +1,9 @@
 {
-  "schema_id": "almira.public.application-sdk-conformance.v1",
+  "schema_id": "cavern.public.application-sdk-conformance.v1",
   "format_version": 1,
-  "contract_version": "0.1.0-dev.60",
+  "contract_version": "0.1.0-dev.64",
   "managed_development": {
-    "base_url": "https://almira.test",
+    "base_url": "https://cavern.test",
     "origin": "https://app.example",
     "reference": {
       "tenant_id": "018f0000-0000-7000-8000-000000000002",
@@ -13,7 +13,7 @@
       "entry_id": "018f0000-0000-7000-8000-000000000006"
     },
     "positive": {
-      "capability": "alm_local_v1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "capability": "cav_local_v1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       "response": {
         "entry_id": "018f0000-0000-7000-8000-000000000006",
         "logical_path": "conformance/canary.bin",
@@ -57,16 +57,16 @@
     },
     "refusal": {
       "credential": "mm_pat_v1.not-a-data-capability",
-      "client_code": "ALMIRA_CLIENT_INPUT_INVALID"
+      "client_code": "CAVERN_CLIENT_INPUT_INVALID"
     },
     "retry": {
       "capabilities": [
-        "alm_local_v1.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "alm_local_v1.ccccccccccccccccccccccccccccccccccccccccccc"
+        "cav_local_v1.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "cav_local_v1.ccccccccccccccccccccccccccccccccccccccccccc"
       ],
       "first_status": 503,
       "first_error": {
-        "code": "ALMIRA_TEMPORARILY_UNAVAILABLE",
+        "code": "CAVERN_TEMPORARILY_UNAVAILABLE",
         "request_id": "018f0000-0000-7000-8000-000000000008"
       },
       "retry_after_seconds": 0,
@@ -80,8 +80,8 @@
   "behavior_receipt": {
     "signed": {
       "receipt": {
-        "receipt_version": "almira.verification.v1",
-        "contract_version": "0.1.0-dev.60",
+        "receipt_version": "cavern.verification.v1",
+        "contract_version": "0.1.0-dev.64",
         "verification_id": "018f0000-0000-7000-8000-000000000021",
         "realm_id": "018f0000-0000-7000-8000-000000000022",
         "tenant_id": "018f0000-0000-7000-8000-000000000002",
@@ -114,7 +114,7 @@
         "signing_key_id": "dev-vector-1"
       },
       "algorithm": "ed25519",
-      "signature": "bul_dAViW4N_GvZZHTHDv3qMgW1s1_yBe19jh9gaL4R9mkBHd7Kf1R8XzQXlH9qNyBE6wuJGo4SryT5DIqrhCg"
+      "signature": "42UGNpq3H6nwGbURrH462EyVIPLFEylvQVLwu4j0DAuTU-92p4-G7EniJoplUbNHmo9uZtpuuuuzeK2fu8DACQ"
     },
     "key_set": {
       "format_version": 1,

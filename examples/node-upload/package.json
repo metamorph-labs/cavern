@@ -1,6 +1,6 @@
 {
-  "name": "@metamorph-labs/almira-example-node-upload",
-  "version": "0.1.0-dev.60",
+  "name": "@metamorph-labs/cavern-example-node-upload",
+  "version": "0.1.0-dev.64",
   "private": true,
   "type": "module",
   "license": "Apache-2.0",
@@ -10,7 +10,7 @@
     "test": "pnpm build && node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@metamorph-labs/almira-sdk": "workspace:*"
+    "@metamorph-labs/cavern-sdk": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "24.10.1",

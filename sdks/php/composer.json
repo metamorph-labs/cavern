@@ -1,6 +1,6 @@
 {
-  "name": "metamorph/almira",
-  "description": "Capability-only application SDK for Almira",
+  "name": "metamorph/cavern",
+  "description": "Capability-only application SDK for Cavern",
   "type": "library",
   "license": "Apache-2.0",
   "require": {
@@ -10,7 +10,7 @@
     "ext-sodium": "*"
   },
   "autoload": {
-    "files": ["src/Almira.php"]
+    "files": ["src/Cavern.php"]
   },
   "scripts": {
     "test": "php tests/client_test.php"

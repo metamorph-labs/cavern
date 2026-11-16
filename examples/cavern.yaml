@@ -1,0 +1,50 @@
+api_version: cavern/v1
+environments:
+  - key: development
+    display_name: Development
+    browser_origins:
+      - http://localhost:3000
+    collections:
+      - key: assets
+        display_name: Assets
+        malware_scan_required: true
+        storage_class: normal
+        recycle_retention_days: 30
+        extraction:
+          content: true
+          ocr: true
+          transcription: false
+          vector_indexing: true
+        media:
+          image_presets:
+            thumbnail:
+              widths: [256, 512]
+              height: 256
+              fit: cover
+              formats: [avif, webp]
+              without_enlargement: true
+          document_previews: false
+          video_profile: null
+  - key: production
+    display_name: Production
+    collections:
+      - key: assets
+        display_name: Assets
+        malware_scan_required: true
+        storage_class: normal
+        recycle_retention_days: 30
+        extraction:
+          content: true
+          ocr: true
+          transcription: false
+          vector_indexing: true
+        media:
+          image_presets:
+            thumbnail:
+              widths: [256, 512]
+              height: 256
+              fit: cover
+              formats: [avif, webp]
+              without_enlargement: true
+          document_previews: false
+          video_profile: null

@@ -1,3 +1,3 @@
-module github.com/metamorph-labs/almira/sdks/go
+module github.com/metamorph-labs/cavern/sdks/go
 
 go 1.23.0

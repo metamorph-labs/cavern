@@ -1,5 +1,5 @@
-name: almira_flutter_example
-description: Managed-development Almira capability read in Flutter.
+name: cavern_flutter_example
+description: Managed-development Cavern capability read in Flutter.
 publish_to: none
 version: 0.0.0
 environment:
@@ -7,7 +7,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  metamorph_almira:
+  metamorph_cavern:
     path: ../../../sdks/dart
 flutter:
   uses-material-design: true

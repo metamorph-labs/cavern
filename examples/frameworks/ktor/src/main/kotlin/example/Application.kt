@@ -1,8 +1,8 @@
 package example
 
-import com.metamorph.almira.kotlin.AlmiraDataClient
-import com.metamorph.almira.kotlin.FileReference
-import com.metamorph.almira.kotlin.RetryPolicy
+import com.metamorph.cavern.kotlin.CavernDataClient
+import com.metamorph.cavern.kotlin.FileReference
+import com.metamorph.cavern.kotlin.RetryPolicy
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.call
@@ -16,9 +16,9 @@ import io.ktor.server.routing.routing
 import java.time.Duration
 
 fun main() {
-    val client = AlmiraDataClient(
-        baseUrl = required("ALMIRA_BASE_URL"),
-        capability = { required("ALMIRA_CAPABILITY") },
+    val client = CavernDataClient(
+        baseUrl = required("CAVERN_BASE_URL"),
+        capability = { required("CAVERN_CAPABILITY") },
         retry = RetryPolicy(3, Duration.ofMillis(100), Duration.ofSeconds(2)),
     )
     embeddedServer(Netty, port = 8080) {
@@ -26,13 +26,13 @@ fun main() {
         routing {
             get("/files/{entryId}") {
                 if (call.request.headers["X-App-User"].isNullOrBlank()) {
-                    call.respond(HttpStatusCode.Forbidden, mapOf("code" to "ALMIRA_EXAMPLE_FORBIDDEN"))
+                    call.respond(HttpStatusCode.Forbidden, mapOf("code" to "CAVERN_EXAMPLE_FORBIDDEN"))
                     return@get
                 }
                 val entryId = call.parameters["entryId"] ?: return@get call.respond(HttpStatusCode.BadRequest)
                 call.respond(client.getFileMetadataWithCapability(FileReference(
-                    required("ALMIRA_TENANT_ID"), required("ALMIRA_PROJECT_ID"),
-                    required("ALMIRA_ENVIRONMENT_ID"), required("ALMIRA_COLLECTION_ID"), entryId,
+                    required("CAVERN_TENANT_ID"), required("CAVERN_PROJECT_ID"),
+                    required("CAVERN_ENVIRONMENT_ID"), required("CAVERN_COLLECTION_ID"), entryId,
                 )))
             }
         }

@@ -1,4 +1,4 @@
-import { AlmiraClientError } from "./errors.js";
+import { CavernClientError } from "./errors.js";
 import type {
   SignedVerificationReceipt,
   VerificationCheckName,
@@ -30,7 +30,7 @@ export interface VerificationReceiptExpectation {
   contentSha256: string;
 }
 
-/** Verifies a receipt against an explicitly trusted key set fetched from Almira's origin. */
+/** Verifies a receipt against an explicitly trusted key set fetched from Cavern's origin. */
 export async function verifyVerificationReceipt(
   signed: SignedVerificationReceipt,
   keySet: VerificationPublicKeySet,
@@ -102,8 +102,8 @@ function validReceipt(receipt: VerificationReceipt): boolean {
         "environment_id", "expected_size_bytes", "generation_id", "project_id", "realm_id",
         "receipt_version", "safety_state", "signing_key_id", "tenant_id", "verification_id",
       ]) ||
-      receipt.receipt_version !== "almira.verification.v1" ||
-      receipt.contract_version !== "0.1.0-dev.60" ||
+      receipt.receipt_version !== "cavern.verification.v1" ||
+      receipt.contract_version !== "0.1.0-dev.64" ||
       !KEY_ID.test(receipt.signing_key_id) ||
       !CONTENT_SHA256.test(receipt.content_sha256) ||
       !Number.isSafeInteger(receipt.expected_size_bytes) ||
@@ -149,7 +149,7 @@ function decodeBase64Url(value: string): Uint8Array<ArrayBuffer> {
     if (encodeBase64Url(bytes) !== value) throw new Error("non-canonical base64url");
     return bytes;
   } catch {
-    throw new AlmiraClientError("ALMIRA_CLIENT_RESPONSE_INVALID");
+    throw new CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID");
   }
 }
 

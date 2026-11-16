@@ -1,4 +1,4 @@
-rootProject.name = "almira-jvm"
+rootProject.name = "cavern-jvm"
 
 include("java", "kotlin")
 project(":java").projectDir = file("../java")

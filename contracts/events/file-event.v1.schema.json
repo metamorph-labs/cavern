@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://contracts.almira.dev/events/file-event.v1.schema.json",
-  "title": "Almira safe file event payload",
+  "$id": "https://contracts.cavern.dev/events/file-event.v1.schema.json",
+  "title": "Cavern safe file event payload",
   "allOf": [
     {
       "oneOf": [
@@ -9,10 +9,10 @@
           "properties": {
             "event_type_id": {
               "enum": [
-                "almira.file.upload.started.v1",
-                "almira.file.upload.completed.v1",
-                "almira.file.available.v1",
-                "almira.file.generation.replaced.v1"
+                "cavern.file.upload.started.v1",
+                "cavern.file.upload.completed.v1",
+                "cavern.file.available.v1",
+                "cavern.file.generation.replaced.v1"
               ]
             }
           },
@@ -27,8 +27,8 @@
           "properties": {
             "event_type_id": {
               "enum": [
-                "almira.file.deleted.v1",
-                "almira.file.restored.v1"
+                "cavern.file.deleted.v1",
+                "cavern.file.restored.v1"
               ]
             }
           },
@@ -40,9 +40,9 @@
           "properties": {
             "event_type_id": {
               "enum": [
-                "almira.file.protection.scan-completed.v1",
-                "almira.file.protection.scan-failed.v1",
-                "almira.file.protection.malware-detected.v1"
+                "cavern.file.protection.scan-completed.v1",
+                "cavern.file.protection.scan-failed.v1",
+                "cavern.file.protection.malware-detected.v1"
               ]
             }
           },
@@ -57,7 +57,7 @@
         {
           "properties": {
             "event_type_id": {
-              "const": "almira.file.metadata.updated.v1"
+              "const": "cavern.file.metadata.updated.v1"
             }
           },
           "required": [
@@ -68,8 +68,8 @@
           "properties": {
             "event_type_id": {
               "enum": [
-                "almira.file.extraction.completed.v1",
-                "almira.file.extraction.failed.v1"
+                "cavern.file.extraction.completed.v1",
+                "cavern.file.extraction.failed.v1"
               ]
             }
           },
@@ -85,8 +85,8 @@
           "properties": {
             "event_type_id": {
               "enum": [
-                "almira.media.processing.completed.v1",
-                "almira.media.processing.failed.v1"
+                "cavern.media.processing.completed.v1",
+                "cavern.media.processing.failed.v1"
               ]
             }
           },

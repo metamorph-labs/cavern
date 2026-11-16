@@ -1,7 +1,7 @@
 {
-  "schema_id": "almira.public.api-conformance-vectors.v1",
+  "schema_id": "cavern.public.api-conformance-vectors.v1",
   "format_version": 1,
-  "openapi": "0.1.0-dev.60",
+  "openapi": "0.1.0-dev.64",
   "schema_vectors": [
     {
       "name": "commercial_reservation_receipt_is_pricing_free_and_operation_bound",
@@ -10,7 +10,7 @@
         "schema_version": 1,
         "operation_id": "018f0000-0000-7000-8000-000000000091",
         "reservation_id": "018f0000-0000-7000-8000-000000000092",
-        "producer_id": "almira.api",
+        "producer_id": "cavern.api",
         "meter_id": "file.operations",
         "unit_id": "request",
         "quantity": "1",
@@ -29,7 +29,7 @@
         "schema_version": 1,
         "operation_id": "018f0000-0000-7000-8000-000000000091",
         "reservation_id": "018f0000-0000-7000-8000-000000000092",
-        "producer_id": "almira.api",
+        "producer_id": "cavern.api",
         "meter_id": "file.operations",
         "unit_id": "request",
         "quantity": "1",
@@ -272,7 +272,7 @@
           "region": "us-east-1",
           "bucket": "customer-production-files",
           "expected_bucket_owner": "123456789012",
-          "role_arn": "arn:aws:iam::123456789012:role/almira",
+          "role_arn": "arn:aws:iam::123456789012:role/cavern",
           "encryption": "aws_sse_s3",
           "encryption_key": null
         }
@@ -291,7 +291,7 @@
           "project_number": "123456789012",
           "bucket": "customer-production-files",
           "location": "US",
-          "service_account": "almira@customer-production.iam.gserviceaccount.com",
+          "service_account": "cavern@customer-production.iam.gserviceaccount.com",
           "encryption": "gcp_cmek",
           "encryption_key": "projects/customer-production/locations/us/keyRings/files/cryptoKeys/storage"
         }
@@ -331,7 +331,7 @@
           "region": "us-east-1",
           "bucket": "customer-production-files",
           "expected_bucket_owner": "123456789012",
-          "role_arn": "arn:aws:iam::123456789012:role/almira",
+          "role_arn": "arn:aws:iam::123456789012:role/cavern",
           "encryption": "aws_sse_s3",
           "encryption_key": null,
           "secret_access_key": "not-accepted"
@@ -993,8 +993,8 @@
       "schema": "LocalIssuerSigningConfiguration",
       "instance": {
         "claims_schema_version": 1,
-        "token_prefix": "alm_local_v1.",
-        "signature_context_base64url": "YWxtaXJhOmxvY2FsLWNhcGFiaWxpdHk6djEA",
+        "token_prefix": "cav_local_v1.",
+        "signature_context_base64url": "Y2F2ZXJuOmxvY2FsLWNhcGFiaWxpdHk6djEA",
         "maximum_clock_skew_seconds": 30,
         "realm_id": "018f0000-0000-7000-8000-000000000001",
         "tenant_id": "018f0000-0000-7000-8000-000000000002",
@@ -1027,7 +1027,7 @@
       "schema": "LocalIssuerSigningConfiguration",
       "instance": {
         "claims_schema_version": 1,
-        "token_prefix": "alm_local_v1.",
+        "token_prefix": "cav_local_v1.",
         "signature_context_base64url": "d3JvbmctY29udGV4dA",
         "maximum_clock_skew_seconds": 30,
         "realm_id": "018f0000-0000-7000-8000-000000000001",
@@ -1150,7 +1150,7 @@
         "kind": "technical",
         "state": "succeeded",
         "source_content_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "extractor_name": "almira.safe-core",
+        "extractor_name": "cavern.safe-core",
         "extractor_version": "v1",
         "limits": {
           "input_bytes": 11,
@@ -1176,7 +1176,7 @@
         "kind": "content",
         "state": "succeeded",
         "source_content_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "extractor_name": "almira.processor",
+        "extractor_name": "cavern.processor",
         "extractor_version": "v1",
         "limits": {
           "input_bytes": 11,
@@ -1391,7 +1391,7 @@
         "duration_millis": null,
         "source_content_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "media_config_revision": 2,
-        "processor_id": "almira.media",
+        "processor_id": "cavern.media",
         "processor_version": "v1",
         "runtime_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
         "revision": 1,
@@ -1417,7 +1417,7 @@
         "duration_millis": 6000,
         "source_content_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "media_config_revision": 2,
-        "processor_id": "almira.media",
+        "processor_id": "cavern.media",
         "processor_version": "v1",
         "runtime_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
         "revision": 1,
@@ -1634,7 +1634,7 @@
       "name": "safe_error_envelope",
       "schema": "Error",
       "instance": {
-        "code": "ALMIRA_FILE_NOT_FOUND",
+        "code": "CAVERN_FILE_NOT_FOUND",
         "request_id": "018f0000-0000-7000-8000-000000000002"
       },
       "expected": "valid"
@@ -1643,7 +1643,7 @@
       "name": "error_details_refused",
       "schema": "Error",
       "instance": {
-        "code": "ALMIRA_FILESERVICE_UNAVAILABLE",
+        "code": "CAVERN_FILESERVICE_UNAVAILABLE",
         "request_id": "018f0000-0000-7000-8000-000000000002",
         "details": "provider endpoint timed out"
       },
@@ -1960,289 +1960,289 @@
     {
       "name": "gdpr_profile_activation_requires_customer_declaration",
       "condition": "the GDPR-supporting technical profile is activated without its canonical customer data-category and purpose declaration",
-      "code": "ALMIRA_COMPLIANCE_PROFILE_PREREQUISITE_INVALID",
+      "code": "CAVERN_COMPLIANCE_PROFILE_PREREQUISITE_INVALID",
       "http_status": 409
     },
     {
       "name": "hipaa_profile_activation_refuses_customer_declaration",
       "condition": "the HIPAA-eligible technical profile is activated with a GDPR-only customer data-category and purpose declaration",
-      "code": "ALMIRA_COMPLIANCE_PROFILE_PREREQUISITE_INVALID",
+      "code": "CAVERN_COMPLIANCE_PROFILE_PREREQUISITE_INVALID",
       "http_status": 409
     },
     {
       "name": "compliance_profile_activation_refuses_incompatible_configuration",
       "condition": "the current environment configuration conflicts with the selected technical profile constraints",
-      "code": "ALMIRA_COMPLIANCE_PROFILE_PREREQUISITE_NOT_MET",
+      "code": "CAVERN_COMPLIANCE_PROFILE_PREREQUISITE_NOT_MET",
       "http_status": 409
     },
     {
       "name": "compliance_profile_activation_is_revision_safe",
       "condition": "the environment changes after preview and before activation",
-      "code": "ALMIRA_COMPLIANCE_PROFILE_REVISION_CONFLICT",
+      "code": "CAVERN_COMPLIANCE_PROFILE_REVISION_CONFLICT",
       "http_status": 409
     },
     {
       "name": "commercial_admission_refuses_new_chargeable_work",
       "condition": "Billing's current project-rooted plan or spending guard refuses the classified operation",
-      "code": "ALMIRA_COMMERCIAL_ADMISSION_REFUSED",
+      "code": "CAVERN_COMMERCIAL_ADMISSION_REFUSED",
       "http_status": 403
     },
     {
       "name": "commercial_admission_dependency_failure_is_retryable",
       "condition": "the project-rooted Billing decision cannot be obtained or validated before the first product effect",
-      "code": "ALMIRA_COMMERCIAL_ADMISSION_UNAVAILABLE",
+      "code": "CAVERN_COMMERCIAL_ADMISSION_UNAVAILABLE",
       "http_status": 503
     },
     {
       "name": "cross_project_is_forbidden",
       "condition": "authenticated scope does not equal the requested project",
-      "code": "ALMIRA_FILE_SCOPE_MISMATCH",
+      "code": "CAVERN_FILE_SCOPE_MISMATCH",
       "http_status": 403
     },
     {
       "name": "duplicate_file_batch_entry_is_invalid",
       "condition": "the same stable file identity appears more than once in one atomic batch",
-      "code": "ALMIRA_FILE_INVALID",
+      "code": "CAVERN_FILE_INVALID",
       "http_status": 400
     },
     {
       "name": "stale_file_copy_source_revision_conflicts",
       "condition": "the source entry changed after the exact copy request was prepared",
-      "code": "ALMIRA_FILE_REVISION_CONFLICT",
+      "code": "CAVERN_FILE_REVISION_CONFLICT",
       "http_status": 409
     },
     {
       "name": "expired_transfer_is_gone",
       "condition": "finalization occurs after the durable transfer expiry",
-      "code": "ALMIRA_FILE_TRANSFER_EXPIRED",
+      "code": "CAVERN_FILE_TRANSFER_EXPIRED",
       "http_status": 410
     },
     {
       "name": "required_scan_blocks_read",
       "condition": "the current generation safety state is scan_pending or blocked",
-      "code": "ALMIRA_FILE_NOT_AVAILABLE",
+      "code": "CAVERN_FILE_NOT_AVAILABLE",
       "http_status": 404
     },
     {
       "name": "changed_idempotent_input_conflicts",
       "condition": "an operation id is replayed with a different request digest",
-      "code": "ALMIRA_FILE_OPERATION_CONFLICT",
+      "code": "CAVERN_FILE_OPERATION_CONFLICT",
       "http_status": 409
     },
     {
       "name": "ambiguous_fileservice_effect_is_retryable",
       "condition": "the FileService result cannot be determined safely",
-      "code": "ALMIRA_FILE_OUTCOME_UNKNOWN",
+      "code": "CAVERN_FILE_OUTCOME_UNKNOWN",
       "http_status": 503
     },
     {
       "name": "missing_collection_is_not_found",
       "condition": "the exact active collection instance does not exist in the authorized environment",
-      "code": "ALMIRA_COLLECTION_NOT_FOUND",
+      "code": "CAVERN_COLLECTION_NOT_FOUND",
       "http_status": 404
     },
     {
       "name": "system_environment_deletion_is_refused",
       "condition": "deletion targets the managed development or production environment",
-      "code": "ALMIRA_ENVIRONMENT_SYSTEM_PROTECTED",
+      "code": "CAVERN_ENVIRONMENT_SYSTEM_PROTECTED",
       "http_status": 409
     },
     {
       "name": "development_environment_storage_adoption_is_refused",
       "condition": "customer-owned storage adoption targets the default managed development environment",
-      "code": "ALMIRA_ENVIRONMENT_SYSTEM_PROTECTED",
+      "code": "CAVERN_ENVIRONMENT_SYSTEM_PROTECTED",
       "http_status": 409
     },
     {
       "name": "environment_adoption_requires_exact_collection_migrations",
       "condition": "one or more existing collections are not ready on the exact enrolled customer-owned realization",
-      "code": "ALMIRA_ENVIRONMENT_STORAGE_MIGRATION_REQUIRED",
+      "code": "CAVERN_ENVIRONMENT_STORAGE_MIGRATION_REQUIRED",
       "http_status": 409
     },
     {
       "name": "managed_storage_restoration_requires_exact_collection_migrations",
       "condition": "one or more existing collections are not ready on a current managed realization from the fresh FileService catalog",
-      "code": "ALMIRA_ENVIRONMENT_STORAGE_MIGRATION_REQUIRED",
+      "code": "CAVERN_ENVIRONMENT_STORAGE_MIGRATION_REQUIRED",
       "http_status": 409
     },
     {
       "name": "environment_adoption_requires_active_normal_enrollment",
       "condition": "the selected enrollment is absent, not active, or does not provide the normal storage class",
-      "code": "ALMIRA_ENVIRONMENT_STORAGE_ENROLLMENT_NOT_ACTIVE",
+      "code": "CAVERN_ENVIRONMENT_STORAGE_ENROLLMENT_NOT_ACTIVE",
       "http_status": 409
     },
     {
       "name": "environment_adoption_requires_exact_fresh_realization",
       "condition": "the enrollment's opaque realization is absent from the fresh authenticated FileService catalog",
-      "code": "ALMIRA_ENVIRONMENT_STORAGE_REALIZATION_UNAVAILABLE",
+      "code": "CAVERN_ENVIRONMENT_STORAGE_REALIZATION_UNAVAILABLE",
       "http_status": 409
     },
     {
       "name": "invalid_storage_owner_catalog_is_retryable",
       "condition": "FileService returns stale, malformed, scope-mismatched, coordinate-bearing, or provider-matrix-drifted capability evidence",
-      "code": "ALMIRA_STORAGE_INTEGRITY_FAILURE",
+      "code": "CAVERN_STORAGE_INTEGRITY_FAILURE",
       "http_status": 503
     },
     {
       "name": "active_transfer_blocks_storage_migration",
       "condition": "the collection has a prepared, uploading, finalizing, or ambiguous transfer",
-      "code": "ALMIRA_STORAGE_MIGRATION_ACTIVE_TRANSFER",
+      "code": "CAVERN_STORAGE_MIGRATION_ACTIVE_TRANSFER",
       "http_status": 409
     },
     {
       "name": "ambiguous_storage_migration_start_is_retryable",
       "condition": "FileService may have accepted the migration but its response was not received",
-      "code": "ALMIRA_STORAGE_MIGRATION_OUTCOME_UNKNOWN",
+      "code": "CAVERN_STORAGE_MIGRATION_OUTCOME_UNKNOWN",
       "http_status": 503
     },
     {
       "name": "changed_customer_storage_enrollment_replay_conflicts",
       "condition": "an enrollment operation id is replayed with different cloud coordinates, storage class, binding label, actor, or project",
-      "code": "ALMIRA_STORAGE_ENROLLMENT_OPERATION_CONFLICT",
+      "code": "CAVERN_STORAGE_ENROLLMENT_OPERATION_CONFLICT",
       "http_status": 409
     },
     {
       "name": "ambiguous_customer_storage_enrollment_start_is_retryable",
-      "condition": "FileService may have accepted the enrollment but Almira has not observed an owner revision",
-      "code": "ALMIRA_STORAGE_ENROLLMENT_OUTCOME_UNKNOWN",
+      "condition": "FileService may have accepted the enrollment but Cavern has not observed an owner revision",
+      "code": "CAVERN_STORAGE_ENROLLMENT_OUTCOME_UNKNOWN",
       "http_status": 503
     },
     {
       "name": "stale_capability_is_gone",
       "condition": "the collection policy revision or issuer epoch changed after capability issuance",
-      "code": "ALMIRA_DELIVERY_GRANT_REVOKED",
+      "code": "CAVERN_DELIVERY_GRANT_REVOKED",
       "http_status": 410
     },
     {
       "name": "capability_audience_mismatch_is_forbidden",
       "condition": "the request Origin differs from the exact registered capability audience",
-      "code": "ALMIRA_DELIVERY_ACCESS_REFUSED",
+      "code": "CAVERN_DELIVERY_ACCESS_REFUSED",
       "http_status": 403
     },
     {
       "name": "revoked_share_is_gone",
       "condition": "the immutable-generation share was revoked before delivery",
-      "code": "ALMIRA_DELIVERY_GRANT_REVOKED",
+      "code": "CAVERN_DELIVERY_GRANT_REVOKED",
       "http_status": 410
     },
     {
       "name": "invalid_local_signature_is_forbidden",
       "condition": "a locally issued capability signature does not verify against the active registered key revision",
-      "code": "ALMIRA_DELIVERY_ACCESS_REFUSED",
+      "code": "CAVERN_DELIVERY_ACCESS_REFUSED",
       "http_status": 403
     },
     {
       "name": "extracted_content_requires_distinct_permission",
-      "condition": "the actor may read safe metadata but lacks almira.extracted_content.read for the exact generation",
-      "code": "ALMIRA_METADATA_AUTHORIZATION_MISMATCH",
+      "condition": "the actor may read safe metadata but lacks cavern.cavern_extracted_content.read for the exact generation",
+      "code": "CAVERN_METADATA_AUTHORIZATION_MISMATCH",
       "http_status": 403
     },
     {
       "name": "semantic_search_requires_collection_opt_in",
       "condition": "semantic or hybrid search is requested while vector indexing is disabled for the collection",
-      "code": "ALMIRA_SEARCH_VECTOR_DISABLED",
+      "code": "CAVERN_SEARCH_VECTOR_DISABLED",
       "http_status": 409
     },
     {
       "name": "search_missing_collection_is_not_found",
       "condition": "the exact active collection instance does not exist in the authorized environment",
-      "code": "ALMIRA_SEARCH_NOT_FOUND",
+      "code": "CAVERN_SEARCH_NOT_FOUND",
       "http_status": 404
     },
     {
       "name": "search_cursor_is_bound_to_exact_request",
       "condition": "a cursor is replayed with another scope, collection, mode, query, filters, facets, or page size",
-      "code": "ALMIRA_SEARCH_CURSOR_INVALID",
+      "code": "CAVERN_SEARCH_CURSOR_INVALID",
       "http_status": 400
     },
     {
       "name": "search_dependency_failure_is_redacted",
       "condition": "Lodestone or the configured embedding processor is unavailable",
-      "code": "ALMIRA_SEARCH_UNAVAILABLE",
+      "code": "CAVERN_SEARCH_UNAVAILABLE",
       "http_status": 503
     },
     {
       "name": "stale_media_config_revision_conflicts",
       "condition": "media controls are replaced against a stale collection media revision",
-      "code": "ALMIRA_MEDIA_REVISION_CONFLICT",
+      "code": "CAVERN_MEDIA_REVISION_CONFLICT",
       "http_status": 409
     },
     {
       "name": "stale_or_unsafe_derivative_is_hidden",
       "condition": "the processor/config revision is stale or FileService no longer reports the source generation and output safe",
-      "code": "ALMIRA_MEDIA_NOT_FOUND",
+      "code": "CAVERN_MEDIA_NOT_FOUND",
       "http_status": 404
     },
     {
       "name": "media_processor_failure_is_redacted",
       "condition": "the placement-selected media processor is unavailable or returns a malformed response",
-      "code": "ALMIRA_MEDIA_PROCESSOR_UNAVAILABLE",
+      "code": "CAVERN_MEDIA_PROCESSOR_UNAVAILABLE",
       "http_status": 503
     },
     {
       "name": "stale_protection_revision_conflicts",
       "condition": "a protection policy, review, or rescan is requested against a stale revision",
-      "code": "ALMIRA_PROTECTION_REVISION_CONFLICT",
+      "code": "CAVERN_PROTECTION_REVISION_CONFLICT",
       "http_status": 409
     },
     {
       "name": "protection_review_never_overrides_fileservice",
       "condition": "an administrative review is requested for a generation that FileService has not blocked",
-      "code": "ALMIRA_PROTECTION_STATE_CONFLICT",
+      "code": "CAVERN_PROTECTION_STATE_CONFLICT",
       "http_status": 409
     },
     {
       "name": "one_active_import_per_collection",
       "condition": "another non-terminal import already owns the collection import lane",
-      "code": "ALMIRA_PORTABILITY_ALREADY_ACTIVE",
+      "code": "CAVERN_PORTABILITY_ALREADY_ACTIVE",
       "http_status": 409
     },
     {
       "name": "import_path_reservation_conflicts",
       "condition": "an import destination path is already live or reserved in the collection",
-      "code": "ALMIRA_PORTABILITY_PATH_CONFLICT",
+      "code": "CAVERN_PORTABILITY_PATH_CONFLICT",
       "http_status": 409
     },
     {
       "name": "export_download_waits_for_terminal_artifact",
       "condition": "a download is requested before FileService has produced the export artifact",
-      "code": "ALMIRA_PORTABILITY_ARTIFACT_NOT_READY",
+      "code": "CAVERN_PORTABILITY_ARTIFACT_NOT_READY",
       "http_status": 409
     },
     {
       "name": "expired_export_artifact_is_gone",
       "condition": "a download is requested after the export artifact retention window",
-      "code": "ALMIRA_PORTABILITY_ARTIFACT_EXPIRED",
+      "code": "CAVERN_PORTABILITY_ARTIFACT_EXPIRED",
       "http_status": 410
     },
     {
       "name": "malformed_portability_owner_response_fails_closed",
       "condition": "FileService returns an invalid manifest result or replayable download instruction",
-      "code": "ALMIRA_PORTABILITY_OWNER_RESPONSE_INVALID",
+      "code": "CAVERN_PORTABILITY_OWNER_RESPONSE_INVALID",
       "http_status": 503
     },
     {
       "name": "subject_bindings_require_customer_workload_authority",
       "condition": "a browser user, PAT, or SAK attempts to bind or discover a builder application's end-user reference",
-      "code": "ALMIRA_SUBJECT_AUTHORIZATION_MISMATCH",
+      "code": "CAVERN_SUBJECT_AUTHORIZATION_MISMATCH",
       "http_status": 403
     },
     {
       "name": "subject_lifecycle_requires_customer_workload_authority",
       "condition": "a browser user, PAT, or SAK attempts to restrict, export, delete, or read a builder-subject lifecycle manifest",
-      "code": "ALMIRA_SUBJECT_AUTHORIZATION_MISMATCH",
+      "code": "CAVERN_SUBJECT_AUTHORIZATION_MISMATCH",
       "http_status": 403
     },
     {
       "name": "verification_requires_all_exercised_checks",
       "condition": "finalize replay, exact private bytes, cross-scope refusal, or malware safety does not match the verification contract",
-      "code": "ALMIRA_VERIFICATION_CHECK_FAILED",
+      "code": "CAVERN_VERIFICATION_CHECK_FAILED",
       "http_status": 409
     },
     {
       "name": "verification_keyring_failure_is_redacted",
       "condition": "the projected receipt signing keyring is missing or malformed",
-      "code": "ALMIRA_VERIFICATION_UNAVAILABLE",
+      "code": "CAVERN_VERIFICATION_UNAVAILABLE",
       "http_status": 503
     }
   ]

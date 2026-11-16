@@ -9,11 +9,11 @@ import { pipeline } from "node:stream/promises";
 import { parse as parseYaml } from "yaml";
 
 import {
-  AlmiraApiError,
-  AlmiraClient,
-  AlmiraClientError,
-  AlmiraConfigurationError,
-  AlmiraTransferError,
+  CavernApiError,
+  CavernClient,
+  CavernClientError,
+  CavernConfigurationError,
+  CavernTransferError,
   applyConfiguration,
   createOperationId,
   openPortableExport,
@@ -44,12 +44,12 @@ import {
   type StartStorageMigrationOutcome,
   type StorageMigration,
   type TenancyProjectGetResponse,
-} from "@metamorph-labs/almira-sdk";
+} from "@metamorph-labs/cavern-sdk";
 
 export interface CliEnvironment {
-  ALMIRA_BASE_URL?: string;
-  ALMIRA_CONTEXT?: string;
-  ALMIRA_CONTEXT_FILE?: string;
+  CAVERN_BASE_URL?: string;
+  CAVERN_CONTEXT?: string;
+  CAVERN_CONTEXT_FILE?: string;
   METAMORPH_TOKEN?: string;
 }
 
@@ -68,14 +68,14 @@ export interface CliDependencies {
 
 type Values = Record<string, boolean | string | string[] | undefined>;
 
-const HELP = `Usage: almira <noun> <verb> [options]
+const HELP = `Usage: cavern <noun> <verb> [options]
 
 Commands:
   context list            List non-secret CLI contexts
   context set             Create or replace a context
   context use             Select the default context
   context delete          Delete a context
-  project bootstrap       Converge the Almira project and default environments
+  project bootstrap       Converge the Cavern project and default environments
   environment list       List all project environments
   environment create     Create an additional managed environment
   environment update     Rename an environment
@@ -92,8 +92,8 @@ Commands:
   storage adopt           Adopt an active normal enrollment after required migrations
   storage restore-managed Restore managed storage after required migrations
   enrollment get         Reconcile one customer storage enrollment by operation ID
-  config preview          Preview additive almira.yaml changes
-  config apply            Apply an almira.yaml configuration
+  config preview          Preview additive cavern.yaml changes
+  config apply            Apply an cavern.yaml configuration
   collection list         List collections in an environment
   collection create       Create a private normal or express collection
   collection get          Read one collection
@@ -150,32 +150,32 @@ Commands:
 
 Connection:
   --context NAME          Select a non-secret base/scope context
-  --base-url URL          Almira API base; or set ALMIRA_BASE_URL
+  --base-url URL          Cavern API base; or set CAVERN_BASE_URL
   METAMORPH_TOKEN         PAT or SAK, read only from the environment
 
 Common identifiers:
   --tenant UUID           Metamorph tenant UUIDv7
   --project UUID          Metamorph project UUIDv7
-  --environment UUID      Almira environment UUIDv7
-  --collection UUID       Almira collection-instance UUIDv7
-  --migration UUID        Almira storage-migration UUIDv7
+  --environment UUID      Cavern environment UUIDv7
+  --collection UUID       Cavern collection-instance UUIDv7
+  --migration UUID        Cavern storage-migration UUIDv7
   --enrollment UUID       Customer storage enrollment operation UUIDv7
-  --portability-job UUID  Almira import/export job UUIDv7
-  --profile ID            almira.storage.gdpr or almira.storage.hipaa_eligible
+  --portability-job UUID  Cavern import/export job UUIDv7
+  --profile ID            cavern.storage.gdpr or cavern.storage.hipaa_eligible
   --source-object UUID    Source-object UUIDv7 declared by an import manifest
-  --entry UUID            Almira file-entry UUIDv7
-  --generation UUID       Almira immutable generation UUIDv7
+  --entry UUID            Cavern file-entry UUIDv7
+  --generation UUID       Cavern immutable generation UUIDv7
   --kind KIND             technical, content, ocr, or transcription
-  --share UUID            Almira share UUIDv7
-  --issuer UUID           Almira local-issuer UUIDv7
-  --job UUID              Almira media-processing job UUIDv7
+  --share UUID            Cavern share UUIDv7
+  --issuer UUID           Cavern local-issuer UUIDv7
+  --job UUID              Cavern media-processing job UUIDv7
   --input PATH            Exact JSON request body for structured operations
                           Use - to read the bounded body from stdin
   --output PATH           New local file for a verified portable export
   --content PATH          Existing local file for one portable-import object
   --path PATH             Canonical logical file path
   --include-deleted       Include entries still inside their recycle window
-  --file PATH             almira.yaml path for config preview/apply
+  --file PATH             cavern.yaml path for config preview/apply
 
 Collection creation:
   --class CLASS           normal (default) or express
@@ -265,8 +265,8 @@ export async function runCli(arguments_: string[], dependencies: CliDependencies
     const providedValues = parsed.values as Values;
     const [noun, verb] = parsed.positionals;
     assertCommandOptions(noun, verb, providedValues);
-    const contextPath = dependencies.environment.ALMIRA_CONTEXT_FILE ??
-      join(homedir(), ".config", "almira", "contexts.json");
+    const contextPath = dependencies.environment.CAVERN_CONTEXT_FILE ??
+      join(homedir(), ".config", "cavern", "contexts.json");
     if (noun === "context") {
       const result = await runContextCommand(verb, providedValues, contextPath);
       writeJson(dependencies.io.stdout, result);
@@ -280,11 +280,11 @@ export async function runCli(arguments_: string[], dependencies: CliDependencies
     if (dryRun && !mutationCommands.has(command)) throw new CliUsageError();
     if ((wait || stringValue(values, "poll-interval") !== undefined || stringValue(values, "wait-timeout") !== undefined) &&
       !waitableCommands.has(command)) throw new CliUsageError();
-    const baseUrl = stringValue(values, "base-url") ?? dependencies.environment.ALMIRA_BASE_URL;
+    const baseUrl = stringValue(values, "base-url") ?? dependencies.environment.CAVERN_BASE_URL;
     const credential = dependencies.environment.METAMORPH_TOKEN;
-    if (baseUrl === undefined) throw new CliConfigError("ALMIRA_CLI_BASE_URL_REQUIRED");
+    if (baseUrl === undefined) throw new CliConfigError("CAVERN_CLI_BASE_URL_REQUIRED");
     if (credential === undefined || credential.length === 0) {
-      throw new CliConfigError("ALMIRA_CLI_TOKEN_REQUIRED");
+      throw new CliConfigError("CAVERN_CLI_TOKEN_REQUIRED");
     }
     const upstreamFetch = dependencies.fetch ?? globalThis.fetch;
     const requestFetch = dryRun
@@ -297,12 +297,12 @@ export async function runCli(arguments_: string[], dependencies: CliDependencies
             body: safeRequestBody(init?.body, new Headers(init?.headers)),
           };
           return new Response(JSON.stringify({
-            code: "ALMIRA_DRY_RUN_CAPTURED",
+            code: "CAVERN_DRY_RUN_CAPTURED",
             request_id: createOperationId(),
           }), { status: 409, headers: { "content-type": "application/json" } });
         }
       : dependencies.fetch;
-    const client = new AlmiraClient({
+    const client = new CavernClient({
       baseUrl,
       credential,
       ...(requestFetch === undefined ? {} : { fetch: requestFetch }),
@@ -980,10 +980,10 @@ class CliUsageError extends Error {}
 
 class CliConfigError extends Error {
   readonly code:
-    | "ALMIRA_CLI_BASE_URL_REQUIRED"
-    | "ALMIRA_CLI_CONTEXT_INVALID"
-    | "ALMIRA_CLI_CONTEXT_NOT_FOUND"
-    | "ALMIRA_CLI_TOKEN_REQUIRED";
+    | "CAVERN_CLI_BASE_URL_REQUIRED"
+    | "CAVERN_CLI_CONTEXT_INVALID"
+    | "CAVERN_CLI_CONTEXT_NOT_FOUND"
+    | "CAVERN_CLI_TOKEN_REQUIRED";
 
   constructor(code: CliConfigError["code"]) {
     super(code);
@@ -992,7 +992,7 @@ class CliConfigError extends Error {
 }
 
 class CliWaitError extends Error {
-  readonly code = "ALMIRA_CLI_WAIT_TIMEOUT";
+  readonly code = "CAVERN_CLI_WAIT_TIMEOUT";
 }
 
 interface DryRunRequest {
@@ -1003,9 +1003,9 @@ interface DryRunRequest {
 
 class CliDownloadError extends Error {
   readonly code:
-    | "ALMIRA_CLI_OUTPUT_EXISTS"
-    | "ALMIRA_CLI_OUTPUT_INVALID"
-    | "ALMIRA_CLI_OUTPUT_WRITE_FAILED";
+    | "CAVERN_CLI_OUTPUT_EXISTS"
+    | "CAVERN_CLI_OUTPUT_INVALID"
+    | "CAVERN_CLI_OUTPUT_WRITE_FAILED";
 
   constructor(code: CliDownloadError["code"]) {
     super(code);
@@ -1222,7 +1222,7 @@ function mutationId(values: Values): string {
 
 function complianceProfileId(values: Values): ComplianceProfileId {
   const value = required(values, "profile");
-  if (value !== "almira.storage.gdpr" && value !== "almira.storage.hipaa_eligible") {
+  if (value !== "cavern.storage.gdpr" && value !== "cavern.storage.hipaa_eligible") {
     throw new CliUsageError();
   }
   return value;
@@ -1289,7 +1289,7 @@ async function runContextCommand(verb: string, values: Values, path: string): Pr
     return { current_context: document.current_context, context: { name, ...context } };
   }
   if (document.contexts[name] === undefined) {
-    throw new CliConfigError("ALMIRA_CLI_CONTEXT_NOT_FOUND");
+    throw new CliConfigError("CAVERN_CLI_CONTEXT_NOT_FOUND");
   }
   if (verb === "use") {
     document.current_context = name;
@@ -1307,10 +1307,10 @@ async function runContextCommand(verb: string, values: Values, path: string): Pr
 
 async function applyContext(values: Values, environment: CliEnvironment, path: string): Promise<Values> {
   const document = await readContexts(path);
-  const selected = stringValue(values, "context") ?? environment.ALMIRA_CONTEXT ?? document.current_context;
+  const selected = stringValue(values, "context") ?? environment.CAVERN_CONTEXT ?? document.current_context;
   if (selected === null || selected === undefined) return values;
   const context = document.contexts[contextName(selected)];
-  if (context === undefined) throw new CliConfigError("ALMIRA_CLI_CONTEXT_NOT_FOUND");
+  if (context === undefined) throw new CliConfigError("CAVERN_CLI_CONTEXT_NOT_FOUND");
   const inherited: Values = {
     "base-url": context.base_url,
     tenant: context.tenant_id,
@@ -1346,22 +1346,22 @@ async function readContexts(path: string): Promise<CliContextDocument> {
     if (isFileSystemError(error) && error.code === "ENOENT") {
       return { version: 1, current_context: null, contexts: {} };
     }
-    throw new CliConfigError("ALMIRA_CLI_CONTEXT_INVALID");
+    throw new CliConfigError("CAVERN_CLI_CONTEXT_INVALID");
   }
   if (bytes.length === 0 || bytes.length > 256 * 1024) {
-    throw new CliConfigError("ALMIRA_CLI_CONTEXT_INVALID");
+    throw new CliConfigError("CAVERN_CLI_CONTEXT_INVALID");
   }
   try {
     const value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)) as unknown;
     if (!isContextDocument(value)) throw new Error("invalid context document");
     return value;
   } catch {
-    throw new CliConfigError("ALMIRA_CLI_CONTEXT_INVALID");
+    throw new CliConfigError("CAVERN_CLI_CONTEXT_INVALID");
   }
 }
 
 async function writeContexts(path: string, document: CliContextDocument): Promise<void> {
-  const temporary = `${path}.almira-${createOperationId()}.partial`;
+  const temporary = `${path}.cavern-${createOperationId()}.partial`;
   try {
     await mkdir(dirname(path), { recursive: true, mode: 0o700 });
     await writeFile(temporary, `${JSON.stringify(document, null, 2)}\n`, { encoding: "utf8", flag: "wx", mode: 0o600 });
@@ -1369,7 +1369,7 @@ async function writeContexts(path: string, document: CliContextDocument): Promis
     await chmod(path, 0o600);
   } catch {
     await unlink(temporary).catch(() => undefined);
-    throw new CliConfigError("ALMIRA_CLI_CONTEXT_INVALID");
+    throw new CliConfigError("CAVERN_CLI_CONTEXT_INVALID");
   }
 }
 
@@ -1608,9 +1608,9 @@ async function savePortableExport(
   stream: PortableExportStream,
 ): Promise<void> {
   if (output.length === 0 || output.length > 4096 || /[\u0000\r\n]/u.test(output)) {
-    throw new CliDownloadError("ALMIRA_CLI_OUTPUT_INVALID");
+    throw new CliDownloadError("CAVERN_CLI_OUTPUT_INVALID");
   }
-  const temporary = `${output}.almira-${descriptorId}.partial`;
+  const temporary = `${output}.cavern-${descriptorId}.partial`;
   const hash = createHash("sha256");
   let size = 0;
   const meter = new Transform({
@@ -1627,7 +1627,7 @@ async function savePortableExport(
       createWriteStream(temporary, { flags: "wx", mode: 0o600 }),
     );
     if (size !== stream.sizeBytes || `sha256:${hash.digest("hex")}` !== stream.contentSha256) {
-      throw new CliDownloadError("ALMIRA_CLI_OUTPUT_INVALID");
+      throw new CliDownloadError("CAVERN_CLI_OUTPUT_INVALID");
     }
     await link(temporary, output);
     await unlink(temporary).catch(() => undefined);
@@ -1635,9 +1635,9 @@ async function savePortableExport(
     await unlink(temporary).catch(() => undefined);
     if (error instanceof CliDownloadError) throw error;
     if (isFileSystemError(error) && error.code === "EEXIST") {
-      throw new CliDownloadError("ALMIRA_CLI_OUTPUT_EXISTS");
+      throw new CliDownloadError("CAVERN_CLI_OUTPUT_EXISTS");
     }
-    throw new CliDownloadError("ALMIRA_CLI_OUTPUT_WRITE_FAILED");
+    throw new CliDownloadError("CAVERN_CLI_OUTPUT_WRITE_FAILED");
   }
 }
 
@@ -1655,17 +1655,17 @@ function report(
   output: { write(value: string): unknown },
 ): number {
   if (error instanceof CliUsageError || error instanceof TypeError) {
-    writeJson(output, { code: "ALMIRA_CLI_USAGE_INVALID", recovery: "run almira --help" });
+    writeJson(output, { code: "CAVERN_CLI_USAGE_INVALID", recovery: "run cavern --help" });
     return 2;
   }
   if (error instanceof CliConfigError) {
-    const recovery = error.code === "ALMIRA_CLI_TOKEN_REQUIRED"
+    const recovery = error.code === "CAVERN_CLI_TOKEN_REQUIRED"
       ? "set METAMORPH_TOKEN to a scoped PAT or SAK"
-      : error.code === "ALMIRA_CLI_BASE_URL_REQUIRED"
-      ? "pass --base-url, select a context, or set ALMIRA_BASE_URL"
-      : error.code === "ALMIRA_CLI_CONTEXT_NOT_FOUND"
-      ? "select an existing context or run almira context set"
-      : "repair or replace the non-secret Almira context file";
+      : error.code === "CAVERN_CLI_BASE_URL_REQUIRED"
+      ? "pass --base-url, select a context, or set CAVERN_BASE_URL"
+      : error.code === "CAVERN_CLI_CONTEXT_NOT_FOUND"
+      ? "select an existing context or run cavern context set"
+      : "repair or replace the non-secret Cavern context file";
     writeJson(output, {
       code: error.code,
       recovery,
@@ -1684,13 +1684,13 @@ function report(
     writeJson(output, {
       code: error.code,
       ...(operationId === null ? {} : { operation_id: operationId }),
-      recovery: error.code === "ALMIRA_CLI_OUTPUT_EXISTS"
+      recovery: error.code === "CAVERN_CLI_OUTPUT_EXISTS"
         ? "choose a new --output path"
         : "verify the output path and retry with a fresh download operation",
     });
-    return error.code === "ALMIRA_CLI_OUTPUT_EXISTS" ? 5 : 8;
+    return error.code === "CAVERN_CLI_OUTPUT_EXISTS" ? 5 : 8;
   }
-  if (error instanceof AlmiraApiError) {
+  if (error instanceof CavernApiError) {
     const exitCode = apiExitCode(error.status);
     writeJson(output, {
       code: error.code,
@@ -1702,15 +1702,15 @@ function report(
     });
     return exitCode;
   }
-  if (error instanceof AlmiraClientError) {
+  if (error instanceof CavernClientError) {
     writeJson(output, {
       code: error.code,
       ...(operationId === null ? {} : { operation_id: operationId }),
-      recovery: error.code === "ALMIRA_CLIENT_NETWORK" ? "retry with the same operation_id" : "fix local configuration or input",
+      recovery: error.code === "CAVERN_CLIENT_NETWORK" ? "retry with the same operation_id" : "fix local configuration or input",
     });
     return 8;
   }
-  if (error instanceof AlmiraTransferError) {
+  if (error instanceof CavernTransferError) {
     writeJson(output, {
       code: error.code,
       ...(operationId === null ? {} : { operation_id: operationId }),
@@ -1718,19 +1718,19 @@ function report(
     });
     return 8;
   }
-  if (error instanceof AlmiraConfigurationError) {
+  if (error instanceof CavernConfigurationError) {
     writeJson(output, {
       code: error.code,
       ...(operationId === null ? {} : { operation_id: operationId }),
       ...(error.plan === null ? {} : { plan: error.plan }),
-      recovery: error.code === "ALMIRA_CONFIGURATION_INPUT_INVALID"
-        ? "fix almira.yaml and retry"
+      recovery: error.code === "CAVERN_CONFIGURATION_INPUT_INVALID"
+        ? "fix cavern.yaml and retry"
         : "inspect the configuration conflicts and current capabilities",
     });
-    return error.code === "ALMIRA_CONFIGURATION_INPUT_INVALID" ? 2 : 5;
+    return error.code === "CAVERN_CONFIGURATION_INPUT_INVALID" ? 2 : 5;
   }
   writeJson(output, {
-    code: "ALMIRA_CLI_INTERNAL",
+    code: "CAVERN_CLI_INTERNAL",
     ...(operationId === null ? {} : { operation_id: operationId }),
     recovery: "retry or report this safe code",
   });

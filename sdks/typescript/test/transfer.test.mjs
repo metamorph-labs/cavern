@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { AlmiraTransferError, openPortableExport, uploadDirect } from "../dist/index.js";
+import { CavernTransferError, openPortableExport, uploadDirect } from "../dist/index.js";
 
 const descriptorId = "018f0000-0000-7000-8000-000000000001";
 const digest = `sha256:${"a".repeat(64)}`;
@@ -32,7 +32,7 @@ function part(number, offset, length) {
   };
 }
 
-test("single PUT omits Almira credentials and returns finalization evidence", async () => {
+test("single PUT omits Cavern credentials and returns finalization evidence", async () => {
   let call;
   const completion = await uploadDirect(
     descriptor("single_put", [part(1, 0, 4)]),
@@ -110,14 +110,14 @@ test("expired and structurally invalid descriptors fail before transfer", async 
       fetch,
     }),
     (error) =>
-      error instanceof AlmiraTransferError &&
-      error.code === "ALMIRA_TRANSFER_DESCRIPTOR_EXPIRED",
+      error instanceof CavernTransferError &&
+      error.code === "CAVERN_TRANSFER_DESCRIPTOR_EXPIRED",
   );
   await assert.rejects(
     uploadDirect(descriptor("single_put", [part(1, 0, 4)]), new Uint8Array(3), { fetch }),
     (error) =>
-      error instanceof AlmiraTransferError &&
-      error.code === "ALMIRA_TRANSFER_DESCRIPTOR_INVALID",
+      error instanceof CavernTransferError &&
+      error.code === "CAVERN_TRANSFER_DESCRIPTOR_INVALID",
   );
   assert.equal(calls, 0);
 });
@@ -131,8 +131,8 @@ test("development loopback HTTP requires an explicit option, loopback host, and 
       fetch: async () => new Response(null, { status: 200, headers: { etag: "fixture" } }),
     }),
     (error) =>
-      error instanceof AlmiraTransferError &&
-      error.code === "ALMIRA_TRANSFER_DESCRIPTOR_INVALID",
+      error instanceof CavernTransferError &&
+      error.code === "CAVERN_TRANSFER_DESCRIPTOR_INVALID",
   );
   let called = false;
   await uploadDirect(descriptor("single_put", [loopback]), new Uint8Array(4), {
@@ -152,8 +152,8 @@ test("development loopback HTTP requires an explicit option, loopback host, and 
         allowDevelopmentLoopbackHttp: true,
       }),
       (error) =>
-        error instanceof AlmiraTransferError &&
-        error.code === "ALMIRA_TRANSFER_DESCRIPTOR_INVALID",
+        error instanceof CavernTransferError &&
+        error.code === "CAVERN_TRANSFER_DESCRIPTOR_INVALID",
     );
   }
 });
@@ -167,8 +167,8 @@ test("ambiguous provider failures expose no URL or signed header", async () => {
       },
     }),
     (error) =>
-      error instanceof AlmiraTransferError &&
-      error.code === "ALMIRA_TRANSFER_OUTCOME_UNKNOWN" &&
+      error instanceof CavernTransferError &&
+      error.code === "CAVERN_TRANSFER_OUTCOME_UNKNOWN" &&
       error.partNumber === 1 &&
       !/opaque|secret/u.test(error.message),
   );
@@ -219,13 +219,13 @@ test("portable export refuses replayable and length-mismatched descriptors safel
   };
   await assert.rejects(
     openPortableExport({ ...base, one_use: false }),
-    (error) => error instanceof AlmiraTransferError && error.code === "ALMIRA_TRANSFER_DESCRIPTOR_INVALID",
+    (error) => error instanceof CavernTransferError && error.code === "CAVERN_TRANSFER_DESCRIPTOR_INVALID",
   );
   await assert.rejects(
     openPortableExport(base, {
       now: () => 1_800_000_000_000,
       fetch: async () => new Response(new Uint8Array([1, 2]), { headers: { "content-length": "2" } }),
     }),
-    (error) => error instanceof AlmiraTransferError && error.code === "ALMIRA_TRANSFER_RESPONSE_INVALID",
+    (error) => error instanceof CavernTransferError && error.code === "CAVERN_TRANSFER_RESPONSE_INVALID",
   );
 });

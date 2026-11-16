@@ -1,13 +1,13 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Almira Data and Delivery API",
-    "version": "0.1.0-dev.60",
+    "title": "Cavern Data and Delivery API",
+    "version": "0.1.0-dev.64",
     "description": "Browser/mobile capability reads and immutable governed delivery. This surface never accepts PATs, SAKs, product sessions, provider credentials, or management routing headers."
   },
   "servers": [
     {
-      "url": "/"
+      "url": "/api"
     }
   ],
   "paths": {
@@ -392,7 +392,7 @@
     "/v1/delivery/{tenant_id}/{project_id}/{environment_id}/{collection_instance_id}/{entry_id}/{generation_id}": {
       "get": {
         "operationId": "readImmutableGeneration",
-        "description": "Reads one immutable generation. Public collections need no credential. Private reads require a reusable capability token and its exact registered Origin; they do not call Almira once per file to mint a URL.",
+        "description": "Reads one immutable generation. Public collections need no credential. Private reads require a reusable capability token and its exact registered Origin; they do not call Cavern once per file to mint a URL.",
         "security": [
           {},
           {
@@ -599,8 +599,8 @@
       "capabilityBearer": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "alm_cap_v1 or alm_local_v1",
-        "description": "A short-lived collection capability issued by Almira or a registered asymmetric local issuer. Management credentials are refused."
+        "bearerFormat": "cav_cap_v1 or cav_local_v1",
+        "description": "A short-lived collection capability issued by Cavern or a registered asymmetric local issuer. Management credentials are refused."
       }
     },
     "parameters": {
@@ -656,7 +656,7 @@
         "name": "variant_key",
         "in": "path",
         "required": true,
-        "description": "Slash-separated opaque Almira variant key; clients must percent-encode each segment independently.",
+        "description": "Slash-separated opaque Cavern variant key; clients must percent-encode each segment independently.",
         "schema": {
           "type": "string",
           "minLength": 1,
@@ -698,19 +698,19 @@
         "required": true,
         "schema": {
           "type": "string",
-          "pattern": "^alm_share_v1\\.[A-Za-z0-9_-]{43}$",
+          "pattern": "^cav_share_v1\\.[A-Za-z0-9_-]{43}$",
           "x-sensitive": true
         }
       }
     },
     "responses": {
       "Content": {
-        "description": "Authorized content with a stable Almira generation ETag and no provider-origin details.",
+        "description": "Authorized content with a stable Cavern generation ETag and no provider-origin details.",
         "headers": {
           "ETag": {
             "schema": {
               "type": "string",
-              "pattern": "^\\\"almira-v1-[0-9a-f-]{36}\\\"$"
+              "pattern": "^\\\"cavern-v1-[0-9a-f-]{36}\\\"$"
             }
           },
           "Cache-Control": {

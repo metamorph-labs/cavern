@@ -3,8 +3,8 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
-  AlmiraClient,
-  AlmiraDataClient,
+  CavernClient,
+  CavernDataClient,
   createCapabilityDataClient,
 } from "../dist/index.js";
 
@@ -30,7 +30,7 @@ test("data client methods cover the promoted data-plane contract exactly", async
     .filter((operation) => !Array.isArray(operation) && typeof operation?.operationId === "string")
     .map((operation) => operation.operationId)
     .sort();
-  const methods = Object.getOwnPropertyNames(AlmiraDataClient.prototype)
+  const methods = Object.getOwnPropertyNames(CavernDataClient.prototype)
     .filter((name) => name !== "constructor")
     .sort();
   assert.deepEqual(methods, operations);
@@ -38,7 +38,7 @@ test("data client methods cover the promoted data-plane contract exactly", async
 
 test("policy, delivery, share, and issuer methods use exact collection-scoped routes", async () => {
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_sak_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -124,7 +124,7 @@ test("delivery read returns bounded provider-neutral purge diagnostics", async (
       purge_history_truncated: false,
     },
   };
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_sak_v1.test",
     fetch: async () => json(details),
   });
@@ -135,7 +135,7 @@ test("delivery read returns bounded provider-neutral purge diagnostics", async (
 
 test("builder subject context is canonical and travels on the same application call", async () => {
   let request;
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     workloadSession: "workload_session",
     fetch: async (input, init) => {
       request = { input, init };
@@ -149,7 +149,7 @@ test("builder subject context is canonical and travels on the same application c
       attributes: { tier: "pro", region: "in" },
     },
   });
-  const encoded = request.init.headers.get("x-almira-subject-context");
+  const encoded = request.init.headers.get("x-cavern-subject-context");
   assert(encoded);
   assert.equal(
     Buffer.from(encoded, "base64url").toString("utf8"),
@@ -160,9 +160,9 @@ test("builder subject context is canonical and travels on the same application c
 
 test("data client keeps capabilities off management headers and uses data-plane paths", async () => {
   const calls = [];
-  const client = new AlmiraDataClient({
-    baseUrl: "https://almira.test",
-    capability: "alm_cap_v1.abcdefghijklmnopqrstuvwxyz0123456789",
+  const client = new CavernDataClient({
+    baseUrl: "https://cavern.test",
+    capability: "cav_cap_v1.abcdefghijklmnopqrstuvwxyz0123456789",
     origin: "https://app.example",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -190,53 +190,53 @@ test("data client keeps capabilities off management headers and uses data-plane 
   await client.listDerivativesWithCapability({ ...collection, entryId, generationId });
   await client.readDerivative({ ...collection, entryId, generationId, variantKey: "avatar/256.webp" });
   await client.readImmutableGeneration({ ...collection, entryId, generationId });
-  await client.readShare(`alm_share_v1.${"a".repeat(43)}`);
+  await client.readShare(`cav_share_v1.${"a".repeat(43)}`);
   assert.equal(
     calls[0].input,
-    `https://almira.test/v1/data/${tenantId}/${projectId}/${environmentId}/${collectionInstanceId}/files?limit=25&cursor=next+page&path_prefix=avatars&tag=profile.photo&metadata_key=account.tier&metadata_value=%22pro%22&verified_media_type=image%2Fjpeg&minimum_size_bytes=10&maximum_size_bytes=5000&created_after=2026-01-01T00%3A00%3A00Z&created_before=2026-02-01T00%3A00%3A00Z&extraction_kind=technical&extraction_state=succeeded`,
+    `https://cavern.test/v1/data/${tenantId}/${projectId}/${environmentId}/${collectionInstanceId}/files?limit=25&cursor=next+page&path_prefix=avatars&tag=profile.photo&metadata_key=account.tier&metadata_value=%22pro%22&verified_media_type=image%2Fjpeg&minimum_size_bytes=10&maximum_size_bytes=5000&created_after=2026-01-01T00%3A00%3A00Z&created_before=2026-02-01T00%3A00%3A00Z&extraction_kind=technical&extraction_state=succeeded`,
   );
-  assert.equal(calls[1].input, `https://almira.test/v1/data/${tenantId}/${projectId}/${environmentId}/${collectionInstanceId}/search`);
+  assert.equal(calls[1].input, `https://cavern.test/v1/data/${tenantId}/${projectId}/${environmentId}/${collectionInstanceId}/search`);
   assert.equal(calls[1].init.method, "POST");
   assert.deepEqual(JSON.parse(calls[1].init.body), { query: "invoice", mode: "lexical" });
-  assert.equal(calls[2].input, `https://almira.test/v1/data/${tenantId}/${projectId}/${environmentId}/${collectionInstanceId}/files/${entryId}/versions/${generationId}/derivatives`);
-  assert.equal(calls[3].input, `https://almira.test/v1/delivery/${tenantId}/${projectId}/${environmentId}/${collectionInstanceId}/${entryId}/${generationId}/variants/avatar/256.webp`);
-  assert.equal(calls[4].input, `https://almira.test/v1/delivery/${tenantId}/${projectId}/${environmentId}/${collectionInstanceId}/${entryId}/${generationId}`);
-  assert(calls.every(({ init }) => init.headers.get("x-almira-tenant-id") === null));
+  assert.equal(calls[2].input, `https://cavern.test/v1/data/${tenantId}/${projectId}/${environmentId}/${collectionInstanceId}/files/${entryId}/versions/${generationId}/derivatives`);
+  assert.equal(calls[3].input, `https://cavern.test/v1/delivery/${tenantId}/${projectId}/${environmentId}/${collectionInstanceId}/${entryId}/${generationId}/variants/avatar/256.webp`);
+  assert.equal(calls[4].input, `https://cavern.test/v1/delivery/${tenantId}/${projectId}/${environmentId}/${collectionInstanceId}/${entryId}/${generationId}`);
+  assert(calls.every(({ init }) => init.headers.get("x-cavern-tenant-id") === null));
   assert(calls.slice(0, 5).every(({ init }) => init.headers.get("origin") === "https://app.example"));
-  assert(calls.slice(0, 5).every(({ init }) => init.headers.get("authorization")?.startsWith("Bearer alm_cap_v1.")));
+  assert(calls.slice(0, 5).every(({ init }) => init.headers.get("authorization")?.startsWith("Bearer cav_cap_v1.")));
   assert.equal(calls[5].init.headers.get("origin"), null);
   assert.equal(calls[5].init.headers.get("authorization"), null);
 });
 
 test("data client refuses path-like derivative variant keys locally", async () => {
-  const client = new AlmiraDataClient({
-    capability: "alm_cap_v1.abcdefghijklmnopqrstuvwxyz0123456789",
+  const client = new CavernDataClient({
+    capability: "cav_cap_v1.abcdefghijklmnopqrstuvwxyz0123456789",
     fetch: async () => assert.fail("invalid variant keys must not call the API"),
   });
   await assert.rejects(
     client.readDerivative({ ...collection, entryId, generationId, variantKey: "hls/../secret" }),
-    (error) => error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    (error) => error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
   await assert.rejects(
     client.listFilesWithCapability(collection, { pathPrefix: "../secret" }),
-    (error) => error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    (error) => error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
 });
 
 test("opt-in data retries re-resolve capability and replay only the safe request", async () => {
   const calls = [];
   let credentialCalls = 0;
-  const client = new AlmiraDataClient({
-    baseUrl: "https://almira.test",
+  const client = new CavernDataClient({
+    baseUrl: "https://cavern.test",
     capability: () => {
       credentialCalls += 1;
-      return `alm_cap_v1.${"a".repeat(42)}${credentialCalls}`;
+      return `cav_cap_v1.${"a".repeat(42)}${credentialCalls}`;
     },
     retry: { maxAttempts: 3, baseDelayMilliseconds: 0, maximumDelayMilliseconds: 0 },
     fetch: async (input, init) => {
       calls.push({ input, init });
       if (calls.length === 1) {
-        return new Response(JSON.stringify({ code: "ALMIRA_TEMPORARILY_UNAVAILABLE", request_id: operationId }), {
+        return new Response(JSON.stringify({ code: "CAVERN_TEMPORARILY_UNAVAILABLE", request_id: operationId }), {
           status: 503,
           headers: { "content-type": "application/json", "retry-after": "0" },
         });
@@ -258,7 +258,7 @@ test("workload exchange returns a capability-only data client without credential
   const calls = [];
   const grant = {
     session_id: "018f0000-0000-7000-8000-000000000011",
-    token: `alm_cap_v1.${"a".repeat(43)}`,
+    token: `cav_cap_v1.${"a".repeat(43)}`,
     operations: ["metadata_read"],
     resource: { kind: "collection" },
     audience: "https://app.example",
@@ -277,8 +277,8 @@ test("workload exchange returns a capability-only data client without credential
     calls.push({ input, init });
     return json({ entry_id: entryId });
   };
-  const managementClient = new AlmiraClient({
-    baseUrl: "https://almira.test",
+  const managementClient = new CavernClient({
+    baseUrl: "https://cavern.test",
     workloadSession: "workload_session_evidence",
     fetch: exchangeFetch,
   });
@@ -293,7 +293,7 @@ test("workload exchange returns a capability-only data client without credential
       lifetime_seconds: 300,
     },
     { operationId },
-    { baseUrl: "https://almira.test", fetch: dataFetch },
+    { baseUrl: "https://cavern.test", fetch: dataFetch },
   );
   assert.deepEqual(session.grant, grant);
   await session.dataClient.getFileMetadataWithCapability({ ...collection, entryId });
@@ -301,5 +301,5 @@ test("workload exchange returns a capability-only data client without credential
   assert.equal(calls[0].init.headers.get("authorization"), "MetamorphWorkload workload_session_evidence");
   assert.equal(calls[1].init.headers.get("authorization"), `Bearer ${grant.token}`);
   assert.equal(calls[1].init.headers.get("origin"), grant.audience);
-  assert.equal(calls[1].init.headers.has("x-almira-tenant-id"), false);
+  assert.equal(calls[1].init.headers.has("x-cavern-tenant-id"), false);
 });

@@ -1,4 +1,4 @@
-package almira
+package cavern
 
 import (
 	"net/http"
@@ -12,7 +12,7 @@ func webhookHeaders() http.Header {
 		"Metamorph-Webhook-Event-Id":    {"018f0000-0000-7000-8000-000000000012"},
 		"Metamorph-Webhook-Attempt":     {"2"},
 		"Metamorph-Webhook-Timestamp":   {"2026-10-17T12:00:00.000000Z"},
-		"Metamorph-Webhook-Signature":   {"v1=PHaG4k_rjkr4itoseS10o0_znK6FR9aoArs7pPV2klI"},
+		"Metamorph-Webhook-Signature":   {"v1=sSvGgftGstGOcfUXBQlMctCwL2sOqKiMhvJtD3KJeDg"},
 	}
 }
 
@@ -20,7 +20,7 @@ func TestVerifyWebhookSignatureUsesCommonAPPVector(t *testing.T) {
 	now := time.Date(2026, 10, 17, 12, 0, 30, 0, time.UTC)
 	verified, ok := VerifyWebhookSignature(
 		[]byte("topsecret"),
-		[]byte(`{"event":"almira.file.available.v1"}`),
+		[]byte(`{"event":"cavern.file.available.v1"}`),
 		webhookHeaders(),
 		WebhookVerificationOptions{Now: now},
 	)
@@ -31,7 +31,7 @@ func TestVerifyWebhookSignatureUsesCommonAPPVector(t *testing.T) {
 
 func TestVerifyWebhookSignatureFailsClosed(t *testing.T) {
 	now := time.Date(2026, 10, 17, 12, 0, 30, 0, time.UTC)
-	body := []byte(`{"event":"almira.file.available.v1"}`)
+	body := []byte(`{"event":"cavern.file.available.v1"}`)
 	if _, ok := VerifyWebhookSignature([]byte("wrong"), body, webhookHeaders(), WebhookVerificationOptions{Now: now}); ok {
 		t.Fatal("wrong secret verified")
 	}

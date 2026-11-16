@@ -1,11 +1,11 @@
 {
-  "schema_id": "almira.public.configuration-conformance-vectors.v1",
+  "schema_id": "cavern.public.configuration-conformance-vectors.v1",
   "format_version": 1,
   "vectors": [
     {
       "name": "managed_development_configuration",
       "instance": {
-        "api_version": "almira/v1",
+        "api_version": "cavern/v1",
         "environments": [
           {
             "key": "development",
@@ -30,7 +30,7 @@
     {
       "name": "normal_class_defaults_when_omitted",
       "instance": {
-        "api_version": "almira/v1",
+        "api_version": "cavern/v1",
         "environments": [
           {
             "key": "preview-one",
@@ -50,7 +50,7 @@
     {
       "name": "collection_vector_search_is_explicit",
       "instance": {
-        "api_version": "almira/v1",
+        "api_version": "cavern/v1",
         "environments": [
           {
             "key": "development",
@@ -76,7 +76,7 @@
     {
       "name": "collection_media_processing_is_explicit_and_bounded",
       "instance": {
-        "api_version": "almira/v1",
+        "api_version": "cavern/v1",
         "environments": [
           {
             "key": "development",
@@ -115,7 +115,7 @@
     {
       "name": "vector_search_without_content_is_refused",
       "instance": {
-        "api_version": "almira/v1",
+        "api_version": "cavern/v1",
         "environments": [
           {
             "key": "development",
@@ -141,7 +141,7 @@
     {
       "name": "recycle_retention_must_be_bounded",
       "instance": {
-        "api_version": "almira/v1",
+        "api_version": "cavern/v1",
         "environments": [
           {
             "key": "development",
@@ -162,7 +162,7 @@
     {
       "name": "provider_coordinates_are_refused",
       "instance": {
-        "api_version": "almira/v1",
+        "api_version": "cavern/v1",
         "environments": [],
         "bucket": "customer-data"
       },
@@ -171,7 +171,7 @@
     {
       "name": "media_preset_widths_must_increase",
       "instance": {
-        "api_version": "almira/v1",
+        "api_version": "cavern/v1",
         "environments": [
           {
             "key": "development",
@@ -207,7 +207,7 @@
     {
       "name": "unknown_storage_class_is_refused",
       "instance": {
-        "api_version": "almira/v1",
+        "api_version": "cavern/v1",
         "environments": [
           {
             "key": "development",
@@ -228,7 +228,7 @@
     {
       "name": "noncanonical_origin_is_refused",
       "instance": {
-        "api_version": "almira/v1",
+        "api_version": "cavern/v1",
         "environments": [
           {
             "key": "development",
@@ -245,7 +245,7 @@
     {
       "name": "control_character_in_display_name_is_refused",
       "instance": {
-        "api_version": "almira/v1",
+        "api_version": "cavern/v1",
         "environments": [
           {
             "key": "development",
@@ -259,7 +259,7 @@
     {
       "name": "duplicate_environment_keys_are_refused",
       "instance": {
-        "api_version": "almira/v1",
+        "api_version": "cavern/v1",
         "environments": [
           {
             "key": "development",

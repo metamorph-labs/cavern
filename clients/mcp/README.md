@@ -1,6 +1,6 @@
-# Almira MCP server
+# Cavern MCP server
 
-`almira-mcp` gives external coding agents the same bounded management operations as the Almira CLI
+`cavern-mcp` gives external coding agents the same bounded management operations as the Cavern CLI
 over Model Context Protocol stdio. It is an adapter over the public TypeScript SDK, not an
 orchestration authority: the MCP host owns conversation and approval UX, while Metamorph enforces
 the PAT/SAK scope and every current authorization decision.
@@ -9,20 +9,20 @@ Configure the process without command-line secrets:
 
 ```json
 {
-  "command": "almira-mcp",
+  "command": "cavern-mcp",
   "env": {
-    "ALMIRA_BASE_URL": "https://almira.example",
+    "CAVERN_BASE_URL": "https://cavern.example",
     "METAMORPH_TOKEN": "${METAMORPH_TOKEN}"
   }
 }
 ```
 
 Every tool takes both `tenant_id` and `project_id`. Bootstrap additionally takes the exact Tenancy
-`project.get` result as `tenancy_project`; Almira reauthorizes that snapshot and does not create a
+`project.get` result as `tenancy_project`; Cavern reauthorizes that snapshot and does not create a
 parallel project model. The bundled agent plugins compose this owner boundary with the
 product-neutral `@metamorph-labs/metamorph-tools` MCP: it performs native sign-in, discovers or
 creates the Tenancy project, supplies the exact `project.get` response, and provisions the
-Identity-owned customer-workload binding. Almira never assumes either authority. The management
+Identity-owned customer-workload binding. Cavern never assumes either authority. The management
 tools bootstrap a project and inspect, create, rename or
 delete additional environments, discover their current provider-neutral storage capabilities,
 manage browser origins and collections, and inspect file metadata. One-use upload
@@ -32,34 +32,34 @@ placed in model context; application integration uses the SDK. Mutating tools ac
 Collection creation accepts `storage_class` as `normal` (the default) or `express`; agents should
 first verify that the selected environment advertises the requested class.
 
-`almira_verification_receipt_create` accepts only an existing canary's bounded completion evidence,
-its original finalize operation ID and a distinct refusal environment. Almira exercises finalize
+`cavern_verification_receipt_create` accepts only an existing canary's bounded completion evidence,
+its original finalize operation ID and a distinct refusal environment. Cavern exercises finalize
 retry, exact private bytes, cross-environment refusal and safety before signing a receipt; the MCP
 server does not invent a success assertion or expose key material beyond public verification keys.
-`almira_collection_lifecycle_replace` sets the collection's 1–3650 day recycle window using the
+`cavern_collection_lifecycle_replace` sets the collection's 1–3650 day recycle window using the
 current revision. The default is 30 days, the value applies to future deletions, and existing
 recycle deadlines are unchanged.
 
-`almira_storage_enrollment_create`, `almira_storage_enrollment_list`,
-`almira_storage_enrollment_get` expose the same project-scoped customer-storage workflow as the
+`cavern_storage_enrollment_create`, `cavern_storage_enrollment_list`,
+`cavern_storage_enrollment_get` expose the same project-scoped customer-storage workflow as the
 console and CLI. Creation accepts S3, GCS, or Azure Blob coordinates plus a workload-federation
 identity and provider-native encryption configuration; it never accepts static cloud credentials.
 List and get return only durable safe proof, health, and opaque realization state, so an external
 coding agent can resume after a restart without receiving provider coordinates.
-`almira_storage_adopt` explicitly uses one active `normal` enrollment in a managed
+`cavern_storage_adopt` explicitly uses one active `normal` enrollment in a managed
 non-development environment. It binds the exact environment revision and replay identity;
 development stays managed, an empty environment adopts immediately, and a non-empty environment
 must first migrate every collection to the enrollment's exact realization.
-`almira_storage_restore_managed` performs the reverse transition only after every collection has
+`cavern_storage_restore_managed` performs the reverse transition only after every collection has
 migrated to a current managed realization advertised by fresh capabilities. It binds the exact
 environment revision and replay identity, and a partial transition is refused atomically.
 
 Portability tools start credential-free FileService-bound imports, start safe retained-generation
 exports, and inspect durable job progress. Imports accept no provider credential or storage target.
-After `almira_collection_import_start`, use `almira_portability_import_upload` for each manifest
-object. The MCP process streams `input_path` directly through Almira's resumable multipart path;
+After `cavern_collection_import_start`, use `cavern_portability_import_upload` for each manifest
+object. The MCP process streams `input_path` directly through Cavern's resumable multipart path;
 file bytes and one-use provider grants never enter model context.
-`almira_portability_export_download` consumes the completed export's one-use bearer inside the MCP
+`cavern_portability_export_download` consumes the completed export's one-use bearer inside the MCP
 process, streams and verifies it into a new `output_path`, refuses overwrite, and returns only the
 path, byte count and SHA-256 receipt. Neither the bearer nor file bytes enter model context.
 
@@ -67,26 +67,26 @@ File management tools list retained immutable generations, rename stable entries
 retained generation, move an entry into its recycle window, and restore it before expiry. Deleted
 entries are visible only when a management caller explicitly requests `include_deleted`; these
 tools never turn recycle visibility into application-user access.
-`almira_file_batch` applies up to 100 independent lifecycle mutations atomically. Each entry may
+`cavern_file_batch` applies up to 100 independent lifecycle mutations atomically. Each entry may
 appear once, every action carries its optimistic revision, and returned entries preserve input
 order for deterministic agent follow-up.
-`almira_file_copy` binds one exact source generation, optimistic source revision and new
+`cavern_file_copy` binds one exact source generation, optimistic source revision and new
 collection-local path. It creates an independent FileService object without transferring bytes or
 provider credentials through MCP.
 
 The catalog also exposes collection extraction controls, bounded customer tags and typed metadata,
-authoritative structured list filters, lexical/semantic/hybrid `almira_file_search`, and safe
+authoritative structured list filters, lexical/semantic/hybrid `cavern_file_search`, and safe
 exact-generation extraction status. Semantic and hybrid retrieval require explicit collection-level
 content extraction and vector indexing. The collection extraction result includes the exact
 versioned media-type allowlists, input/output ceilings and wall times, so an agent can reject an
 unsupported integration before attempting work. Search candidates are rechecked against current
 authority; Lodestone never grants access. Raw extracted
-text is never returned by status or list tools; `almira_file_extracted_content_get` is a distinct
+text is never returned by status or list tools; `cavern_file_extracted_content_get` is a distinct
 read whose Metamorph token must carry the separate protected-content permission.
 
 Media tools read and replace bounded image presets, document previews and the optional
 `web_hls_v1` profile, list collection processing jobs, retry or cancel eligible work, and list
-ready derivatives for one immutable source generation. They expose only Almira variant identities
+ready derivatives for one immutable source generation. They expose only Cavern variant identities
 and pinned processor provenance—never provider object coordinates or media bytes.
 
 Protection tools read and replace the collection's future-generation scan policy, list bounded
@@ -103,33 +103,33 @@ local issuer private key. Capability sessions and end-user data reads remain app
 operations because PAT/SAK-backed coding agents are management principals, not builder workloads
 or application users.
 
-Compliance management is exposed as `almira_compliance_profile_list`,
-`almira_compliance_profile_preview`, `almira_compliance_profile_activate` and
-`almira_compliance_profile_remove`. Preview is read-only even though the wire uses POST; activate
+Compliance management is exposed as `cavern_compliance_profile_list`,
+`cavern_compliance_profile_preview`, `cavern_compliance_profile_activate` and
+`cavern_compliance_profile_remove`. Preview is read-only even though the wire uses POST; activate
 and remove remain ordinary host-approved mutations with reusable operation IDs. Tools must surface
 the returned blockers, effects, customer responsibilities and non-certification notice. They must
 not claim application or organization certification, infer legal approval from a customer
 declaration, or represent technical profile activation as reviewed claim admission. Reviewed CMP
 catalog, provider/deployment and owner evidence remain separate claim-publication gates.
 
-`almira_delivery_replace` accepts the collection's desired nullable `custom_hostname`. Read the
-returned `routing_target`, ownership challenge and lifecycle state with `almira_delivery_get`;
+`cavern_delivery_replace` accepts the collection's desired nullable `custom_hostname`. Read the
+returned `routing_target`, ownership challenge and lifecycle state with `cavern_delivery_get`;
 agents must not configure Cloudflare or another CDN directly. A deployment without that capability
-refuses the custom hostname through the ordinary Almira operation. The same read returns at most
+refuses the custom hostname through the ordinary Cavern operation. The same read returns at most
 the 20 newest provider-neutral invalidation diagnostics, so an agent can distinguish pending,
 completed and terminally failed purge work without provider credentials or a privileged endpoint.
-`almira_delivery_purge_create` enqueues a collection-wide invalidation with a reusable UUIDv7
+`cavern_delivery_purge_create` enqueues a collection-wide invalidation with a reusable UUIDv7
 operation identity. It returns the durable pending or replayed diagnostic; the agent verifies
-eventual provider reconciliation through `almira_delivery_get`.
+eventual provider reconciliation through `cavern_delivery_get`.
 
-`almira_storage_migration_start` changes an existing collection between advertised classes using
+`cavern_storage_migration_start` changes an existing collection between advertised classes using
 its current revision and the exact opaque realization generation selected from fresh capabilities
 or an active enrollment receipt; it never accepts provider coordinates. Uploads to that collection
 pause while migration is active. Retain the returned operation ID after an
-ambiguous start and poll `almira_storage_migration_get` until `succeeded` or `failed`.
+ambiguous start and poll `cavern_storage_migration_get` until `succeeded` or `failed`.
 
-`almira_configuration_preview` and `almira_configuration_apply` accept the structured form of the
-public `almira.yaml` v1 schema. Preview is read-only; apply preserves unlisted resources and uses
+`cavern_configuration_preview` and `cavern_configuration_apply` accept the structured form of the
+public `cavern.yaml` v1 schema. Preview is read-only; apply preserves unlisted resources and uses
 deterministic child operation IDs beneath its reusable root `operation_id`. Recycle retention is
 applied through the ordinary lifecycle operation, class changes use the same storage-migration
 operation, while explicit extraction/vector settings are applied through

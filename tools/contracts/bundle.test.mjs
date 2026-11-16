@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   acceptBundle,
-  assertCompatible,
+  assertCandidateProgression,
   compareVersions,
   verifyBundle,
 } from "./bundle.mjs";
@@ -17,9 +17,9 @@ const repositoryContracts = fileURLToPath(new URL("../../contracts/", import.met
 function manifest(version, digest, paths = ["bundle.schema.json", "release.json"]) {
   return {
     formatVersion: 1,
-    product: "almira",
+    product: "cavern",
     contractVersion: version,
-    source: { repository: "metamorph-labs/almira-core", algorithm: "sha256", digest },
+    source: { repository: "metamorph-labs/cavern-core", algorithm: "sha256", digest },
     bundle: { algorithm: "sha256", digest },
     files: paths.map((path) => ({ path, size: 1, digest: "a".repeat(64) })),
   };
@@ -34,38 +34,46 @@ test("semantic version comparison handles prereleases", () => {
 
 test("content cannot change without a version change", () => {
   assert.throws(
-    () => assertCompatible(manifest("0.1.0", "a".repeat(64)), manifest("0.1.0", "b".repeat(64))),
+    () =>
+      assertCandidateProgression(
+        manifest("0.1.0", "a".repeat(64)),
+        manifest("0.1.0", "b".repeat(64)),
+      ),
     /without changing contractVersion/u,
   );
 });
 
-test("files cannot disappear within a compatibility line", () => {
-  assert.throws(
-    () =>
-      assertCompatible(
-        manifest("0.1.0", "a".repeat(64), ["bundle.schema.json", "release.json", "x.json"]),
-        manifest("0.1.1", "b".repeat(64)),
-      ),
-    /removes files within a compatibility line/u,
+test("a new pre-release version may replace superseded files", () => {
+  assert.doesNotThrow(() =>
+    assertCandidateProgression(
+      manifest("0.1.0-dev.1", "a".repeat(64), [
+        "bundle.schema.json",
+        "release.json",
+        "superseded.json",
+      ]),
+      manifest("0.1.0-dev.2", "b".repeat(64)),
+    ),
   );
 });
 
-test("a new pre-1.0 minor line may deliberately break", () => {
-  assert.doesNotThrow(() =>
-    assertCompatible(
-      manifest("0.1.9", "a".repeat(64), ["bundle.schema.json", "release.json", "x.json"]),
-      manifest("0.2.0", "b".repeat(64)),
-    ),
+test("an older candidate version is refused", () => {
+  assert.throws(
+    () =>
+      assertCandidateProgression(
+        manifest("0.1.0-dev.2", "a".repeat(64)),
+        manifest("0.1.0-dev.1", "b".repeat(64)),
+      ),
+    /older than the installed version/u,
   );
 });
 
 test("the installed bundle verifies independently", async () => {
   const verified = await verifyBundle(repositoryContracts);
-  assert.equal(verified.source.repository, "metamorph-labs/almira-core");
+  assert.equal(verified.source.repository, "metamorph-labs/cavern-core");
 });
 
 test("tampering with an artifact is rejected", async () => {
-  const root = await mkdtemp(join(tmpdir(), "almira-public-contract-test-"));
+  const root = await mkdtemp(join(tmpdir(), "cavern-public-contract-test-"));
   try {
     await cp(repositoryContracts, root, { recursive: true });
     const releasePath = join(root, "release.json");
@@ -79,7 +87,7 @@ test("tampering with an artifact is rejected", async () => {
 });
 
 test("a verified candidate installs without depending on private source", async () => {
-  const root = await mkdtemp(join(tmpdir(), "almira-public-contract-accept-"));
+  const root = await mkdtemp(join(tmpdir(), "cavern-public-contract-accept-"));
   const destination = join(root, "contracts");
   try {
     const accepted = await acceptBundle(repositoryContracts, destination);
@@ -91,7 +99,7 @@ test("a verified candidate installs without depending on private source", async 
 });
 
 test("unlisted files are rejected", async () => {
-  const root = await mkdtemp(join(tmpdir(), "almira-public-contract-extra-"));
+  const root = await mkdtemp(join(tmpdir(), "cavern-public-contract-extra-"));
   try {
     await cp(repositoryContracts, root, { recursive: true });
     await writeFile(join(root, "extra.json"), "{}\n");

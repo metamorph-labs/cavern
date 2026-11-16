@@ -1,4 +1,4 @@
-import { AlmiraTransferError } from "./errors.js";
+import { CavernTransferError } from "./errors.js";
 import type {
   CreateMultipartPartGrantRequest,
   DirectUploadDescriptor,
@@ -68,7 +68,7 @@ export async function uploadDirect(
     const etag = response.headers.get("etag");
     if (etag === null || !PROVIDER_RECEIPT.test(etag)) {
       await discard(response);
-      throw new AlmiraTransferError("ALMIRA_TRANSFER_RESPONSE_INVALID", request.part_number);
+      throw new CavernTransferError("CAVERN_TRANSFER_RESPONSE_INVALID", request.part_number);
     }
     let responseProviderVersion: string | null = null;
     try {
@@ -108,7 +108,7 @@ export async function openPortableExport(
   const now = options.now ?? Date.now;
   const currentTime = now();
   if (!Number.isFinite(currentTime) || Date.parse(descriptor.expires_at) <= currentTime) {
-    throw new AlmiraTransferError("ALMIRA_TRANSFER_DESCRIPTOR_EXPIRED");
+    throw new CavernTransferError("CAVERN_TRANSFER_DESCRIPTOR_EXPIRED");
   }
   const fetch_ = options.fetch ?? globalThis.fetch;
   if (typeof fetch_ !== "function") invalidDescriptor();
@@ -124,11 +124,11 @@ export async function openPortableExport(
       ...(options.signal === undefined ? {} : { signal: options.signal }),
     });
   } catch {
-    throw new AlmiraTransferError("ALMIRA_TRANSFER_OUTCOME_UNKNOWN");
+    throw new CavernTransferError("CAVERN_TRANSFER_OUTCOME_UNKNOWN");
   }
   if (!response.ok) {
     await discard(response);
-    throw new AlmiraTransferError("ALMIRA_TRANSFER_PART_REFUSED", null, response.status);
+    throw new CavernTransferError("CAVERN_TRANSFER_PART_REFUSED", null, response.status);
   }
   const contentLength = response.headers.get("content-length");
   if (
@@ -136,7 +136,7 @@ export async function openPortableExport(
     (contentLength !== null && Number(contentLength) !== descriptor.expected_size_bytes)
   ) {
     await discard(response);
-    throw new AlmiraTransferError("ALMIRA_TRANSFER_RESPONSE_INVALID");
+    throw new CavernTransferError("CAVERN_TRANSFER_RESPONSE_INVALID");
   }
   return {
     body: response.body,
@@ -164,16 +164,16 @@ async function putPart(
     });
     if (!response.ok) {
       await discard(response);
-      throw new AlmiraTransferError(
-        "ALMIRA_TRANSFER_PART_REFUSED",
+      throw new CavernTransferError(
+        "CAVERN_TRANSFER_PART_REFUSED",
         request.part_number,
         response.status,
       );
     }
     return response;
   } catch (error) {
-    if (error instanceof AlmiraTransferError) throw error;
-    throw new AlmiraTransferError("ALMIRA_TRANSFER_OUTCOME_UNKNOWN", request.part_number);
+    if (error instanceof CavernTransferError) throw error;
+    throw new CavernTransferError("CAVERN_TRANSFER_OUTCOME_UNKNOWN", request.part_number);
   }
 }
 
@@ -356,7 +356,7 @@ function validHeaders(request: DirectUploadPart): boolean {
 
 function requireUnexpired(descriptor: DirectUploadDescriptor, now: number): void {
   if (!Number.isFinite(now) || Date.parse(descriptor.expires_at) <= now) {
-    throw new AlmiraTransferError("ALMIRA_TRANSFER_DESCRIPTOR_EXPIRED");
+    throw new CavernTransferError("CAVERN_TRANSFER_DESCRIPTOR_EXPIRED");
   }
 }
 
@@ -388,7 +388,7 @@ function exactProviderVersion(response: Response, partNumber: number): string | 
     return value === null ? [] : [value];
   });
   if (values.some((value) => !PROVIDER_VERSION.test(value)) || new Set(values).size > 1) {
-    throw new AlmiraTransferError("ALMIRA_TRANSFER_RESPONSE_INVALID", partNumber);
+    throw new CavernTransferError("CAVERN_TRANSFER_RESPONSE_INVALID", partNumber);
   }
   return values[0] ?? null;
 }
@@ -402,5 +402,5 @@ async function discard(response: Response): Promise<void> {
 }
 
 function invalidDescriptor(): never {
-  throw new AlmiraTransferError("ALMIRA_TRANSFER_DESCRIPTOR_INVALID");
+  throw new CavernTransferError("CAVERN_TRANSFER_DESCRIPTOR_INVALID");
 }

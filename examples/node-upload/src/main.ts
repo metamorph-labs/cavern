@@ -1,12 +1,12 @@
 import { readFile } from "node:fs/promises";
 import { basename } from "node:path";
 
-import { AlmiraClient } from "@metamorph-labs/almira-sdk";
+import { CavernClient } from "@metamorph-labs/cavern-sdk";
 
 import { uploadVerifyAndCleanupFile } from "./upload.js";
 
 const [filePath, tenantId, projectId, environmentId, collectionInstanceId, refusalEnvironmentId, logicalPath] = process.argv.slice(2);
-const baseUrl = process.env.ALMIRA_BASE_URL;
+const baseUrl = process.env.CAVERN_BASE_URL;
 const credential = process.env.METAMORPH_TOKEN;
 
 if (
@@ -27,21 +27,21 @@ if (
   try {
     const bytes = await readFile(filePath);
     const entry = await uploadVerifyAndCleanupFile({
-      client: new AlmiraClient({ baseUrl, credential }),
+      client: new CavernClient({ baseUrl, credential }),
       tenantId,
       projectId,
       environmentId,
       collectionInstanceId,
       refusalEnvironmentId,
       allowDevelopmentLoopbackHttp:
-        process.env.ALMIRA_DEVELOPMENT_ALLOW_LOOPBACK_UPLOAD_URLS === "1",
+        process.env.CAVERN_DEVELOPMENT_ALLOW_LOOPBACK_UPLOAD_URLS === "1",
       bytes,
       path: logicalPath ?? basename(filePath),
       mediaType: "application/octet-stream",
     });
     process.stdout.write(`${JSON.stringify(entry)}\n`);
   } catch {
-    console.error(JSON.stringify({ code: "ALMIRA_EXAMPLE_UPLOAD_FAILED" }));
+    console.error(JSON.stringify({ code: "CAVERN_EXAMPLE_UPLOAD_FAILED" }));
     process.exitCode = 1;
   }
 }

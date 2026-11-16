@@ -1,105 +1,105 @@
-# Almira CLI
+# Cavern CLI
 
-The first-party `almira` CLI exposes Almira's composable management operations over the same public
+The first-party `cavern` CLI exposes Cavern's composable management operations over the same public
 contract and TypeScript client used by applications and agents. Output is JSON by default and
 diagnostics use stable codes and exit statuses.
 
 ```sh
-export ALMIRA_BASE_URL=https://almira.example
+export CAVERN_BASE_URL=https://cavern.example
 export METAMORPH_TOKEN=mm_pat_v1...
 
-almira project bootstrap \
+cavern project bootstrap \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --tenancy-project ./tenancy-project.json
-almira environment list \
+cavern environment list \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003
-almira environment create \
+cavern environment create \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --key preview-one --display "Preview one"
-almira storage capabilities \
+cavern storage capabilities \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --environment 018f0000-0000-7000-8000-000000000004
-almira storage enroll \
+cavern storage enroll \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --input ./storage-enrollment.json
-almira storage enrollments \
+cavern storage enrollments \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003
-almira storage adopt \
+cavern storage adopt \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --environment 018f0000-0000-7000-8000-000000000005 \
   --enrollment 018f0000-0000-7000-8000-000000000020 \
   --revision 1
-almira storage restore-managed \
+cavern storage restore-managed \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --environment 018f0000-0000-7000-8000-000000000005 \
   --revision 4
-almira enrollment get \
+cavern enrollment get \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --enrollment 018f0000-0000-7000-8000-000000000020
-almira config preview \
+cavern config preview \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
-  --file ./almira.yaml
-almira config apply \
+  --file ./cavern.yaml
+cavern config apply \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
-  --file ./almira.yaml
-almira collection create \
+  --file ./cavern.yaml
+cavern collection create \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --environment 018f0000-0000-7000-8000-000000000004 \
   --key assets --display Assets --scan required --class normal
-almira collection migrate \
+cavern collection migrate \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --environment 018f0000-0000-7000-8000-000000000004 \
   --collection 018f0000-0000-7000-8000-000000000012 \
   --class express --realization-generation 7 --revision 1
-almira lifecycle set \
+cavern lifecycle set \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --environment 018f0000-0000-7000-8000-000000000004 \
   --collection 018f0000-0000-7000-8000-000000000012 \
   --days 90 --revision 2
-almira migration get \
+cavern migration get \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --environment 018f0000-0000-7000-8000-000000000004 \
   --collection 018f0000-0000-7000-8000-000000000012 \
   --migration 018f0000-0000-7000-8000-000000000013
-almira import start \
+cavern import start \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --environment 018f0000-0000-7000-8000-000000000004 \
   --collection 018f0000-0000-7000-8000-000000000012 \
   --input ./import.json
-almira export start \
+cavern export start \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --environment 018f0000-0000-7000-8000-000000000004 \
   --collection 018f0000-0000-7000-8000-000000000012 \
   --revision 4
-almira portability list \
+cavern portability list \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --environment 018f0000-0000-7000-8000-000000000004 \
   --collection 018f0000-0000-7000-8000-000000000012
-almira protection set \
+cavern protection set \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --environment 018f0000-0000-7000-8000-000000000004 \
   --collection 018f0000-0000-7000-8000-000000000012 \
   --scan required --revision 2
-almira scan list \
+cavern scan list \
   --tenant 018f0000-0000-7000-8000-000000000002 \
   --project 018f0000-0000-7000-8000-000000000003 \
   --environment 018f0000-0000-7000-8000-000000000004 \
@@ -107,26 +107,26 @@ almira scan list \
 ```
 
 `tenancy-project.json` is the exact successful Tenancy `project.get` result for the selected
-project; Almira validates and reauthorizes that snapshot rather than creating another project
+project; Cavern validates and reauthorizes that snapshot rather than creating another project
 model. The CLI accepts only an `mm_pat_v1.` PAT or `mm_sak_v1.` SAK through `METAMORPH_TOKEN`, never
 a command-line flag. For a mutation, retain the emitted `operation_id`; retries after an ambiguous
 outcome must use that value with `--operation-id`.
 
 `verification create --input verification.json` submits the bounded existing-upload replay
-evidence and a distinct refusal environment, then returns Almira's signed behavior receipt. The
+evidence and a distinct refusal environment, then returns Cavern's signed behavior receipt. The
 operation does not upload another file or accept provider credentials. Verify the receipt's
 Ed25519 signature and exact expected resource binding in the application SDK before treating the
 journey as successful.
 
 Named contexts remove repeated routing flags without becoming another credential store. Use
-`almira context set --context NAME --base-url URL --tenant UUID --project UUID` with optional
-`--environment` and `--collection`, then `almira context use --context NAME`. `context list` and
+`cavern context set --context NAME --base-url URL --tenant UUID --project UUID` with optional
+`--environment` and `--collection`, then `cavern context use --context NAME`. `context list` and
 `context delete` complete the lifecycle. The mode-0600 JSON file defaults to
-`~/.config/almira/contexts.json`; `ALMIRA_CONTEXT_FILE` relocates it and `ALMIRA_CONTEXT` selects a
+`~/.config/cavern/contexts.json`; `CAVERN_CONTEXT_FILE` relocates it and `CAVERN_CONTEXT` selects a
 context non-interactively. Explicit flags override context values. Tokens are never written there.
 
 Structured `--input`, `--file`, and `--tenancy-project` values accept `-` for bounded stdin. Every
-mutation accepts `--dry-run`: ordinary mutations return the exact method, Almira URL, and JSON body
+mutation accepts `--dry-run`: ordinary mutations return the exact method, Cavern URL, and JSON body
 without sending it or exposing authorization; `config apply --dry-run` performs the existing
 server-backed configuration preview. Storage migration and portability start/status commands accept
 `--wait` for one final JSON result or `--watch` for revision-deduplicated JSON Lines. Polling defaults
@@ -246,16 +246,16 @@ Mutations retain the same `--operation-id` replay contract; issuer revocation al
 current `--revision`.
 
 Environment compliance profiles use `compliance list|preview|activate|remove`. Supply
-`--environment` for every command and `--profile almira.storage.gdpr` or
-`--profile almira.storage.hipaa_eligible` for all but `list`. Preview, activation and removal read
+`--environment` for every command and `--profile cavern.storage.gdpr` or
+`--profile cavern.storage.hipaa_eligible` for all but `list`. Preview, activation and removal read
 their exact public request bodies from `--input`; mutations also accept a retained
 `--operation-id`. Always preview first and report its blockers, effects, customer responsibilities
-and non-certification notice. A profile applies only to the selected Almira storage environment and
+and non-certification notice. A profile applies only to the selected Cavern storage environment and
 does not certify the builder's application or organization. Technical profile selection and
 enforcement remain available before external claim review; reviewed signed-catalog admission and
 provider/owner evidence separately gate claim or evidence-report publication.
 
-For `delivery set`, the exact JSON includes nullable `custom_hostname`. Use `null` for Almira's
+For `delivery set`, the exact JSON includes nullable `custom_hostname`. Use `null` for Cavern's
 managed hostname or a lowercase DNS hostname for a deployment-supported custom domain, then read
 the returned `routing_target`, ownership challenge and lifecycle state with `delivery get`. The CLI
 never accepts CDN credentials or provider coordinates. `delivery get` also returns at most the 20

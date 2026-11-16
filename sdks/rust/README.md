@@ -1,19 +1,19 @@
-# `metamorph-almira`
+# `metamorph-cavern`
 
-The official Rust application data SDK for Almira. The crate follows the complete promoted
+The official Rust application data SDK for Cavern. The crate follows the complete promoted
 capability-only data contract, exposes typed list/search/media results and keeps large immutable
 generation, derivative and share reads streaming.
 
 ```rust,no_run
-use metamorph_almira::{Client, ClientOptions, ReadOptions};
+use metamorph_cavern::{Client, ClientOptions, ReadOptions};
 
 # fn current_capability() -> String {
-#     std::env::var("ALMIRA_CAPABILITY").expect("ALMIRA_CAPABILITY must be set")
+#     std::env::var("CAVERN_CAPABILITY").expect("CAVERN_CAPABILITY must be set")
 # }
 # fn consume(_: Vec<u8>) {}
-# async fn example(generation: metamorph_almira::ImmutableGenerationReference) -> Result<(), metamorph_almira::Error> {
+# async fn example(generation: metamorph_cavern::ImmutableGenerationReference) -> Result<(), metamorph_cavern::Error> {
 let client = Client::new(
-    ClientOptions::new("https://almira.example")
+    ClientOptions::new("https://cavern.example")
         .capability(current_capability())
         .origin("https://app.example"),
 )?;
@@ -28,9 +28,9 @@ while let Some(chunk) = response.chunk().await? {
 # }
 ```
 
-Only `alm_cap_v1` and managed-development `alm_local_v1` capability tokens are accepted. Share
+Only `cav_cap_v1` and managed-development `cav_local_v1` capability tokens are accepted. Share
 reads never forward a capability or origin. Redirects are refused, JSON and API errors are bounded,
-and errors expose only stable safe fields. Management and provisioning remain in the Almira CLI,
+and errors expose only stable safe fields. Management and provisioning remain in the Cavern CLI,
 MCP server and management SDK.
 
 Use `ClientOptions::retry(RetryPolicy::new(...))` to opt safe reads and read-only search into
@@ -48,13 +48,13 @@ from `Debug` output.
 `upload_direct_file` handles single-put descriptors. For multipart,
 `upload_direct_file_with` accepts a part-grant callback: it hashes each exact file slice before the
 callback calls `create_upload_part`, then sends the checksum-bound one-use request directly to the
-object provider. Neither path adds an Almira credential, follows redirects or retries an ambiguous
+object provider. Neither path adds an Cavern credential, follows redirects or retries an ambiguous
 write; both return the typed evidence accepted by `finalize_upload`.
 
 `bind_subject` and `list_subject_bindings` let the builder workload associate a namespaced opaque
 end-user identifier with retained files and discover those bindings for privacy workflows. They use
 workload evidence, not browser capabilities; the subject is lifecycle metadata and never becomes
-an Almira authorization identity. Opaque subject identifiers are redacted from `Debug` output. Use
+an Cavern authorization identity. Opaque subject identifiers are redacted from `Debug` output. Use
 `start_subject_lifecycle_operation` and `read_subject_lifecycle_operation` for idempotent
 restrict/export/delete requests and their immutable paged manifests. A completed export can issue
 a fresh five-minute, one-use descriptor through `create_subject_export_download`; the descriptor's

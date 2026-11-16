@@ -6,9 +6,9 @@ import { join } from "node:path";
 import test from "node:test";
 
 import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
-import { AlmiraClient } from "@metamorph-labs/almira-sdk";
+import { CavernClient } from "@metamorph-labs/cavern-sdk";
 
-import { createAlmiraMcpServer } from "../dist/server.js";
+import { createCavernMcpServer } from "../dist/server.js";
 
 const projectId = "018f0000-0000-7000-8000-000000000003";
 const tenantId = "018f0000-0000-7000-8000-000000000002";
@@ -22,15 +22,15 @@ function json(value, status = 200) {
 }
 
 async function connected(fetch) {
-  const server = createAlmiraMcpServer(
-    new AlmiraClient({
-      baseUrl: "https://almira.test",
+  const server = createCavernMcpServer(
+    new CavernClient({
+      baseUrl: "https://cavern.test",
       credential: "mm_sak_v1.test",
       fetch,
     }),
     { fetch },
   );
-  const client = new Client({ name: "almira-test", version: "1.0.0" });
+  const client = new Client({ name: "cavern-test", version: "1.0.0" });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
   return { client, server };
@@ -52,110 +52,110 @@ test("tool catalog is closed and marks destructive behavior accurately", async (
   assert.deepEqual(
     response.tools.map((tool) => tool.name).sort(),
     [
-      "almira_browser_origins_get",
-      "almira_browser_origins_replace",
-      "almira_collection_create",
-      "almira_collection_export_start",
-      "almira_collection_extraction_get",
-      "almira_collection_extraction_replace",
-      "almira_collection_get",
-      "almira_collection_import_start",
-      "almira_collection_lifecycle_replace",
-      "almira_collection_list",
-      "almira_collection_media_get",
-      "almira_collection_media_replace",
-      "almira_collection_protection_get",
-      "almira_collection_protection_replace",
-      "almira_compliance_profile_activate",
-      "almira_compliance_profile_list",
-      "almira_compliance_profile_preview",
-      "almira_compliance_profile_remove",
-      "almira_configuration_apply",
-      "almira_configuration_preview",
-      "almira_delivery_get",
-      "almira_delivery_purge_create",
-      "almira_delivery_replace",
-      "almira_environment_create",
-      "almira_environment_delete",
-      "almira_environment_list",
-      "almira_environment_update",
-      "almira_file_batch",
-      "almira_file_copy",
-      "almira_file_customer_metadata_get",
-      "almira_file_customer_metadata_replace",
-      "almira_file_delete",
-      "almira_file_derivatives_list",
-      "almira_file_extracted_content_get",
-      "almira_file_extraction_get",
-      "almira_file_generation_restore",
-      "almira_file_list",
-      "almira_file_metadata_get",
-      "almira_file_rename",
-      "almira_file_restore",
-      "almira_file_search",
-      "almira_file_versions_list",
-      "almira_local_issuer_list",
-      "almira_local_issuer_register",
-      "almira_local_issuer_revoke",
-      "almira_local_issuer_rotate",
-      "almira_local_issuer_signing_configuration_get",
-      "almira_policy_get",
-      "almira_policy_replace",
-      "almira_policy_simulate",
-      "almira_portability_export_download",
-      "almira_portability_import_upload",
-      "almira_portability_job_get",
-      "almira_portability_jobs_list",
-      "almira_processing_job_cancel",
-      "almira_processing_job_retry",
-      "almira_processing_jobs_list",
-      "almira_project_bootstrap",
-      "almira_protection_cases_list",
-      "almira_protection_rescan",
-      "almira_protection_review_create",
-      "almira_share_create",
-      "almira_share_revoke",
-      "almira_storage_adopt",
-      "almira_storage_capabilities_get",
-      "almira_storage_enrollment_create",
-      "almira_storage_enrollment_get",
-      "almira_storage_enrollment_list",
-      "almira_storage_migration_get",
-      "almira_storage_migration_start",
-      "almira_storage_restore_managed",
-      "almira_verification_receipt_create",
+      "cavern_browser_origins_get",
+      "cavern_browser_origins_replace",
+      "cavern_collection_create",
+      "cavern_collection_export_start",
+      "cavern_collection_extraction_get",
+      "cavern_collection_extraction_replace",
+      "cavern_collection_get",
+      "cavern_collection_import_start",
+      "cavern_collection_lifecycle_replace",
+      "cavern_collection_list",
+      "cavern_collection_media_get",
+      "cavern_collection_media_replace",
+      "cavern_collection_protection_get",
+      "cavern_collection_protection_replace",
+      "cavern_compliance_profile_activate",
+      "cavern_compliance_profile_list",
+      "cavern_compliance_profile_preview",
+      "cavern_compliance_profile_remove",
+      "cavern_configuration_apply",
+      "cavern_configuration_preview",
+      "cavern_delivery_get",
+      "cavern_delivery_purge_create",
+      "cavern_delivery_replace",
+      "cavern_environment_create",
+      "cavern_environment_delete",
+      "cavern_environment_list",
+      "cavern_environment_update",
+      "cavern_file_batch",
+      "cavern_file_copy",
+      "cavern_file_customer_metadata_get",
+      "cavern_file_customer_metadata_replace",
+      "cavern_file_delete",
+      "cavern_file_derivatives_list",
+      "cavern_file_extracted_content_get",
+      "cavern_file_extraction_get",
+      "cavern_file_generation_restore",
+      "cavern_file_list",
+      "cavern_file_metadata_get",
+      "cavern_file_rename",
+      "cavern_file_restore",
+      "cavern_file_search",
+      "cavern_file_versions_list",
+      "cavern_local_issuer_list",
+      "cavern_local_issuer_register",
+      "cavern_local_issuer_revoke",
+      "cavern_local_issuer_rotate",
+      "cavern_local_issuer_signing_configuration_get",
+      "cavern_policy_get",
+      "cavern_policy_replace",
+      "cavern_policy_simulate",
+      "cavern_portability_export_download",
+      "cavern_portability_import_upload",
+      "cavern_portability_job_get",
+      "cavern_portability_jobs_list",
+      "cavern_processing_job_cancel",
+      "cavern_processing_job_retry",
+      "cavern_processing_jobs_list",
+      "cavern_project_bootstrap",
+      "cavern_protection_cases_list",
+      "cavern_protection_rescan",
+      "cavern_protection_review_create",
+      "cavern_share_create",
+      "cavern_share_revoke",
+      "cavern_storage_adopt",
+      "cavern_storage_capabilities_get",
+      "cavern_storage_enrollment_create",
+      "cavern_storage_enrollment_get",
+      "cavern_storage_enrollment_list",
+      "cavern_storage_migration_get",
+      "cavern_storage_migration_start",
+      "cavern_storage_restore_managed",
+      "cavern_verification_receipt_create",
     ],
   );
   assert.equal(
-    response.tools.find((tool) => tool.name === "almira_file_delete").annotations.destructiveHint,
+    response.tools.find((tool) => tool.name === "cavern_file_delete").annotations.destructiveHint,
     true,
   );
   assert.equal(
-    response.tools.find((tool) => tool.name === "almira_environment_delete").annotations.destructiveHint,
+    response.tools.find((tool) => tool.name === "cavern_environment_delete").annotations.destructiveHint,
     true,
   );
   assert.equal(
-    response.tools.find((tool) => tool.name === "almira_environment_list").annotations.readOnlyHint,
+    response.tools.find((tool) => tool.name === "cavern_environment_list").annotations.readOnlyHint,
     true,
   );
   assert.equal(
-    response.tools.find((tool) => tool.name === "almira_file_versions_list").annotations.readOnlyHint,
+    response.tools.find((tool) => tool.name === "cavern_file_versions_list").annotations.readOnlyHint,
     true,
   );
   assert.equal(
-    response.tools.find((tool) => tool.name === "almira_file_restore").annotations.destructiveHint,
+    response.tools.find((tool) => tool.name === "cavern_file_restore").annotations.destructiveHint,
     false,
   );
   assert.equal(
-    response.tools.find((tool) => tool.name === "almira_compliance_profile_preview").annotations.readOnlyHint,
+    response.tools.find((tool) => tool.name === "cavern_compliance_profile_preview").annotations.readOnlyHint,
     true,
   );
   assert.equal(
-    response.tools.find((tool) => tool.name === "almira_compliance_profile_remove").annotations.destructiveHint,
+    response.tools.find((tool) => tool.name === "cavern_compliance_profile_remove").annotations.destructiveHint,
     true,
   );
   assert.equal(
-    response.tools.find((tool) => tool.name === "almira_share_revoke").annotations.destructiveHint,
+    response.tools.find((tool) => tool.name === "cavern_share_revoke").annotations.destructiveHint,
     true,
   );
 });
@@ -177,33 +177,33 @@ test("compliance tools expose preview and approved mutations without adding an a
     data_category_ids: ["personal.contact"],
     purpose_ids: ["customer.support"],
   };
-  await connection.client.callTool({ name: "almira_compliance_profile_list", arguments: scope });
+  await connection.client.callTool({ name: "cavern_compliance_profile_list", arguments: scope });
   await connection.client.callTool({
-    name: "almira_compliance_profile_preview",
-    arguments: { ...scope, profile_id: "almira.storage.gdpr", customer_declaration },
+    name: "cavern_compliance_profile_preview",
+    arguments: { ...scope, profile_id: "cavern.storage.gdpr", customer_declaration },
   });
   await connection.client.callTool({
-    name: "almira_compliance_profile_activate",
+    name: "cavern_compliance_profile_activate",
     arguments: {
       ...scope,
-      profile_id: "almira.storage.gdpr",
+      profile_id: "cavern.storage.gdpr",
       expected_environment_revision: 4,
       customer_declaration,
       operation_id: operationId,
     },
   });
   await connection.client.callTool({
-    name: "almira_compliance_profile_remove",
+    name: "cavern_compliance_profile_remove",
     arguments: {
       ...scope,
-      profile_id: "almira.storage.gdpr",
+      profile_id: "cavern.storage.gdpr",
       expected_binding_revision: 2,
       reason: "Application purpose changed",
       operation_id: operationId,
     },
   });
 
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/compliance-profiles`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/compliance-profiles`;
   assert.deepEqual(requests.map(({ input, init }) => ({
     input,
     method: init.method,
@@ -211,9 +211,9 @@ test("compliance tools expose preview and approved mutations without adding an a
     body: init.body === undefined ? undefined : JSON.parse(init.body),
   })), [
     { input: base, method: "GET", operationId: null, body: undefined },
-    { input: `${base}/almira.storage.gdpr/preview`, method: "POST", operationId: null, body: { customer_declaration } },
-    { input: `${base}/almira.storage.gdpr`, method: "PUT", operationId, body: { expected_environment_revision: 4, customer_declaration } },
-    { input: `${base}/almira.storage.gdpr`, method: "DELETE", operationId, body: { expected_binding_revision: 2, reason: "Application purpose changed" } },
+    { input: `${base}/cavern.storage.gdpr/preview`, method: "POST", operationId: null, body: { customer_declaration } },
+    { input: `${base}/cavern.storage.gdpr`, method: "PUT", operationId, body: { expected_environment_revision: 4, customer_declaration } },
+    { input: `${base}/cavern.storage.gdpr`, method: "DELETE", operationId, body: { expected_binding_revision: 2, reason: "Application purpose changed" } },
   ]);
 });
 
@@ -239,29 +239,29 @@ test("metadata and extraction tools keep safe status separate from protected con
     collection_instance_id: collectionId,
   };
   await connection.client.callTool({
-    name: "almira_collection_extraction_replace",
+    name: "cavern_collection_extraction_replace",
     arguments: {
       ...scope, expected_revision: 2, content: true, ocr: false, transcription: false,
       vector_indexing: true, operation_id: operationId,
     },
   });
   await connection.client.callTool({
-    name: "almira_file_customer_metadata_replace",
+    name: "cavern_file_customer_metadata_replace",
     arguments: {
       ...scope, entry_id: entryId, expected_revision: 3, operation_id: operationId,
       metadata: { tags: ["invoice"], custom: { account_id: "acme" } },
     },
   });
   await connection.client.callTool({
-    name: "almira_file_extraction_get",
+    name: "cavern_file_extraction_get",
     arguments: { ...scope, entry_id: entryId, generation_id: generationId, kind: "content" },
   });
   await connection.client.callTool({
-    name: "almira_file_extracted_content_get",
+    name: "cavern_file_extracted_content_get",
     arguments: { ...scope, entry_id: entryId, generation_id: generationId, kind: "content" },
   });
 
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
   const fileBase = `${base}/files/${entryId}`;
   assert.deepEqual(requests.map(({ input, init }) => ({
     input,
@@ -307,9 +307,9 @@ test("media tools preserve configuration, job, and immutable generation scope", 
     environment_id: environmentId,
     collection_instance_id: collectionId,
   };
-  await connection.client.callTool({ name: "almira_collection_media_get", arguments: scope });
+  await connection.client.callTool({ name: "cavern_collection_media_get", arguments: scope });
   await connection.client.callTool({
-    name: "almira_collection_media_replace",
+    name: "cavern_collection_media_replace",
     arguments: {
       ...scope,
       expected_revision: 2,
@@ -323,21 +323,21 @@ test("media tools preserve configuration, job, and immutable generation scope", 
       },
     },
   });
-  await connection.client.callTool({ name: "almira_processing_jobs_list", arguments: { ...scope, limit: 25 } });
+  await connection.client.callTool({ name: "cavern_processing_jobs_list", arguments: { ...scope, limit: 25 } });
   await connection.client.callTool({
-    name: "almira_processing_job_retry",
+    name: "cavern_processing_job_retry",
     arguments: { ...scope, job_id: jobId, expected_revision: 3, operation_id: operationId },
   });
   await connection.client.callTool({
-    name: "almira_processing_job_cancel",
+    name: "cavern_processing_job_cancel",
     arguments: { ...scope, job_id: jobId, expected_revision: 4, operation_id: operationId },
   });
   await connection.client.callTool({
-    name: "almira_file_derivatives_list",
+    name: "cavern_file_derivatives_list",
     arguments: { ...scope, entry_id: entryId, generation_id: generationId },
   });
 
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
   assert.deepEqual(requests.map(({ input, init }) => [init.method, input]), [
     ["GET", `${base}/media`],
     ["PUT", `${base}/media`],
@@ -362,7 +362,7 @@ test("collection lifecycle tool sets bounded future-deletion retention", async (
     await connection.server.close();
   });
   const result = await connection.client.callTool({
-    name: "almira_collection_lifecycle_replace",
+    name: "cavern_collection_lifecycle_replace",
     arguments: {
       tenant_id: tenantId,
       project_id: projectId,
@@ -377,7 +377,7 @@ test("collection lifecycle tool sets bounded future-deletion retention", async (
   assert.equal(requests.length, 1);
   assert.equal(
     requests[0].input,
-    `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/lifecycle`,
+    `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/lifecycle`,
   );
   assert.equal(requests[0].init.method, "PUT");
   assert.equal(requests[0].init.headers.get("idempotency-key"), operationId);
@@ -412,11 +412,11 @@ test("protection tools expose policy, cases, rescan, and review but no verdict o
     collection_instance_id: collectionId,
   };
   await connection.client.callTool({
-    name: "almira_collection_protection_get",
+    name: "cavern_collection_protection_get",
     arguments: collectionScope,
   });
   await connection.client.callTool({
-    name: "almira_collection_protection_replace",
+    name: "cavern_collection_protection_replace",
     arguments: {
       ...collectionScope,
       expected_revision: 2,
@@ -425,7 +425,7 @@ test("protection tools expose policy, cases, rescan, and review but no verdict o
     },
   });
   await connection.client.callTool({
-    name: "almira_protection_cases_list",
+    name: "cavern_protection_cases_list",
     arguments: {
       tenant_id: tenantId,
       project_id: projectId,
@@ -437,7 +437,7 @@ test("protection tools expose policy, cases, rescan, and review but no verdict o
     },
   });
   await connection.client.callTool({
-    name: "almira_protection_rescan",
+    name: "cavern_protection_rescan",
     arguments: {
       ...collectionScope,
       entry_id: entryId,
@@ -447,7 +447,7 @@ test("protection tools expose policy, cases, rescan, and review but no verdict o
     },
   });
   await connection.client.callTool({
-    name: "almira_protection_review_create",
+    name: "cavern_protection_review_create",
     arguments: {
       ...collectionScope,
       entry_id: entryId,
@@ -459,7 +459,7 @@ test("protection tools expose policy, cases, rescan, and review but no verdict o
     },
   });
 
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}`;
   const collectionBase = `${base}/collections/${collectionId}`;
   const generationBase = `${collectionBase}/files/${entryId}/versions/${generationId}`;
   assert.deepEqual(requests.map(({ input, init }) => ({
@@ -518,34 +518,34 @@ test("file lifecycle tools preserve stable entry scope, revisions, and operation
     collection_instance_id: collectionId,
   };
   await connection.client.callTool({
-    name: "almira_file_list",
+    name: "cavern_file_list",
     arguments: { ...scope, include_deleted: true },
   });
   await connection.client.callTool({
-    name: "almira_file_search",
+    name: "cavern_file_search",
     arguments: {
       ...scope, query: "quarterly report", mode: "hybrid",
       filter: { tag: "finance" }, facets: ["tags"], page_size: 20,
     },
   });
   await connection.client.callTool({
-    name: "almira_file_versions_list",
+    name: "cavern_file_versions_list",
     arguments: { ...scope, entry_id: entryId, limit: 25 },
   });
   await connection.client.callTool({
-    name: "almira_file_rename",
+    name: "cavern_file_rename",
     arguments: { ...scope, entry_id: entryId, logical_path: "archive/file.txt", expected_revision: 3, operation_id: operationId },
   });
   await connection.client.callTool({
-    name: "almira_file_generation_restore",
+    name: "cavern_file_generation_restore",
     arguments: { ...scope, entry_id: entryId, generation_id: generationId, expected_revision: 4, operation_id: operationId },
   });
   await connection.client.callTool({
-    name: "almira_file_restore",
+    name: "cavern_file_restore",
     arguments: { ...scope, entry_id: entryId, expected_revision: 5, operation_id: operationId },
   });
   await connection.client.callTool({
-    name: "almira_file_batch",
+    name: "cavern_file_batch",
     arguments: {
       ...scope,
       actions: [{ action: "delete", entry_id: entryId, expected_revision: 6 }],
@@ -553,7 +553,7 @@ test("file lifecycle tools preserve stable entry scope, revisions, and operation
     },
   });
   await connection.client.callTool({
-    name: "almira_file_copy",
+    name: "cavern_file_copy",
     arguments: {
       ...scope,
       source_entry_id: entryId,
@@ -564,7 +564,7 @@ test("file lifecycle tools preserve stable entry scope, revisions, and operation
     },
   });
 
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/files`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/files`;
   assert.deepEqual(requests.map(({ input, init }) => ({
     input,
     method: init.method,
@@ -640,13 +640,13 @@ test("verification tool is bounded and preserves exact replay evidence", async (
     },
   };
   const result = await connection.client.callTool({
-    name: "almira_verification_receipt_create",
+    name: "cavern_verification_receipt_create",
     arguments: arguments_,
   });
   assert.equal(result.isError, undefined);
   assert.equal(result.structuredContent.operation_id, undefined);
   assert.equal(requests.length, 1);
-  assert.equal(requests[0].input, `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/verifications`);
+  assert.equal(requests[0].input, `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/verifications`);
   assert.deepEqual(JSON.parse(requests[0].init.body), {
     transfer_session_id: arguments_.transfer_session_id,
     finalize_operation_id: arguments_.finalize_operation_id,
@@ -657,7 +657,7 @@ test("verification tool is bounded and preserves exact replay evidence", async (
   });
 
   const refused = await connection.client.callTool({
-    name: "almira_verification_receipt_create",
+    name: "cavern_verification_receipt_create",
     arguments: { ...arguments_, refusal_environment_id: environmentId },
   });
   assert.equal(refused.isError, true);
@@ -674,9 +674,9 @@ test("configuration tools preview and converge the same structured document", as
     await connection.client.close();
     await connection.server.close();
   });
-  const configuration = { api_version: "almira/v1", environments: [] };
+  const configuration = { api_version: "cavern/v1", environments: [] };
   const preview = await connection.client.callTool({
-    name: "almira_configuration_preview",
+    name: "cavern_configuration_preview",
     arguments: { tenant_id: tenantId, project_id: projectId, configuration },
   });
   assert.equal(preview.isError, undefined);
@@ -684,7 +684,7 @@ test("configuration tools preview and converge the same structured document", as
 
   const operationId = "018f0000-0000-7000-8000-000000000007";
   const applied = await connection.client.callTool({
-    name: "almira_configuration_apply",
+    name: "cavern_configuration_apply",
     arguments: { tenant_id: tenantId, project_id: projectId, configuration, operation_id: operationId },
   });
   assert.equal(applied.isError, undefined);
@@ -707,13 +707,13 @@ test("storage capability tool performs one exact read without mutation authority
   });
 
   const response = await connection.client.callTool({
-    name: "almira_storage_capabilities_get",
+    name: "cavern_storage_capabilities_get",
     arguments: { tenant_id: tenantId, project_id: projectId, environment_id: environmentId },
   });
   assert.equal(response.isError, undefined);
   assert.equal(
     request.input,
-    `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/storage-capabilities`,
+    `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/storage-capabilities`,
   );
   assert.equal(request.init.method, "GET");
   assert.equal(request.init.headers.get("idempotency-key"), null);
@@ -733,7 +733,7 @@ test("collection creation forwards the selected storage class", async (context) 
   });
 
   const response = await connection.client.callTool({
-    name: "almira_collection_create",
+    name: "cavern_collection_create",
     arguments: {
       tenant_id: tenantId,
       project_id: projectId,
@@ -779,11 +779,11 @@ test("policy and CDN tools preserve exact collection scope and revision", async 
     operation_id: operationId,
   };
   await connection.client.callTool({
-    name: "almira_policy_replace",
+    name: "cavern_policy_replace",
     arguments: { ...common, document: { template: "private", rules: [] } },
   });
   await connection.client.callTool({
-    name: "almira_delivery_replace",
+    name: "cavern_delivery_replace",
     arguments: {
       ...common,
       config: {
@@ -796,7 +796,7 @@ test("policy and CDN tools preserve exact collection scope and revision", async 
     },
   });
   await connection.client.callTool({
-    name: "almira_delivery_purge_create",
+    name: "cavern_delivery_purge_create",
     arguments: {
       tenant_id: tenantId,
       project_id: projectId,
@@ -805,7 +805,7 @@ test("policy and CDN tools preserve exact collection scope and revision", async 
       operation_id: operationId,
     },
   });
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
   assert.deepEqual(requests.map(({ input, init }) => ({
     input,
     method: init.method,
@@ -858,7 +858,7 @@ test("storage migration tools preserve exact scope, revision, and replay identit
   };
 
   const started = await connection.client.callTool({
-    name: "almira_storage_migration_start",
+    name: "cavern_storage_migration_start",
     arguments: {
       ...common,
       target_storage_class: "express",
@@ -868,14 +868,14 @@ test("storage migration tools preserve exact scope, revision, and replay identit
     },
   });
   const status = await connection.client.callTool({
-    name: "almira_storage_migration_get",
+    name: "cavern_storage_migration_get",
     arguments: { ...common, migration_id: migrationId },
   });
 
   assert.equal(started.isError, undefined);
   assert.equal(started.structuredContent.operation_id, operationId);
   assert.equal(status.isError, undefined);
-  const path = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/storage-migrations`;
+  const path = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/storage-migrations`;
   assert.deepEqual(requests.map(({ input, init }) => ({
     input,
     method: init.method,
@@ -933,14 +933,14 @@ test("customer storage enrollment tools are credential-free and project scoped",
     region: "us-east-1",
     bucket: "customer-files",
     expected_bucket_owner: "123456789012",
-    role_arn: "arn:aws:iam::123456789012:role/almira",
+    role_arn: "arn:aws:iam::123456789012:role/cavern",
     encryption: "aws_sse_s3",
     encryption_key: null,
   };
 
-  await connection.client.callTool({ name: "almira_storage_enrollment_list", arguments: scope });
+  await connection.client.callTool({ name: "cavern_storage_enrollment_list", arguments: scope });
   const started = await connection.client.callTool({
-    name: "almira_storage_enrollment_create",
+    name: "cavern_storage_enrollment_create",
     arguments: {
       ...scope,
       binding_label: "production-primary",
@@ -950,13 +950,13 @@ test("customer storage enrollment tools are credential-free and project scoped",
     },
   });
   await connection.client.callTool({
-    name: "almira_storage_enrollment_get",
+    name: "cavern_storage_enrollment_get",
     arguments: { ...scope, enrollment_operation_id: enrollmentOperationId },
   });
 
   assert.equal(started.isError, undefined);
   assert.equal(started.structuredContent.operation_id, enrollmentOperationId);
-  const path = `https://almira.test/v1/projects/${projectId}/storage-enrollments`;
+  const path = `https://cavern.test/v1/projects/${projectId}/storage-enrollments`;
   assert.deepEqual(requests.map(({ input, init }) => ({
     input,
     method: init.method,
@@ -1002,7 +1002,7 @@ test("customer storage adoption tool binds the exact environment and replay iden
   });
 
   const result = await connection.client.callTool({
-    name: "almira_storage_adopt",
+    name: "cavern_storage_adopt",
     arguments: {
       tenant_id: tenantId,
       project_id: projectId,
@@ -1021,7 +1021,7 @@ test("customer storage adoption tool binds the exact environment and replay iden
     operationId: init.headers.get("idempotency-key"),
     body: JSON.parse(init.body),
   })), [{
-    input: `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/storage-binding`,
+    input: `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/storage-binding`,
     method: "PUT",
     operationId: adoptionOperationId,
     body: { enrollment_operation_id: enrollmentOperationId, expected_revision: 1 },
@@ -1055,7 +1055,7 @@ test("managed storage restoration tool binds the exact environment and replay id
   });
 
   const result = await connection.client.callTool({
-    name: "almira_storage_restore_managed",
+    name: "cavern_storage_restore_managed",
     arguments: {
       tenant_id: tenantId,
       project_id: projectId,
@@ -1073,7 +1073,7 @@ test("managed storage restoration tool binds the exact environment and replay id
     operationId: init.headers.get("idempotency-key"),
     body: JSON.parse(init.body),
   })), [{
-    input: `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/managed-storage-binding`,
+    input: `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/managed-storage-binding`,
     method: "PUT",
     operationId: restorationOperationId,
     body: { expected_revision: 2 },
@@ -1081,7 +1081,7 @@ test("managed storage restoration tool binds the exact environment and replay id
 });
 
 test("portability tools keep source credentials out and verify downloads before local admission", async (context) => {
-  const directory = await mkdtemp(join(tmpdir(), "almira-mcp-portability-"));
+  const directory = await mkdtemp(join(tmpdir(), "cavern-mcp-portability-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
   const environmentId = "018f0000-0000-7000-8000-000000000004";
   const collectionId = "018f0000-0000-7000-8000-000000000012";
@@ -1152,11 +1152,11 @@ test("portability tools keep source credentials out and verify downloads before 
   };
 
   await connection.client.callTool({
-    name: "almira_collection_import_start",
+    name: "cavern_collection_import_start",
     arguments: { ...scope, request: importRequest, operation_id: operationId },
   });
   const uploaded = await connection.client.callTool({
-    name: "almira_portability_import_upload",
+    name: "cavern_portability_import_upload",
     arguments: {
       ...scope,
       portability_job_id: jobId,
@@ -1167,19 +1167,19 @@ test("portability tools keep source credentials out and verify downloads before 
   });
   assert.equal(uploaded.isError, undefined);
   await connection.client.callTool({
-    name: "almira_collection_export_start",
+    name: "cavern_collection_export_start",
     arguments: { ...scope, expected_collection_revision: 5, operation_id: operationId },
   });
   await connection.client.callTool({
-    name: "almira_portability_jobs_list",
+    name: "cavern_portability_jobs_list",
     arguments: { ...scope, kind: "export", limit: 25 },
   });
   await connection.client.callTool({
-    name: "almira_portability_job_get",
+    name: "cavern_portability_job_get",
     arguments: { ...scope, portability_job_id: jobId },
   });
   const downloaded = await connection.client.callTool({
-    name: "almira_portability_export_download",
+    name: "cavern_portability_export_download",
     arguments: {
       ...scope,
       portability_job_id: jobId,
@@ -1203,7 +1203,7 @@ test("portability tools keep source credentials out and verify downloads before 
   assert.equal(requests.at(-1).init.headers.get("authorization"), null);
   assert.equal(requests.at(-1).init.headers.get("x-export-token"), "sensitive");
 
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
   assert.deepEqual(requests.slice(0, 5).map(({ input, init, requestBytes }) => ({
     input,
     method: init.method,
@@ -1234,7 +1234,7 @@ test("portability tools keep source credentials out and verify downloads before 
   ]);
 
   const repeated = await connection.client.callTool({
-    name: "almira_portability_export_download",
+    name: "cavern_portability_export_download",
     arguments: {
       ...scope,
       portability_job_id: jobId,
@@ -1244,7 +1244,7 @@ test("portability tools keep source credentials out and verify downloads before 
   });
   assert.equal(repeated.isError, true);
   assert.deepEqual(JSON.parse(repeated.content[0].text), {
-    code: "ALMIRA_MCP_OUTPUT_EXISTS",
+    code: "CAVERN_MCP_OUTPUT_EXISTS",
     operation_id: operationId,
   });
   assert.doesNotMatch(repeated.content[0].text, /signature|sensitive/iu);
@@ -1264,15 +1264,15 @@ test("environment tools call the exact public lifecycle operations", async (cont
   const environmentId = "018f0000-0000-7000-8000-000000000004";
 
   await connection.client.callTool({
-    name: "almira_environment_create",
+    name: "cavern_environment_create",
     arguments: { ...common, environment_key: "preview-one", display_name: "Preview one" },
   });
   await connection.client.callTool({
-    name: "almira_environment_update",
+    name: "cavern_environment_update",
     arguments: { ...common, environment_id: environmentId, display_name: "Preview renamed", expected_revision: 2 },
   });
   await connection.client.callTool({
-    name: "almira_environment_delete",
+    name: "cavern_environment_delete",
     arguments: { ...common, environment_id: environmentId, expected_revision: 3 },
   });
 
@@ -1282,9 +1282,9 @@ test("environment tools call the exact public lifecycle operations", async (cont
     ifMatch: init.headers.get("if-match"),
     body: init.body === undefined ? undefined : JSON.parse(init.body),
   })), [
-    { input: `https://almira.test/v1/projects/${projectId}/environments`, method: "POST", ifMatch: null, body: { environment_key: "preview-one", display_name: "Preview one" } },
-    { input: `https://almira.test/v1/projects/${projectId}/environments/${environmentId}`, method: "PATCH", ifMatch: null, body: { display_name: "Preview renamed", expected_revision: 2 } },
-    { input: `https://almira.test/v1/projects/${projectId}/environments/${environmentId}`, method: "DELETE", ifMatch: "3", body: undefined },
+    { input: `https://cavern.test/v1/projects/${projectId}/environments`, method: "POST", ifMatch: null, body: { environment_key: "preview-one", display_name: "Preview one" } },
+    { input: `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}`, method: "PATCH", ifMatch: null, body: { display_name: "Preview renamed", expected_revision: 2 } },
+    { input: `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}`, method: "DELETE", ifMatch: "3", body: undefined },
   ]);
 });
 
@@ -1293,7 +1293,7 @@ test("bootstrap tool uses SDK authorization and returns the generated operation 
   const connection = await connected(async (_input, init) => {
     operationId = init.headers.get("idempotency-key");
     assert.equal(init.headers.get("authorization"), "Bearer mm_sak_v1.test");
-    assert.equal(init.headers.get("x-almira-tenant-id"), tenantId);
+    assert.equal(init.headers.get("x-cavern-tenant-id"), tenantId);
     return json({ disposition: "converged", project_revision: 1, environments: [] });
   });
   context.after(async () => {
@@ -1301,7 +1301,7 @@ test("bootstrap tool uses SDK authorization and returns the generated operation 
     await connection.server.close();
   });
   const response = await connection.client.callTool({
-    name: "almira_project_bootstrap",
+    name: "cavern_project_bootstrap",
     arguments: {
       tenant_id: tenantId,
       project_id: projectId,
@@ -1314,9 +1314,9 @@ test("bootstrap tool uses SDK authorization and returns the generated operation 
           tenant_id: tenantId,
           project_id: projectId,
           space_id: "018f0000-0000-7000-8000-000000000011",
-          product_id: "almira",
+          product_id: "cavern",
           product_section_id: null,
-          project_kind_id: "almira.storage",
+          project_kind_id: "cavern.storage",
           owner_region_id: "region.one",
           name: "Files",
           visibility: "private",
@@ -1337,19 +1337,19 @@ test("bootstrap tool uses SDK authorization and returns the generated operation 
 
 test("API refusals become safe tool errors without exception detail", async (context) => {
   const connection = await connected(async () =>
-    json({ code: "ALMIRA_AUTHORIZATION_REFUSED", request_id: requestId }, 403),
+    json({ code: "CAVERN_AUTHORIZATION_REFUSED", request_id: requestId }, 403),
   );
   context.after(async () => {
     await connection.client.close();
     await connection.server.close();
   });
   const response = await connection.client.callTool({
-    name: "almira_environment_list",
+    name: "cavern_environment_list",
     arguments: { tenant_id: tenantId, project_id: projectId },
   });
   assert.equal(response.isError, true);
   assert.deepEqual(JSON.parse(response.content[0].text), {
-    code: "ALMIRA_AUTHORIZATION_REFUSED",
+    code: "CAVERN_AUTHORIZATION_REFUSED",
     request_id: requestId,
     status: 403,
     retry_after_milliseconds: null,
@@ -1357,14 +1357,14 @@ test("API refusals become safe tool errors without exception detail", async (con
   assert.doesNotMatch(response.content[0].text, /mm_sak_v1[.]test/u);
 });
 
-test("invalid tool inputs are refused before any Almira request", async (context) => {
+test("invalid tool inputs are refused before any Cavern request", async (context) => {
   const connection = await connected(async () => assert.fail("no API request"));
   context.after(async () => {
     await connection.client.close();
     await connection.server.close();
   });
   const response = await connection.client.callTool({
-    name: "almira_environment_list",
+    name: "cavern_environment_list",
     arguments: { tenant_id: tenantId, project_id: "wrong", unexpected: true },
   });
   assert.equal(response.isError, true);

@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "cavern": {
+      "command": "npx",
+      "args": [
+        "--yes",
+        "@metamorph-labs/cavern-mcp@0.1.0-dev.64"
+      ],
+      "env": {
+        "CAVERN_BASE_URL": "${CAVERN_BASE_URL}",
+        "METAMORPH_TOKEN": "${METAMORPH_TOKEN}"
+      }
+    },
+    "metamorph": {
+      "command": "npx",
+      "args": [
+        "--yes",
+        "@metamorph-labs/metamorph-tools@0.1.0-dev.0"
+      ],
+      "env": {
+        "METAMORPH_BASE_URL": "${METAMORPH_BASE_URL}"
+      }
+    }
+  }
+}

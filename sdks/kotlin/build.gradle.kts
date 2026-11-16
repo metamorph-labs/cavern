@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "com.metamorph"
-version = "0.1.0-dev.60"
+version = "0.1.0-dev.64"
 
 kotlin {
     compilerOptions {

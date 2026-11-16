@@ -1,4 +1,4 @@
-package almira
+package cavern
 
 import (
 	"bytes"
@@ -27,7 +27,7 @@ const (
 	entryID       = "018f0000-0000-7000-8000-000000000006"
 	generationID  = "018f0000-0000-7000-8000-000000000007"
 	requestID     = "018f0000-0000-7000-8000-000000000008"
-	capability    = "alm_cap_v1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+	capability    = "cav_cap_v1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 )
 
 var (
@@ -157,7 +157,7 @@ func TestExactRoutesFiltersStreamingAndCredentialFreeShare(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = derived.Body.Close()
-	share, err := client.ReadShare(context.Background(), "alm_share_v1."+strings.Repeat("b", 43), ReadOptions{})
+	share, err := client.ReadShare(context.Background(), "cav_share_v1."+strings.Repeat("b", 43), ReadOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -199,15 +199,15 @@ func TestInvalidInputFailsBeforeTransport(t *testing.T) {
 		t.Fatal("transport must not be called")
 		return nil, nil
 	})
-	client, err := NewClient(ClientOptions{BaseURL: "https://almira.test", Capability: capability, Transport: transport})
+	client, err := NewClient(ClientOptions{BaseURL: "https://cavern.test", Capability: capability, Transport: transport})
 	if err != nil {
 		t.Fatal(err)
 	}
 	_, err = client.ListFilesWithCapability(context.Background(), collection, ListFilesOptions{MetadataKey: "tier"})
-	assertClientCode(t, err, "ALMIRA_CLIENT_INPUT_INVALID")
+	assertClientCode(t, err, "CAVERN_CLIENT_INPUT_INVALID")
 	_, err = client.ReadDerivative(context.Background(), DerivativeReference{generation, "../secret"}, ReadOptions{})
-	assertClientCode(t, err, "ALMIRA_CLIENT_INPUT_INVALID")
-	if _, err := NewClient(ClientOptions{BaseURL: "https://almira.test", Origin: "https://app.example\nforwarded: bad"}); err == nil {
+	assertClientCode(t, err, "CAVERN_CLIENT_INPUT_INVALID")
+	if _, err := NewClient(ClientOptions{BaseURL: "https://cavern.test", Origin: "https://app.example\nforwarded: bad"}); err == nil {
 		t.Fatal("origin injection was accepted")
 	}
 }
@@ -217,30 +217,30 @@ func TestAPIErrorsAndTransportFailuresAreTypedAndRedacted(t *testing.T) {
 		return &http.Response{
 			StatusCode: 403,
 			Header:     http.Header{"Retry-After": {"7"}},
-			Body:       io.NopCloser(strings.NewReader(`{"code":"ALMIRA_CAPABILITY_REFUSED","request_id":"` + requestID + `"}`)),
+			Body:       io.NopCloser(strings.NewReader(`{"code":"CAVERN_CAPABILITY_REFUSED","request_id":"` + requestID + `"}`)),
 		}, nil
 	})
-	client, err := NewClient(ClientOptions{BaseURL: "https://almira.test", Capability: capability, Transport: apiTransport})
+	client, err := NewClient(ClientOptions{BaseURL: "https://cavern.test", Capability: capability, Transport: apiTransport})
 	if err != nil {
 		t.Fatal(err)
 	}
 	_, err = client.GetFileMetadataWithCapability(context.Background(), file)
 	var apiError *APIError
-	if !errors.As(err, &apiError) || apiError.Code != "ALMIRA_CAPABILITY_REFUSED" ||
+	if !errors.As(err, &apiError) || apiError.Code != "CAVERN_CAPABILITY_REFUSED" ||
 		apiError.RequestID != requestID || apiError.RetryAfterSeconds == nil || *apiError.RetryAfterSeconds != 7 {
 		t.Fatalf("unexpected API error: %#v", err)
 	}
 
 	secret := errors.New("signed URL and secret details")
 	failing, err := NewClient(ClientOptions{
-		BaseURL: "https://almira.test", Capability: capability,
+		BaseURL: "https://cavern.test", Capability: capability,
 		Transport: roundTripperFunc(func(*http.Request) (*http.Response, error) { return nil, secret }),
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	_, err = failing.GetFileMetadataWithCapability(context.Background(), file)
-	assertClientCode(t, err, "ALMIRA_CLIENT_NETWORK")
+	assertClientCode(t, err, "CAVERN_CLIENT_NETWORK")
 	if strings.Contains(err.Error(), secret.Error()) {
 		t.Fatal("transport detail leaked")
 	}
@@ -248,7 +248,7 @@ func TestAPIErrorsAndTransportFailuresAreTypedAndRedacted(t *testing.T) {
 
 func TestCredentialProviderFailureIsRedacted(t *testing.T) {
 	client, err := NewClient(ClientOptions{
-		BaseURL:            "https://almira.test",
+		BaseURL:            "https://cavern.test",
 		CapabilityProvider: func(context.Context) (string, error) { return "", errors.New("secret detail") },
 		Transport:          roundTripperFunc(func(*http.Request) (*http.Response, error) { t.Fatal("transport called"); return nil, nil }),
 	})
@@ -256,7 +256,7 @@ func TestCredentialProviderFailureIsRedacted(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, err = client.GetFileMetadataWithCapability(context.Background(), file)
-	assertClientCode(t, err, "ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE")
+	assertClientCode(t, err, "CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE")
 	if strings.Contains(err.Error(), "secret detail") {
 		t.Fatal("credential detail leaked")
 	}
@@ -267,10 +267,10 @@ func TestOptInRetryReResolvesCapabilityAndReplaysSafeRequest(t *testing.T) {
 	transportCalls := 0
 	var authorizations []string
 	client, err := NewClient(ClientOptions{
-		BaseURL: "https://almira.test",
+		BaseURL: "https://cavern.test",
 		CapabilityProvider: func(context.Context) (string, error) {
 			credentialCalls++
-			return "alm_cap_v1." + strings.Repeat("a", 42) + strconv.Itoa(credentialCalls), nil
+			return "cav_cap_v1." + strings.Repeat("a", 42) + strconv.Itoa(credentialCalls), nil
 		},
 		Retry: &RetryPolicy{MaxAttempts: 3, BaseDelay: 0, MaxDelay: 0},
 		Transport: roundTripperFunc(func(request *http.Request) (*http.Response, error) {
@@ -280,7 +280,7 @@ func TestOptInRetryReResolvesCapabilityAndReplaysSafeRequest(t *testing.T) {
 			body := `{}`
 			if transportCalls == 1 {
 				status = http.StatusServiceUnavailable
-				body = `{"code":"ALMIRA_TEMPORARILY_UNAVAILABLE","request_id":"` + requestID + `"}`
+				body = `{"code":"CAVERN_TEMPORARILY_UNAVAILABLE","request_id":"` + requestID + `"}`
 			}
 			return &http.Response{
 				StatusCode: status,
@@ -327,7 +327,7 @@ func TestWorkloadExchangeReturnsCapabilityOnlyClientAndRevokesExactly(t *testing
 		}, nil
 	})
 	server, err := NewServerClient(ServerClientOptions{
-		BaseURL: "https://almira.test", WorkloadSession: "workload_session_evidence", Transport: transport,
+		BaseURL: "https://cavern.test", WorkloadSession: "workload_session_evidence", Transport: transport,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -359,12 +359,12 @@ func TestWorkloadExchangeReturnsCapabilityOnlyClientAndRevokesExactly(t *testing
 		t.Fatal("capability grant leaked through formatting")
 	}
 	if calls[0].header.Get("Authorization") != "MetamorphWorkload workload_session_evidence" ||
-		calls[0].header.Get("X-Almira-Tenant-Id") != tenantID {
+		calls[0].header.Get("X-Cavern-Tenant-Id") != tenantID {
 		t.Fatalf("wrong exchange authority: %#v", calls[0].header)
 	}
 	if calls[1].header.Get("Authorization") != "Bearer "+capability ||
 		calls[1].header.Get("Origin") != "https://app.example" ||
-		calls[1].header.Get("X-Almira-Tenant-Id") != "" {
+		calls[1].header.Get("X-Cavern-Tenant-Id") != "" {
 		t.Fatalf("credential crossover: %#v", calls[1].header)
 	}
 	if calls[2].method != http.MethodDelete || calls[2].header.Get("Authorization") != "MetamorphWorkload workload_session_evidence" {
@@ -392,7 +392,7 @@ func TestServerUploadCreateAndFinalizePreserveDescriptorEvidence(t *testing.T) {
 		}, nil
 	})
 	server, err := NewServerClient(ServerClientOptions{
-		BaseURL: "https://almira.test", WorkloadSession: "workload_session_evidence", Transport: transport,
+		BaseURL: "https://cavern.test", WorkloadSession: "workload_session_evidence", Transport: transport,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -456,7 +456,7 @@ func TestWorkloadSubjectBindingsAreNamespacedAndOperationScoped(t *testing.T) {
 			body = `{"operation":` + lifecycle + `,"items":[],"next_cursor":null}`
 		} else if strings.HasSuffix(request.URL.Path, "/subject-lifecycle-operations/"+requestID+"/download") {
 			status = http.StatusCreated
-			body = fmt.Sprintf(`{"descriptor_id":"%s","method":"GET","url":"https://almira.test/v1/subject-export-downloads/%s","headers":[{"name":"authorization","value":"AlmiraTransfer redacted"}],"expected_size_bytes":3072,"content_sha256":"sha256:%s","one_use":true,"expires_at":"2026-10-17T12:05:00Z"}`, requestID, requestID, strings.Repeat("b", 64))
+			body = fmt.Sprintf(`{"descriptor_id":"%s","method":"GET","url":"https://cavern.test/v1/subject-export-downloads/%s","headers":[{"name":"authorization","value":"CavernTransfer redacted"}],"expected_size_bytes":3072,"content_sha256":"sha256:%s","one_use":true,"expires_at":"2026-10-17T12:05:00Z"}`, requestID, requestID, strings.Repeat("b", 64))
 		}
 		return &http.Response{
 			StatusCode: status,
@@ -465,7 +465,7 @@ func TestWorkloadSubjectBindingsAreNamespacedAndOperationScoped(t *testing.T) {
 		}, nil
 	})
 	server, err := NewServerClient(ServerClientOptions{
-		BaseURL: "https://almira.test", WorkloadSession: "workload_session", Transport: transport,
+		BaseURL: "https://cavern.test", WorkloadSession: "workload_session", Transport: transport,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -511,7 +511,7 @@ func TestWorkloadSubjectBindingsAreNamespacedAndOperationScoped(t *testing.T) {
 	if lifecycle.Operation.State != "pending" || manifest.Operation.OperationID != requestID {
 		t.Fatalf("subject lifecycle response drifted: %#v %#v", lifecycle, manifest)
 	}
-	if descriptor.ExpectedSizeBytes != 3072 || strings.Contains(fmt.Sprintf("%#v", descriptor), "AlmiraTransfer") {
+	if descriptor.ExpectedSizeBytes != 3072 || strings.Contains(fmt.Sprintf("%#v", descriptor), "CavernTransfer") {
 		t.Fatalf("subject export descriptor drifted: %#v", descriptor)
 	}
 	if len(calls) != 5 || calls[0].header.Get("Idempotency-Key") != requestID ||
@@ -542,7 +542,7 @@ func TestServerMultipartPartGrantBindsTransferChecksumAndOperation(t *testing.T)
 		}, nil
 	})
 	server, err := NewServerClient(ServerClientOptions{
-		BaseURL: "https://almira.test", WorkloadSession: "workload_session_evidence", Transport: transport,
+		BaseURL: "https://cavern.test", WorkloadSession: "workload_session_evidence", Transport: transport,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -563,7 +563,7 @@ func TestServerMultipartPartGrantBindsTransferChecksumAndOperation(t *testing.T)
 	}
 }
 
-func TestDirectUploadStreamsExactPartsWithoutAlmiraCredentials(t *testing.T) {
+func TestDirectUploadStreamsExactPartsWithoutCavernCredentials(t *testing.T) {
 	contentSHA256 := "sha256:" + strings.Repeat("a", 64)
 	descriptor := DirectUploadDescriptor{
 		DescriptorID:      "018f0000-0000-7000-8000-000000000011",

@@ -1,10 +1,10 @@
 {
-  "schema_id": "almira.apps.conformance-vectors.v1",
+  "schema_id": "cavern.apps.conformance-vectors.v1",
   "format_version": 1,
   "vectors": [
     {
       "name": "resource-discovery-uses-stable-project-target",
-      "schema_id": "almira.app.resource-discover.input.v1",
+      "schema_id": "cavern.app.resource-discover.input.v1",
       "expected": "valid",
       "instance": {
         "schema_version": 1,
@@ -27,7 +27,7 @@
     },
     {
       "name": "resource-discovery-refuses-path-grant",
-      "schema_id": "almira.app.resource-discover.input.v1",
+      "schema_id": "cavern.app.resource-discover.input.v1",
       "expected": "invalid",
       "instance": {
         "schema_version": 1,
@@ -50,7 +50,7 @@
     },
     {
       "name": "metadata-write-uses-installation-derived-namespace",
-      "schema_id": "almira.app.metadata-replace.input.v1",
+      "schema_id": "cavern.app.metadata-replace.input.v1",
       "expected": "valid",
       "instance": {
         "schema_version": 1,
@@ -75,7 +75,7 @@
     },
     {
       "name": "metadata-write-refuses-caller-selected-namespace",
-      "schema_id": "almira.app.metadata-replace.input.v1",
+      "schema_id": "cavern.app.metadata-replace.input.v1",
       "expected": "invalid",
       "instance": {
         "schema_version": 1,
@@ -98,7 +98,7 @@
     },
     {
       "name": "file-read-is-get-only",
-      "schema_id": "almira.app.transfer-read.output.v1",
+      "schema_id": "cavern.app.transfer-read.output.v1",
       "expected": "valid",
       "instance": {
         "schema_version": 1,
@@ -119,7 +119,7 @@
     },
     {
       "name": "file-read-refuses-upload-method",
-      "schema_id": "almira.app.transfer-read.output.v1",
+      "schema_id": "cavern.app.transfer-read.output.v1",
       "expected": "invalid",
       "instance": {
         "schema_version": 1,
@@ -140,7 +140,7 @@
     },
     {
       "name": "external-job-is-exact-generation-bound",
-      "schema_id": "almira.app.external-job-create.input.v1",
+      "schema_id": "cavern.app.external-job-create.input.v1",
       "expected": "valid",
       "instance": {
         "schema_version": 1,
@@ -163,7 +163,7 @@
     },
     {
       "name": "external-job-refuses-path-only-input",
-      "schema_id": "almira.app.external-job-create.input.v1",
+      "schema_id": "cavern.app.external-job-create.input.v1",
       "expected": "invalid",
       "instance": {
         "schema_version": 1,
@@ -187,7 +187,7 @@
     },
     {
       "name": "multipart-upload-descriptor-publishes-bounded-geometry-without-credentials",
-      "schema_id": "almira.app.transfer-create.output.v1",
+      "schema_id": "cavern.app.transfer-create.output.v1",
       "expected": "valid",
       "instance": {
         "schema_version": 1,
@@ -210,7 +210,7 @@
     },
     {
       "name": "upload-descriptor-refuses-opaque-request-list",
-      "schema_id": "almira.app.transfer-create.output.v1",
+      "schema_id": "cavern.app.transfer-create.output.v1",
       "expected": "invalid",
       "instance": {
         "schema_version": 1,
@@ -240,7 +240,7 @@
     },
     {
       "name": "multipart-part-grant-is-checksum-bound-and-one-use",
-      "schema_id": "almira.app.transfer-part-create.output.v1",
+      "schema_id": "cavern.app.transfer-part-create.output.v1",
       "expected": "valid",
       "instance": {
         "schema_version": 1,
@@ -265,7 +265,7 @@
     },
     {
       "name": "external-job-part-grant-retains-job-and-staged-output-binding",
-      "schema_id": "almira.app.external-job-output-part-create.input.v1",
+      "schema_id": "cavern.app.external-job-output-part-create.input.v1",
       "expected": "valid",
       "instance": {
         "schema_version": 1,
@@ -289,7 +289,7 @@
     },
     {
       "name": "external-job-completion-carries-owner-evidence",
-      "schema_id": "almira.app.external-job-complete.input.v1",
+      "schema_id": "cavern.app.external-job-complete.input.v1",
       "expected": "valid",
       "instance": {
         "schema_version": 1,
@@ -324,7 +324,7 @@
     },
     {
       "name": "external-job-completion-refuses-evidence-free-success",
-      "schema_id": "almira.app.external-job-complete.input.v1",
+      "schema_id": "cavern.app.external-job-complete.input.v1",
       "expected": "invalid",
       "instance": {
         "schema_version": 1,

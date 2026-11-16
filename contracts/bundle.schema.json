@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://contracts.almira.dev/bundle.schema.json",
-  "title": "Almira public contract bundle manifest",
+  "$id": "https://contracts.cavern.dev/bundle.schema.json",
+  "title": "Cavern public contract bundle manifest",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,7 +14,7 @@
   ],
   "properties": {
     "formatVersion": { "const": 1 },
-    "product": { "const": "almira" },
+    "product": { "const": "cavern" },
     "contractVersion": {
       "type": "string",
       "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$"
@@ -24,7 +24,7 @@
       "additionalProperties": false,
       "required": ["repository", "algorithm", "digest"],
       "properties": {
-        "repository": { "const": "metamorph-labs/almira-core" },
+        "repository": { "const": "metamorph-labs/cavern-core" },
         "algorithm": { "const": "sha256" },
         "digest": { "$ref": "#/$defs/digest" }
       }

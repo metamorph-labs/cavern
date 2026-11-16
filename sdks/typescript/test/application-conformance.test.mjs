@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { AlmiraClientError, AlmiraDataClient } from "../dist/index.js";
+import { CavernClientError, CavernDataClient } from "../dist/index.js";
 
 const common = JSON.parse(await readFile(new URL("../../../conformance/application-sdk.v1.json", import.meta.url)));
 const journey = common.managed_development;
@@ -20,7 +20,7 @@ const json = (value, status = 200, headers = {}) => new Response(JSON.stringify(
 });
 
 test("common managed-development positive, refusal, retry, and cleanup journey", async () => {
-  const positive = new AlmiraDataClient({
+  const positive = new CavernDataClient({
     baseUrl: journey.base_url,
     origin: journey.origin,
     capability: journey.positive.capability,
@@ -32,20 +32,20 @@ test("common managed-development positive, refusal, retry, and cleanup journey",
   assert.equal((await positive.getFileMetadataWithCapability(reference)).entry_id, reference.entryId);
 
   let refusalCalls = 0;
-  const refused = new AlmiraDataClient({
+  const refused = new CavernDataClient({
     baseUrl: journey.base_url,
     capability: journey.refusal.credential,
     fetch: async () => { refusalCalls += 1; return json({}); },
   });
   await assert.rejects(
     refused.getFileMetadataWithCapability(reference),
-    (error) => error instanceof AlmiraClientError && error.code === journey.refusal.client_code,
+    (error) => error instanceof CavernClientError && error.code === journey.refusal.client_code,
   );
   assert.equal(refusalCalls, 0);
 
   let attempts = 0;
   const observed = [];
-  const retrying = new AlmiraDataClient({
+  const retrying = new CavernDataClient({
     baseUrl: journey.base_url,
     capability: () => journey.retry.capabilities[attempts],
     retry: { maxAttempts: 2, baseDelayMilliseconds: 0, maximumDelayMilliseconds: 0 },

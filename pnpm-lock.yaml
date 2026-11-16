@@ -14,7 +14,7 @@ importers:
 
   clients/cli:
     dependencies:
-      '@metamorph-labs/almira-sdk':
+      '@metamorph-labs/cavern-sdk':
         specifier: workspace:*
         version: link:../../sdks/typescript
       yaml:
@@ -30,7 +30,7 @@ importers:
 
   clients/mcp:
     dependencies:
-      '@metamorph-labs/almira-sdk':
+      '@metamorph-labs/cavern-sdk':
         specifier: workspace:*
         version: link:../../sdks/typescript
       '@modelcontextprotocol/server':
@@ -52,7 +52,7 @@ importers:
 
   examples/node-upload:
     dependencies:
-      '@metamorph-labs/almira-sdk':
+      '@metamorph-labs/cavern-sdk':
         specifier: workspace:*
         version: link:../../sdks/typescript
     devDependencies:

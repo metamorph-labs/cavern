@@ -9,7 +9,7 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "sdks" / "python" / "src"))
 
-from almira import verify_verification_receipt  # noqa: E402
+from cavern import verify_verification_receipt  # noqa: E402
 
 
 class VerificationReceiptTest(unittest.TestCase):

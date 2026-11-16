@@ -1,18 +1,18 @@
-# `@metamorph-labs/almira-sdk`
+# `@metamorph-labs/cavern-sdk`
 
-The official dependency-light TypeScript client for Almira's promoted public API contract. It
+The official dependency-light TypeScript client for Cavern's promoted public API contract. It
 works in modern browsers and Node.js 20 or newer using the standard Fetch API.
 
 ```ts
-import { AlmiraClient } from "@metamorph-labs/almira-sdk";
+import { CavernClient } from "@metamorph-labs/cavern-sdk";
 
-const almira = new AlmiraClient({
-  baseUrl: "https://almira.example",
+const cavern = new CavernClient({
+  baseUrl: "https://cavern.example",
   credential: () => process.env.METAMORPH_TOKEN!,
 });
 
-const { environments } = await almira.listEnvironments({ tenantId, projectId });
-const capabilities = await almira.getStorageCapabilities({
+const { environments } = await cavern.listEnvironments({ tenantId, projectId });
+const capabilities = await cavern.getStorageCapabilities({
   tenantId,
   projectId,
   environmentId: environments[0].environment_id,
@@ -22,7 +22,7 @@ const expressRealization = capabilities.realizations.find(
 );
 if (expressRealization === undefined) throw new Error("express storage is unavailable");
 
-const enrolled = await almira.createStorageEnrollment(
+const enrolled = await cavern.createStorageEnrollment(
   { tenantId, projectId },
   {
     binding_label: "customer-media",
@@ -34,7 +34,7 @@ const enrolled = await almira.createStorageEnrollment(
       region: "us-east-1",
       bucket: "customer-media-prod",
       expected_bucket_owner: "123456789012",
-      role_arn: "arn:aws:iam::123456789012:role/almira-fileservice",
+      role_arn: "arn:aws:iam::123456789012:role/cavern-fileservice",
       encryption: "aws_sse_kms",
       encryption_key: "arn:aws:kms:us-east-1:123456789012:key/example",
     },
@@ -45,7 +45,7 @@ const enrolled = await almira.createStorageEnrollment(
 // After getStorageEnrollment reports this normal enrollment as active, an empty production or
 // additional environment can adopt it explicitly. Development always remains managed.
 const production = environments.find(({ environment_key }) => environment_key === "production")!;
-const adopted = await almira.adoptCustomerStorage(
+const adopted = await cavern.adoptCustomerStorage(
   { tenantId, projectId, environmentId: production.environment_id },
   {
     enrollment_operation_id: enrolled.enrollment.operation_id,
@@ -56,13 +56,13 @@ const adopted = await almira.adoptCustomerStorage(
 
 // After every collection has migrated to a current managed realization, restore the environment
 // atomically. Use the revision returned by the latest environment read or migration workflow.
-const restored = await almira.restoreManagedStorage(
+const restored = await cavern.restoreManagedStorage(
   { tenantId, projectId, environmentId: adopted.environment.environment_id },
   { expected_revision: adopted.environment.revision },
   { operationId: restorationOperationId },
 );
 
-const collection = await almira.createCollection(
+const collection = await cavern.createCollection(
   { tenantId, projectId, environmentId: environments[0].environment_id },
   {
     collection_key: "assets",
@@ -73,7 +73,7 @@ const collection = await almira.createCollection(
   { operationId },
 );
 
-const migration = await almira.startStorageMigration(
+const migration = await cavern.startStorageMigration(
   {
     tenantId,
     projectId,
@@ -88,7 +88,7 @@ const migration = await almira.startStorageMigration(
   { operationId: migrationOperationId },
 );
 
-const migrationStatus = await almira.getStorageMigration({
+const migrationStatus = await cavern.getStorageMigration({
   tenantId,
   projectId,
   environmentId: environments[0].environment_id,
@@ -96,7 +96,7 @@ const migrationStatus = await almira.getStorageMigration({
   migrationId: migration.migration.migration_id,
 });
 
-const exported = await almira.startCollectionExport(
+const exported = await cavern.startCollectionExport(
   {
     tenantId,
     projectId,
@@ -107,7 +107,7 @@ const exported = await almira.startCollectionExport(
   { operationId: exportOperationId },
 );
 
-const preview = await almira.createEnvironment(
+const preview = await cavern.createEnvironment(
   { tenantId, projectId },
   { environment_key: "preview-one", display_name: "Preview one" },
   { operationId },
@@ -125,19 +125,19 @@ Projects start with protected `development` and `production` environments and ma
 environments. Additional environments can be created, renamed and marked for deletion through the
 same scoped client; deleting either protected default is refused.
 
-`listComplianceProfiles` returns Almira's product-owned technical profile candidates whether or not
+`listComplianceProfiles` returns Cavern's product-owned technical profile candidates whether or not
 the deployment has admitted the corresponding external claim. Use `previewComplianceProfile`
 before activation to resolve incompatible settings, enforced effects and customer responsibilities.
-GDPR preview and activation accept sorted customer-provided data-category and purpose IDs; Almira
+GDPR preview and activation accept sorted customer-provided data-category and purpose IDs; Cavern
 does not treat those IDs as legal approval. `activateComplianceProfile` binds the current
 environment revision and an explicit operation ID, while `removeComplianceProfile` binds the
 current profile revision and an auditable reason. Exact retries reuse the operation ID. These
-profiles enforce only the named Almira storage environment; they do not certify an application or
+profiles enforce only the named Cavern storage environment; they do not certify an application or
 organization. Reviewed CMP admission, provider/deployment evidence and owner facts separately gate
 publication of a corresponding claim or evidence report.
 
 `getStorageCapabilities` discovers the current FileService-backed AWS S3, Google Cloud Storage and
-Azure Blob realizations available to an active environment in one Almira request. It returns only
+Azure Blob realizations available to an active environment in one Cavern request. It returns only
 opaque realization IDs and safe provider, location, health and `normal`/`express` capability
 evidence—never provider coordinates or credentials.
 
@@ -146,7 +146,7 @@ Blob target. Supply only provider coordinates and its workload-federation identi
 keys and secrets are outside the contract and are rejected. Use `listStorageEnrollments` after a
 reload and `getStorageEnrollment` with the original operation ID to reconcile proof, health, and
 opaque realization state. Provider coordinates are used only for the owner call and are not
-returned or persisted in Almira's enrollment ledger.
+returned or persisted in Cavern's enrollment ledger.
 
 `adoptCustomerStorage` switches one managed environment to hosted customer-owned storage only
 after the selected `normal` enrollment is active and matches a fresh authenticated FileService
@@ -174,10 +174,10 @@ Direct transfer URLs and headers are sensitive, one-use capabilities. A single-p
 contains its only request. A multipart descriptor contains only bounded part geometry;
 `uploadDirect` hashes each exact slice and invokes its `createPart` callback to obtain a fresh
 checksum-bound request through `createUploadPart`. The SDK never logs or persists those grants and
-never forwards an Almira credential to the object provider.
+never forwards an Cavern credential to the object provider.
 
 Application data reads and read-only search can opt into bounded retries with `retry` on
-`AlmiraDataClient`. Retries are off by default, honor a bounded numeric `Retry-After`, cover only
+`CavernDataClient`. Retries are off by default, honor a bounded numeric `Retry-After`, cover only
 network failures and 429/502/503/504 responses, and resolve the capability provider again for every
 attempt. A response body already returned to the caller is never replayed mid-stream.
 
@@ -188,7 +188,7 @@ in-memory return value for the builder to deliver through its own authenticated 
 
 After a bounded canary upload (at most 8 MiB), retain its transfer ID, completion evidence and
 finalize operation ID and call `createVerificationReceipt` with a distinct environment as the
-refusal target. Almira replays finalization, hashes the exact private read, requires the
+refusal target. Cavern replays finalization, hashes the exact private read, requires the
 cross-environment refusal and checks the configured malware gate before issuing an Ed25519-signed
 receipt. `verifyReceiptWithClient` fetches the public key set without credentials and verifies both
 the signature and an explicit expected resource binding. Never treat a valid receipt for another
@@ -199,13 +199,13 @@ manifest; it does not accept source credentials or provider coordinates. After t
 created, call `putPortabilityImportContent` once per declared source-object UUID. Byte arrays and
 blobs infer their exact length; a `ReadableStream` requires `contentLength`, allowing the CLI and
 agents to stream large objects without buffering the complete file. Reuse the same operation ID
-and identical bytes after an ambiguous response; Almira verifies and skips durable completed
+and identical bytes after an ambiguous response; Cavern verifies and skips durable completed
 parts. `startCollectionExport`,
 `listPortabilityJobs`, and `getPortabilityJob` expose durable transfer and verification progress.
 A succeeded export can issue a fresh one-use instruction through
 `createPortabilityExportDownload`. Pass that descriptor directly to `openPortableExport`, stream
 the returned body, and accept the local artifact only after its exact byte count and SHA-256 match
-the returned expectations. The helper never sends the Almira credential to the object endpoint
+the returned expectations. The helper never sends the Cavern credential to the object endpoint
 and never includes its bearer URL or signed headers in an error.
 
 Files have stable entry identities and immutable generations. Use `createFileVersion` to add bytes
@@ -222,7 +222,7 @@ captured deadline, and expired entries are neither listed nor restorable.
 Use `mutateFilesBatch` when up to 100 independent lifecycle changes must commit or roll back as one
 collection-local operation. Each entry may occur once and results preserve request order.
 Use `copyFile` with an exact source entry, immutable generation, optimistic source revision and new
-collection-local logical path. Almira asks FileService to create a distinct server-side object,
+collection-local logical path. Cavern asks FileService to create a distinct server-side object,
 copies the entry's customer metadata snapshot, and applies the collection's current malware policy;
 the SDK never downloads or re-uploads the bytes.
 
@@ -255,16 +255,16 @@ payload trusted application input.
 Use `searchFiles` for lexical, semantic, or hybrid retrieval. Semantic and hybrid modes require the
 collection's explicit vector opt-in. Lodestone supplies candidates, but every returned entry and
 facet is revision-checked against current PostgreSQL lifecycle, safety, generation, metadata, and
-authorization state. `AlmiraDataClient.searchFilesWithCapability` exposes the same behavior to a
+authorization state. `CavernDataClient.searchFilesWithCapability` exposes the same behavior to a
 builder application's authorized end user without accepting a management credential.
 
 Use `getCollectionMedia` and `replaceCollectionMedia` for bounded collection-level image presets,
 document previews and the optional `web_hls_v1` video profile. `listProcessingJobs`,
 `retryProcessingJob`, and `cancelProcessingJob` expose durable asynchronous state with pinned
 processor provenance. `listGenerationDerivatives` returns ready metadata for one immutable source;
-the application-facing `AlmiraDataClient.listDerivativesWithCapability` and `readDerivative`
+the application-facing `CavernDataClient.listDerivativesWithCapability` and `readDerivative`
 methods keep every derivative behind the same capability, safety and CDN gates as its source.
-Variant keys are opaque Almira names, not provider paths or URLs.
+Variant keys are opaque Cavern names, not provider paths or URLs.
 
 `getDeliveryConfig` returns the effective collection delivery configuration together with at most
 the 20 newest provider-neutral cache-invalidation diagnostics. Each diagnostic exposes only its
@@ -279,17 +279,17 @@ Application backends can pass a normalized `subject` with `listFiles`, `getFileM
 Use `bindSubject` to persist a namespaced opaque builder-user-to-file lifecycle association and
 `listSubjectBindings` to discover retained files for that subject across the project. These
 workload-only operations support the builder's privacy workflows; the subject remains lifecycle
-metadata and never becomes an Almira authorization identity. Use
+metadata and never becomes an Cavern authorization identity. Use
 `startSubjectLifecycleOperation` for `restrict`, `export`, or `delete`, then page its exact durable
 manifest with `readSubjectLifecycleOperation`. A completed export carries its immutable archive
 commitment; call `createSubjectExportDownload` for a fresh five-minute, one-use descriptor and pass
 it to `openPortableExport`. Shared files, retention windows and physical deletion stay pending
 until their owner evidence is terminal. Provider URLs never enter the lifecycle manifest.
-For browser and other end-user data paths, use the deliberately separate `AlmiraDataClient`. It
-accepts only `alm_cap_v1` or `alm_local_v1` capabilities, never PATs, SAKs, workload sessions, or
+For browser and other end-user data paths, use the deliberately separate `CavernDataClient`. It
+accepts only `cav_cap_v1` or `cav_local_v1` capabilities, never PATs, SAKs, workload sessions, or
 product cookies. Browser runtimes supply `Origin`; non-browser runtimes pass the canonical origin
 in the constructor. Public immutable generation reads and token-in-path share reads do not require
-an extra Almira call, and share reads never forward a configured capability.
+an extra Cavern call, and share reads never forward a configured capability.
 
 Access policies, simulations, CDN delivery configuration, revocable shares, and public-key-only
 local issuer registration are all available through typed management methods. Local private keys
@@ -302,7 +302,7 @@ provider-neutral CNAME `routing_target`, and any TXT ownership challenge. Keep u
 hostname by sending `custom_hostname: null`; do not call or configure a CDN provider directly.
 
 The SDK also exports `normalizeConfiguration`, `previewConfiguration`, and `applyConfiguration`
-for the public `almira.yaml` v1 model. Preview performs reads only. Apply refuses conflicts before
+for the public `cavern.yaml` v1 model. Preview performs reads only. Apply refuses conflicts before
 mutation, preserves unlisted resources, checks advertised storage classes, starts governed
 class-only migrations, applies explicit collection extraction/vector controls, and returns a
 resumable receipt rooted in the caller-supplied operation ID. Optional `media` blocks converge

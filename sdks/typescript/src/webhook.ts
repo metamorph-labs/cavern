@@ -55,7 +55,7 @@ function hex(value: Uint8Array): string {
  * Verifies an APP-01 signed webhook over the exact raw request body.
  *
  * A successful result authenticates delivery by APP-01 only. The event payload
- * remains untrusted input and never grants file-read or other Almira authority.
+ * remains untrusted input and never grants file-read or other Cavern authority.
  */
 export async function verifyWebhookSignature(
   secret: string | Uint8Array,

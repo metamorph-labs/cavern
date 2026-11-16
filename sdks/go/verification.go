@@ -1,4 +1,4 @@
-package almira
+package cavern
 
 import (
 	"crypto/ed25519"
@@ -25,7 +25,7 @@ type VerificationCheck struct {
 	Result string `json:"result"`
 }
 
-// VerificationReceipt is the exact V1 receipt payload signed by Almira.
+// VerificationReceipt is the exact V1 receipt payload signed by Cavern.
 type VerificationReceipt struct {
 	ReceiptVersion       string              `json:"receipt_version"`
 	ContractVersion      string              `json:"contract_version"`
@@ -51,7 +51,7 @@ type SignedVerificationReceipt struct {
 	Signature string              `json:"signature"`
 }
 
-// VerificationPublicKey is one trusted public key projected by Almira's origin.
+// VerificationPublicKey is one trusted public key projected by Cavern's origin.
 type VerificationPublicKey struct {
 	KeyID     string `json:"key_id"`
 	Algorithm string `json:"algorithm"`
@@ -113,7 +113,7 @@ func VerifyVerificationReceipt(
 }
 
 func validVerificationReceipt(receipt VerificationReceipt) bool {
-	if receipt.ReceiptVersion != "almira.verification.v1" || receipt.ContractVersion != ContractVersion ||
+	if receipt.ReceiptVersion != "cavern.verification.v1" || receipt.ContractVersion != ContractVersion ||
 		!verificationKeyIDPattern.MatchString(receipt.SigningKeyID) ||
 		!verificationDigestPattern.MatchString(receipt.ContentSHA256) ||
 		receipt.ExpectedSizeBytes < 1 || receipt.ExpectedSizeBytes > 8*1024*1024 ||

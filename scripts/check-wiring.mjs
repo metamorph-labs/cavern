@@ -97,7 +97,7 @@ export function validatePublicWiring(inputs) {
     throw new Error("MCP runtime version drifted from the promoted release");
   }
   for (const plugin of inputs.plugins) {
-    if (!plugin.includes(`@metamorph-labs/almira-mcp@${mcpVersion}`)) {
+    if (!plugin.includes(`@metamorph-labs/cavern-mcp@${mcpVersion}`)) {
       throw new Error("an agent plugin is not pinned to the reachable MCP package");
     }
   }
@@ -211,8 +211,8 @@ async function main() {
     read(dataContractPath).then(JSON.parse),
     read("sdks/typescript/src/client.ts"),
     read("sdks/typescript/src/data-client.ts"),
-    read("sdks/python/src/almira/client.py"),
-    read("sdks/python/src/almira/server.py"),
+    read("sdks/python/src/cavern/client.py"),
+    read("sdks/python/src/cavern/server.py"),
     read("sdks/go/client.go"),
     read("sdks/go/server.go"),
     read("sdks/rust/src/client.rs"),
@@ -221,26 +221,26 @@ async function main() {
     read("clients/mcp/src/server.ts"),
     read("clients/mcp/package.json"),
     read("contracts/release.json").then(JSON.parse),
-    read("plugins/codex/almira/.mcp.json"),
-    read("plugins/claude-code/almira/.mcp.json"),
+    read("plugins/codex/cavern/.mcp.json"),
+    read("plugins/claude-code/cavern/.mcp.json"),
     read("examples/node-upload/src/upload.ts"),
-    read("sdks/java/src/main/java/com/metamorph/almira/AlmiraDataClient.java"),
-    read("sdks/java/src/main/java/com/metamorph/almira/AlmiraServerClient.java"),
-    read("sdks/java/src/main/java/com/metamorph/almira/DirectTransfer.java"),
-    read("sdks/java/src/main/java/com/metamorph/almira/WebhookVerifier.java"),
-    read("sdks/java/src/main/java/com/metamorph/almira/Wire.java"),
-    read("sdks/kotlin/src/main/kotlin/com/metamorph/almira/kotlin/Almira.kt"),
-    read("sdks/dotnet/Metamorph.Almira/Almira.cs"),
-    read("sdks/dotnet/Metamorph.Almira/AlmiraServerClient.cs"),
-    read("sdks/dotnet/Metamorph.Almira/DirectTransfer.cs"),
-    read("sdks/dotnet/Metamorph.Almira/WebhookVerifier.cs"),
-    read("sdks/swift/Sources/Almira/Almira.swift"),
-    read("sdks/swift/Sources/AlmiraServer/AlmiraServerClient.swift"),
-    read("sdks/swift/Sources/Almira/DirectTransfer.swift"),
-    read("sdks/php/src/Almira.php"),
-    read("sdks/dart/lib/almira.dart"),
-    read("sdks/dart/lib/almira_server.dart"),
-    read("sdks/ruby/lib/almira.rb"),
+    read("sdks/java/src/main/java/com/metamorph/cavern/CavernDataClient.java"),
+    read("sdks/java/src/main/java/com/metamorph/cavern/CavernServerClient.java"),
+    read("sdks/java/src/main/java/com/metamorph/cavern/DirectTransfer.java"),
+    read("sdks/java/src/main/java/com/metamorph/cavern/WebhookVerifier.java"),
+    read("sdks/java/src/main/java/com/metamorph/cavern/Wire.java"),
+    read("sdks/kotlin/src/main/kotlin/com/metamorph/cavern/kotlin/Cavern.kt"),
+    read("sdks/dotnet/Metamorph.Cavern/Cavern.cs"),
+    read("sdks/dotnet/Metamorph.Cavern/CavernServerClient.cs"),
+    read("sdks/dotnet/Metamorph.Cavern/DirectTransfer.cs"),
+    read("sdks/dotnet/Metamorph.Cavern/WebhookVerifier.cs"),
+    read("sdks/swift/Sources/Cavern/Cavern.swift"),
+    read("sdks/swift/Sources/CavernServer/CavernServerClient.swift"),
+    read("sdks/swift/Sources/Cavern/DirectTransfer.swift"),
+    read("sdks/php/src/Cavern.php"),
+    read("sdks/dart/lib/cavern.dart"),
+    read("sdks/dart/lib/cavern_server.dart"),
+    read("sdks/ruby/lib/cavern.rb"),
   ]);
   const result = validatePublicWiring({
     managementContract,
@@ -275,7 +275,7 @@ async function main() {
     rubyServer: ruby,
   });
   console.log(
-    `Almira public wiring is closed: ${result.managementOperations} management operations, ` +
+    `Cavern public wiring is closed: ${result.managementOperations} management operations, ` +
       `${result.dataOperations} data operations, ${result.workloadOperations} workload operations, ` +
       `${result.externalAgentOperations} CLI/MCP operations, ${result.publicLanguages} SDK languages, ` +
       `${result.plugins} agent plugins.`,

@@ -13,11 +13,11 @@ from datetime import datetime, timezone
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "sdks" / "python" / "src"))
 
-from almira import (  # noqa: E402
-    AlmiraApiError,
-    AlmiraClientError,
-    AlmiraDataClient,
-    AlmiraServerClient,
+from cavern import (  # noqa: E402
+    CavernApiError,
+    CavernClientError,
+    CavernDataClient,
+    CavernServerClient,
     BuilderSubject,
     CapabilityResource,
     CollectionReference,
@@ -39,7 +39,7 @@ from almira import (  # noqa: E402
     SubjectReference,
     upload_direct,
 )
-from almira import __contract_version__  # noqa: E402
+from cavern import __contract_version__  # noqa: E402
 
 TENANT = "018f0000-0000-7000-8000-000000000002"
 PROJECT = "018f0000-0000-7000-8000-000000000003"
@@ -48,8 +48,8 @@ COLLECTION = "018f0000-0000-7000-8000-000000000005"
 ENTRY = "018f0000-0000-7000-8000-000000000006"
 GENERATION = "018f0000-0000-7000-8000-000000000007"
 REQUEST = "018f0000-0000-7000-8000-000000000008"
-CAPABILITY = f"alm_cap_v1.{'a' * 43}"
-SHARE = f"alm_share_v1.{'b' * 43}"
+CAPABILITY = f"cav_cap_v1.{'a' * 43}"
+SHARE = f"cav_share_v1.{'b' * 43}"
 
 
 def response(value: object, status: int = 200, headers: dict[str, str] | None = None) -> HttpResponse:
@@ -82,11 +82,11 @@ class RecordingTransport:
         return response({"entries": [], "next_cursor": None})
 
 
-class AlmiraPythonSdkTest(unittest.TestCase):
+class CavernPythonSdkTest(unittest.TestCase):
     def setUp(self) -> None:
         self.transport = RecordingTransport()
-        self.client = AlmiraDataClient(
-            base_url="https://almira.test/",
+        self.client = CavernDataClient(
+            base_url="https://cavern.test/",
             capability=CAPABILITY,
             origin="https://app.example",
             transport=self.transport,
@@ -107,7 +107,7 @@ class AlmiraPythonSdkTest(unittest.TestCase):
         }
         methods = {
             name
-            for name, value in inspect.getmembers(AlmiraDataClient, inspect.isfunction)
+            for name, value in inspect.getmembers(CavernDataClient, inspect.isfunction)
             if not name.startswith("_")
         }
         self.assertEqual(__contract_version__, contract["info"]["version"])
@@ -136,7 +136,7 @@ class AlmiraPythonSdkTest(unittest.TestCase):
         )
         self.client.list_derivatives_with_capability(self.generation)
 
-        base = f"https://almira.test/v1/data/{TENANT}/{PROJECT}/{ENVIRONMENT}/{COLLECTION}"
+        base = f"https://cavern.test/v1/data/{TENANT}/{PROJECT}/{ENVIRONMENT}/{COLLECTION}"
         self.assertEqual(
             [(method, url) for method, url, _, _ in self.transport.calls],
             [
@@ -176,7 +176,7 @@ class AlmiraPythonSdkTest(unittest.TestCase):
 
         self.assertEqual(
             self.transport.calls[0][1],
-            f"https://almira.test/v1/delivery/{TENANT}/{PROJECT}/{ENVIRONMENT}/{COLLECTION}/{ENTRY}/{GENERATION}",
+            f"https://cavern.test/v1/delivery/{TENANT}/{PROJECT}/{ENVIRONMENT}/{COLLECTION}/{ENTRY}/{GENERATION}",
         )
         self.assertEqual(self.transport.calls[0][2]["range"], "bytes=0-4")
         self.assertTrue(self.transport.calls[1][1].endswith("/variants/hls/720p/segment-1.m4s"))
@@ -185,36 +185,36 @@ class AlmiraPythonSdkTest(unittest.TestCase):
         self.assertNotIn("origin", share_headers)
 
     def test_invalid_inputs_fail_before_transport(self) -> None:
-        with self.assertRaisesRegex(AlmiraClientError, "ALMIRA_CLIENT_INPUT_INVALID"):
+        with self.assertRaisesRegex(CavernClientError, "CAVERN_CLIENT_INPUT_INVALID"):
             self.client.list_files_with_capability(self.collection, limit=101)
-        with self.assertRaisesRegex(AlmiraClientError, "ALMIRA_CLIENT_INPUT_INVALID"):
+        with self.assertRaisesRegex(CavernClientError, "CAVERN_CLIENT_INPUT_INVALID"):
             self.client.read_immutable_generation(self.generation, byte_range="bytes=-5")
-        with self.assertRaisesRegex(AlmiraClientError, "ALMIRA_CLIENT_INPUT_INVALID"):
+        with self.assertRaisesRegex(CavernClientError, "CAVERN_CLIENT_INPUT_INVALID"):
             self.client.read_derivative(
                 DerivativeReference(TENANT, PROJECT, ENVIRONMENT, COLLECTION, ENTRY, GENERATION, "../secret")
             )
-        with self.assertRaisesRegex(AlmiraClientError, "ALMIRA_CLIENT_INPUT_INVALID"):
+        with self.assertRaisesRegex(CavernClientError, "CAVERN_CLIENT_INPUT_INVALID"):
             self.client.list_files_with_capability(self.collection, path_prefix="../secret")
-        with self.assertRaisesRegex(AlmiraClientError, "ALMIRA_CLIENT_INPUT_INVALID"):
-            AlmiraDataClient(base_url="https://almira.test", origin="https://app.example\nforwarded: bad")
+        with self.assertRaisesRegex(CavernClientError, "CAVERN_CLIENT_INPUT_INVALID"):
+            CavernDataClient(base_url="https://cavern.test", origin="https://app.example\nforwarded: bad")
         self.assertEqual(self.transport.calls, [])
 
     def test_api_errors_are_bounded_and_typed(self) -> None:
         def refusing(*_: object) -> HttpResponse:
             return response(
-                {"code": "ALMIRA_CAPABILITY_REFUSED", "request_id": REQUEST},
+                {"code": "CAVERN_CAPABILITY_REFUSED", "request_id": REQUEST},
                 403,
                 {"retry-after": "7"},
             )
 
-        client = AlmiraDataClient(
-            base_url="https://almira.test",
+        client = CavernDataClient(
+            base_url="https://cavern.test",
             capability=CAPABILITY,
             transport=refusing,
         )
-        with self.assertRaises(AlmiraApiError) as caught:
+        with self.assertRaises(CavernApiError) as caught:
             client.get_file_metadata_with_capability(self.file)
-        self.assertEqual(caught.exception.code, "ALMIRA_CAPABILITY_REFUSED")
+        self.assertEqual(caught.exception.code, "CAVERN_CAPABILITY_REFUSED")
         self.assertEqual(caught.exception.request_id, REQUEST)
         self.assertEqual(caught.exception.status, 403)
         self.assertEqual(caught.exception.retry_after_seconds, 7)
@@ -223,12 +223,12 @@ class AlmiraPythonSdkTest(unittest.TestCase):
         def credential() -> str:
             raise RuntimeError("secret detail")
 
-        client = AlmiraDataClient(
-            base_url="https://almira.test",
+        client = CavernDataClient(
+            base_url="https://cavern.test",
             capability=credential,
             transport=self.transport,
         )
-        with self.assertRaisesRegex(AlmiraClientError, "ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE") as caught:
+        with self.assertRaisesRegex(CavernClientError, "CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE") as caught:
             client.get_file_metadata_with_capability(self.file)
         self.assertNotIn("secret detail", str(caught.exception))
         self.assertEqual(self.transport.calls, [])
@@ -240,7 +240,7 @@ class AlmiraPythonSdkTest(unittest.TestCase):
         def capability() -> str:
             nonlocal credential_calls
             credential_calls += 1
-            return f"alm_cap_v1.{'a' * 42}{credential_calls}"
+            return f"cav_cap_v1.{'a' * 42}{credential_calls}"
 
         def transient(
             _method: str,
@@ -251,14 +251,14 @@ class AlmiraPythonSdkTest(unittest.TestCase):
             calls.append(headers["authorization"])
             if len(calls) == 1:
                 return response(
-                    {"code": "ALMIRA_TEMPORARILY_UNAVAILABLE", "request_id": REQUEST},
+                    {"code": "CAVERN_TEMPORARILY_UNAVAILABLE", "request_id": REQUEST},
                     503,
                     {"retry-after": "0"},
                 )
             return response({"entry_id": ENTRY})
 
-        client = AlmiraDataClient(
-            base_url="https://almira.test",
+        client = CavernDataClient(
+            base_url="https://cavern.test",
             capability=capability,
             transport=transient,
             retry=RetryPolicy(max_attempts=3, base_delay_seconds=0, maximum_delay_seconds=0),
@@ -296,8 +296,8 @@ class AlmiraPythonSdkTest(unittest.TestCase):
                 return response("applied")
             return response({"entry_id": ENTRY})
 
-        server = AlmiraServerClient(
-            base_url="https://almira.test",
+        server = CavernServerClient(
+            base_url="https://cavern.test",
             workload_session="workload_session_evidence",
             transport=exchange,
         )
@@ -318,10 +318,10 @@ class AlmiraPythonSdkTest(unittest.TestCase):
         session.data_client.get_file_metadata_with_capability(self.file)
         self.assertEqual(server.revoke_capability_session(self.collection, REQUEST, operation_id=GENERATION), "applied")
         self.assertEqual(calls[0][2]["authorization"], "MetamorphWorkload workload_session_evidence")
-        self.assertEqual(calls[0][2]["x-almira-tenant-id"], TENANT)
+        self.assertEqual(calls[0][2]["x-cavern-tenant-id"], TENANT)
         self.assertEqual(calls[1][2]["authorization"], f"Bearer {CAPABILITY}")
         self.assertEqual(calls[1][2]["origin"], "https://app.example")
-        self.assertNotIn("x-almira-tenant-id", calls[1][2])
+        self.assertNotIn("x-cavern-tenant-id", calls[1][2])
         self.assertEqual(calls[2][2]["authorization"], "MetamorphWorkload workload_session_evidence")
         self.assertEqual(calls[2][0], "DELETE")
 
@@ -379,8 +379,8 @@ class AlmiraPythonSdkTest(unittest.TestCase):
                 "created_at": "2026-10-17T12:00:00Z",
             })
 
-        server = AlmiraServerClient(
-            base_url="https://almira.test",
+        server = CavernServerClient(
+            base_url="https://cavern.test",
             workload_session="workload_session_evidence",
             transport=upload_api,
         )
@@ -455,8 +455,8 @@ class AlmiraPythonSdkTest(unittest.TestCase):
                 return response({
                     "descriptor_id": REQUEST,
                     "method": "GET",
-                    "url": f"https://almira.test/v1/subject-export-downloads/{REQUEST}",
-                    "headers": [{"name": "authorization", "value": "AlmiraTransfer redacted"}],
+                    "url": f"https://cavern.test/v1/subject-export-downloads/{REQUEST}",
+                    "headers": [{"name": "authorization", "value": "CavernTransfer redacted"}],
                     "expected_size_bytes": 3072,
                     "content_sha256": f"sha256:{'b' * 64}",
                     "one_use": True,
@@ -464,8 +464,8 @@ class AlmiraPythonSdkTest(unittest.TestCase):
                 }, 201)
             return response({"items": [binding], "next_cursor": None})
 
-        server = AlmiraServerClient(
-            base_url="https://almira.test",
+        server = CavernServerClient(
+            base_url="https://cavern.test",
             workload_session="workload_session",
             transport=transport,
         )
@@ -501,7 +501,7 @@ class AlmiraPythonSdkTest(unittest.TestCase):
         self.assertEqual(lifecycle.operation.state, "pending")
         self.assertEqual(manifest.operation.operation_id, REQUEST)
         self.assertEqual(descriptor.expected_size_bytes, 3072)
-        self.assertNotIn("AlmiraTransfer", repr(descriptor))
+        self.assertNotIn("CavernTransfer", repr(descriptor))
         self.assertNotIn("opaque|user-42", repr(subject))
         self.assertEqual(calls[0][2]["idempotency-key"], REQUEST)
         self.assertNotIn("idempotency-key", calls[1][2])
@@ -546,8 +546,8 @@ class AlmiraPythonSdkTest(unittest.TestCase):
                 "one_use": True,
             }, 201)
 
-        server = AlmiraServerClient(
-            base_url="https://almira.test",
+        server = CavernServerClient(
+            base_url="https://cavern.test",
             workload_session="workload_session_evidence",
             transport=part_api,
         )
@@ -565,7 +565,7 @@ class AlmiraPythonSdkTest(unittest.TestCase):
             "content_sha256": content_sha256,
         })
 
-    def test_direct_upload_streams_exact_parts_without_almira_credentials(self) -> None:
+    def test_direct_upload_streams_exact_parts_without_cavern_credentials(self) -> None:
         content_sha256 = f"sha256:{'a' * 64}"
         descriptor = DirectUploadDescriptor(
             "018f0000-0000-7000-8000-000000000011",
@@ -625,12 +625,12 @@ class AlmiraPythonSdkTest(unittest.TestCase):
         def malformed(*_: object) -> HttpResponse:
             return HttpResponse(200, {"content-type": "application/json"}, body)  # type: ignore[arg-type]
 
-        client = AlmiraDataClient(
-            base_url="https://almira.test",
+        client = CavernDataClient(
+            base_url="https://cavern.test",
             capability=CAPABILITY,
             transport=malformed,
         )
-        with self.assertRaisesRegex(AlmiraClientError, "ALMIRA_CLIENT_RESPONSE_INVALID"):
+        with self.assertRaisesRegex(CavernClientError, "CAVERN_CLIENT_RESPONSE_INVALID"):
             client.get_file_metadata_with_capability(self.file)
         self.assertTrue(body.closed)
 

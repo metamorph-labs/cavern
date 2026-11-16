@@ -3,8 +3,8 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
-  AlmiraClient,
-  AlmiraConfigurationError,
+  CavernClient,
+  CavernConfigurationError,
   applyConfiguration,
   normalizeConfiguration,
   previewConfiguration,
@@ -16,7 +16,7 @@ const environmentId = "018f0000-0000-7000-8000-000000000004";
 const operationId = "018f0000-0000-7000-8000-000000000007";
 
 const configuration = {
-  api_version: "almira/v1",
+  api_version: "cavern/v1",
   environments: [{
     key: "development",
     display_name: "Development",
@@ -64,7 +64,7 @@ function capabilityCatalog(storageClasses = ["normal", "express"]) {
 }
 
 function fixture(calls) {
-  return new AlmiraClient({
+  return new CavernClient({
     credential: "mm_sak_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -105,11 +105,11 @@ test("configuration vectors are admitted or refused by the SDK", async () => {
   ));
   for (const vector of vectors.vectors) {
     if (vector.expected === "valid") {
-      assert.equal(normalizeConfiguration(vector.instance).api_version, "almira/v1", vector.name);
+      assert.equal(normalizeConfiguration(vector.instance).api_version, "cavern/v1", vector.name);
     } else {
       assert.throws(
         () => normalizeConfiguration(vector.instance),
-        (error) => error instanceof AlmiraConfigurationError && error.code === "ALMIRA_CONFIGURATION_INPUT_INVALID",
+        (error) => error instanceof CavernConfigurationError && error.code === "CAVERN_CONFIGURATION_INPUT_INVALID",
         vector.name,
       );
     }
@@ -134,7 +134,7 @@ test("preview is deterministic, additive, and capability-aware", async () => {
 
 test("configuration ordering does not change the normalized plan", async () => {
   const firstInput = {
-    api_version: "almira/v1",
+    api_version: "cavern/v1",
     environments: [
       {
         key: "production",
@@ -158,7 +158,7 @@ test("configuration ordering does not change the normalized plan", async () => {
       collections: [...environment.collections].reverse(),
     })),
   };
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_sak_v1.test",
     fetch: async (input, init) => {
       if (input.endsWith("/environments") && init.method === "GET") {
@@ -176,7 +176,7 @@ test("configuration ordering does not change the normalized plan", async () => {
 
 test("environment ceiling is rejected during preview without mutations", async () => {
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_sak_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -197,19 +197,19 @@ test("environment ceiling is rejected during preview without mutations", async (
     },
   });
   const value = {
-    api_version: "almira/v1",
+    api_version: "cavern/v1",
     environments: [{ key: "new-environment", display_name: "New environment", collections: [] }],
   };
   const plan = await previewConfiguration(client, { tenantId, projectId }, value);
   assert.deepEqual(plan.actions, []);
   assert.deepEqual(plan.conflicts, [{
-    code: "ALMIRA_CONFIGURATION_ENVIRONMENT_LIMIT_EXCEEDED",
+    code: "CAVERN_CONFIGURATION_ENVIRONMENT_LIMIT_EXCEEDED",
     environment_key: "new-environment",
     collection_key: null,
   }]);
   await assert.rejects(
     applyConfiguration(client, { tenantId, projectId }, value, { operationId }),
-    (error) => error instanceof AlmiraConfigurationError && error.code === "ALMIRA_CONFIGURATION_CONFLICT",
+    (error) => error instanceof CavernConfigurationError && error.code === "CAVERN_CONFIGURATION_CONFLICT",
   );
   assert.equal(calls.filter(({ init }) => init.method !== "GET").length, 0);
 });
@@ -254,7 +254,7 @@ test("apply uses stable child operation IDs and returns a resumable receipt", as
 test("apply wires explicit extraction and vector settings after collection creation", async () => {
   const collectionId = "018f0000-0000-7000-8000-000000000050";
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_sak_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -288,7 +288,7 @@ test("apply wires explicit extraction and vector settings after collection creat
     },
   });
   const desired = {
-    api_version: "almira/v1",
+    api_version: "cavern/v1",
     environments: [{
       key: "development",
       display_name: "Development",
@@ -325,7 +325,7 @@ test("apply wires explicit extraction and vector settings after collection creat
 test("apply wires bounded media presets after collection creation", async () => {
   const collectionId = "018f0000-0000-7000-8000-000000000052";
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_sak_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -356,7 +356,7 @@ test("apply wires bounded media presets after collection creation", async () => 
     },
   });
   const desired = {
-    api_version: "almira/v1",
+    api_version: "cavern/v1",
     environments: [{
       key: "development",
       display_name: "Development",
@@ -393,13 +393,13 @@ test("apply wires bounded media presets after collection creation", async () => 
 
 test("duplicate resource keys fail closed", () => {
   assert.throws(() => normalizeConfiguration({
-    api_version: "almira/v1",
+    api_version: "cavern/v1",
     environments: [configuration.environments[0], configuration.environments[0]],
-  }), AlmiraConfigurationError);
+  }), CavernConfigurationError);
 });
 
 test("existing collection changes are reported as conflicts", async () => {
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_sak_v1.test",
     fetch: async (input, init) => {
       if (input.endsWith("/environments") && init.method === "GET") {
@@ -439,7 +439,7 @@ test("existing collection changes are reported as conflicts", async () => {
   const plan = await previewConfiguration(client, { tenantId, projectId }, configuration);
   assert.deepEqual(plan.actions, []);
   assert.deepEqual(plan.conflicts, [{
-    code: "ALMIRA_CONFIGURATION_COLLECTION_CHANGE_UNSUPPORTED",
+    code: "CAVERN_CONFIGURATION_COLLECTION_CHANGE_UNSUPPORTED",
     environment_key: "development",
     collection_key: "sessions",
   }]);
@@ -448,7 +448,7 @@ test("existing collection changes are reported as conflicts", async () => {
 test("existing collection class changes plan and apply a governed migration", async () => {
   const calls = [];
   let bindingState = "ready";
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_sak_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -544,7 +544,7 @@ test("existing collection class changes plan and apply a governed migration", as
 test("existing collection protection, extraction, media, and class changes share one revision chain", async () => {
   const collectionId = "018f0000-0000-7000-8000-000000000061";
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_sak_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -615,7 +615,7 @@ test("existing collection protection, extraction, media, and class changes share
     },
   });
   const desired = {
-    api_version: "almira/v1",
+    api_version: "cavern/v1",
     environments: [{
       key: "development",
       display_name: "Development",

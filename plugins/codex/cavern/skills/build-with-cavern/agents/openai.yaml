@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build with Cavern"
+  short_description: "Add secure file storage to an application"
+  default_prompt: "Set up Cavern storage for this application and verify the integration."

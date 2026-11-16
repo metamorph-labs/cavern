@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 
 import {
-  AlmiraApiError,
-  AlmiraClient,
+  CavernApiError,
+  CavernClient,
   createOperationId,
   uploadDirect,
   verifyReceiptWithClient,
@@ -10,7 +10,7 @@ import {
   type DeleteFileOutcome,
   type FileGeneration,
   type SignedVerificationReceipt,
-} from "@metamorph-labs/almira-sdk";
+} from "@metamorph-labs/cavern-sdk";
 
 const FINALIZATION_ATTEMPTS = 40;
 const FINALIZATION_RETRY_MILLISECONDS = 250;
@@ -20,7 +20,7 @@ const VERIFICATION_RETRY_MILLISECONDS = 500;
 export interface UploadFileInput extends CollectionReference {
   allowDevelopmentLoopbackHttp?: boolean;
   bytes: Uint8Array;
-  client: AlmiraClient;
+  client: CavernClient;
   directFetch?: typeof globalThis.fetch;
   mediaType: string;
   path: string;
@@ -70,7 +70,7 @@ export interface CleanedVerifiedUploadFileResult extends VerifiedUploadFileResul
   cleanup: DeleteFileOutcome;
 }
 
-/** Runs the application upload and asks Almira to exercise and sign the required behavior. */
+/** Runs the application upload and asks Cavern to exercise and sign the required behavior. */
 export async function uploadAndVerifyFile(
   input: VerifiedUploadFileInput,
 ): Promise<VerifiedUploadFileResult> {
@@ -125,15 +125,15 @@ export async function uploadAndVerifyFile(
     expectedSizeBytes: input.bytes.byteLength,
     contentSha256,
   } })) {
-    throw new Error("ALMIRA_EXAMPLE_VERIFICATION_FAILED");
+    throw new Error("CAVERN_EXAMPLE_VERIFICATION_FAILED");
   }
   return { generation, receipt };
 }
 
 async function finalizeUploadWithRetry(
-  client: AlmiraClient,
+  client: CavernClient,
   reference: CollectionReference & { transferSessionId: string },
-  completion: Parameters<AlmiraClient["finalizeUpload"]>[1],
+  completion: Parameters<CavernClient["finalizeUpload"]>[1],
   operationId: string,
 ): Promise<FileGeneration> {
   for (let attempt = 1; attempt <= FINALIZATION_ATTEMPTS; attempt += 1) {
@@ -141,36 +141,36 @@ async function finalizeUploadWithRetry(
       return await client.finalizeUpload(reference, completion, { operationId });
     } catch (error) {
       if (
-        !(error instanceof AlmiraApiError) ||
-        error.code !== "ALMIRA_FILE_OUTCOME_UNKNOWN" ||
+        !(error instanceof CavernApiError) ||
+        error.code !== "CAVERN_FILE_OUTCOME_UNKNOWN" ||
         attempt === FINALIZATION_ATTEMPTS
       ) throw error;
       const delay = error.retryAfterMilliseconds ?? FINALIZATION_RETRY_MILLISECONDS;
       await new Promise((resolve) => setTimeout(resolve, Math.min(delay, 1_000)));
     }
   }
-  throw new Error("ALMIRA_EXAMPLE_FINALIZATION_RETRY_EXHAUSTED");
+  throw new Error("CAVERN_EXAMPLE_FINALIZATION_RETRY_EXHAUSTED");
 }
 
 async function createVerificationReceiptWithRetry(
-  client: AlmiraClient,
+  client: CavernClient,
   reference: CollectionReference,
-  request: Parameters<AlmiraClient["createVerificationReceipt"]>[1],
+  request: Parameters<CavernClient["createVerificationReceipt"]>[1],
 ): Promise<SignedVerificationReceipt> {
   for (let attempt = 1; attempt <= VERIFICATION_ATTEMPTS; attempt += 1) {
     try {
       return await client.createVerificationReceipt(reference, request);
     } catch (error) {
       if (
-        !(error instanceof AlmiraApiError) ||
-        error.code !== "ALMIRA_VERIFICATION_CHECK_FAILED" ||
+        !(error instanceof CavernApiError) ||
+        error.code !== "CAVERN_VERIFICATION_CHECK_FAILED" ||
         attempt === VERIFICATION_ATTEMPTS
       ) throw error;
       const delay = error.retryAfterMilliseconds ?? VERIFICATION_RETRY_MILLISECONDS;
       await new Promise((resolve) => setTimeout(resolve, Math.min(delay, 1_000)));
     }
   }
-  throw new Error("ALMIRA_EXAMPLE_VERIFICATION_RETRY_EXHAUSTED");
+  throw new Error("CAVERN_EXAMPLE_VERIFICATION_RETRY_EXHAUSTED");
 }
 
 /** Runs the verification canary and immediately moves it into the configured recycle window. */

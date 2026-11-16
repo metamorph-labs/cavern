@@ -1,10 +1,10 @@
 use std::time::Duration;
 
-use metamorph_almira::{WebhookHeaders, WebhookVerificationOptions, verify_webhook_signature};
+use metamorph_cavern::{WebhookHeaders, WebhookVerificationOptions, verify_webhook_signature};
 use time::OffsetDateTime;
 use time::format_description::well_known::Rfc3339;
 
-const BODY: &[u8] = br#"{"event":"almira.file.available.v1"}"#;
+const BODY: &[u8] = br#"{"event":"cavern.file.available.v1"}"#;
 
 fn headers() -> WebhookHeaders<'static> {
     WebhookHeaders {
@@ -12,7 +12,7 @@ fn headers() -> WebhookHeaders<'static> {
         event_id: "018f0000-0000-7000-8000-000000000012",
         attempt: "2",
         timestamp: "2026-10-17T12:00:00.000000Z",
-        signature: "v1=PHaG4k_rjkr4itoseS10o0_znK6FR9aoArs7pPV2klI",
+        signature: "v1=sSvGgftGstGOcfUXBQlMctCwL2sOqKiMhvJtD3KJeDg",
     }
 }
 
@@ -45,7 +45,7 @@ fn fails_closed_on_substitution_age_and_malformed_headers() {
     assert!(
         verify_webhook_signature(
             b"topsecret",
-            br#"{"event":"almira.file.available.v1"} "#,
+            br#"{"event":"cavern.file.available.v1"} "#,
             headers(),
             options("2026-10-17T12:00:30Z")
         )

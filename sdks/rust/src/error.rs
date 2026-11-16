@@ -51,9 +51,9 @@ pub(crate) fn client_error(code: &'static str) -> Error {
 }
 
 pub(crate) fn invalid_input() -> Error {
-    client_error("ALMIRA_CLIENT_INPUT_INVALID")
+    client_error("CAVERN_CLIENT_INPUT_INVALID")
 }
 
 pub(crate) fn invalid_response() -> Error {
-    client_error("ALMIRA_CLIENT_RESPONSE_INVALID")
+    client_error("CAVERN_CLIENT_RESPONSE_INVALID")
 }

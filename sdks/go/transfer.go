@@ -1,4 +1,4 @@
-package almira
+package cavern
 
 import (
 	"context"
@@ -36,7 +36,7 @@ func UploadDirect(
 ) (FinalizeUploadRequest, error) {
 	var zero FinalizeUploadRequest
 	if ctx == nil || body == nil || sizeBytes != descriptor.ExpectedSizeBytes || !validDirectUploadDescriptor(descriptor) {
-		return zero, transferFailure("ALMIRA_TRANSFER_DESCRIPTOR_INVALID", 0, 0)
+		return zero, transferFailure("CAVERN_TRANSFER_DESCRIPTOR_INVALID", 0, 0)
 	}
 	transport := options.Transport
 	if transport == nil {
@@ -60,7 +60,7 @@ func UploadDirect(
 		part := expected
 		if descriptor.Protocol == "multipart" {
 			if options.GrantPart == nil {
-				return zero, transferFailure("ALMIRA_TRANSFER_DESCRIPTOR_INVALID", partNumber, 0)
+				return zero, transferFailure("CAVERN_TRANSFER_DESCRIPTOR_INVALID", partNumber, 0)
 			}
 			digest, err := directPartSHA256(body, expected.OffsetBytes, expected.LengthBytes)
 			if err != nil {
@@ -71,7 +71,7 @@ func UploadDirect(
 				return zero, err
 			}
 			if !validDirectUploadPart(part) || part.PartNumber != expected.PartNumber || part.OffsetBytes != expected.OffsetBytes || part.LengthBytes != expected.LengthBytes {
-				return zero, transferFailure("ALMIRA_TRANSFER_DESCRIPTOR_INVALID", partNumber, 0)
+				return zero, transferFailure("CAVERN_TRANSFER_DESCRIPTOR_INVALID", partNumber, 0)
 			}
 			if err := requireUnexpired(descriptor, now()); err != nil {
 				return zero, err
@@ -84,7 +84,7 @@ func UploadDirect(
 			io.NewSectionReader(body, part.OffsetBytes, part.LengthBytes),
 		)
 		if err != nil {
-			return zero, transferFailure("ALMIRA_TRANSFER_DESCRIPTOR_INVALID", part.PartNumber, 0)
+			return zero, transferFailure("CAVERN_TRANSFER_DESCRIPTOR_INVALID", part.PartNumber, 0)
 		}
 		request.ContentLength = part.LengthBytes
 		for _, header := range part.Headers {
@@ -92,21 +92,21 @@ func UploadDirect(
 		}
 		response, err := client.Do(request)
 		if err != nil {
-			return zero, transferFailure("ALMIRA_TRANSFER_OUTCOME_UNKNOWN", part.PartNumber, 0)
+			return zero, transferFailure("CAVERN_TRANSFER_OUTCOME_UNKNOWN", part.PartNumber, 0)
 		}
 		if response == nil || response.Body == nil || response.StatusCode < 100 || response.StatusCode > 599 {
 			if response != nil && response.Body != nil {
 				response.Body.Close()
 			}
-			return zero, transferFailure("ALMIRA_TRANSFER_RESPONSE_INVALID", part.PartNumber, 0)
+			return zero, transferFailure("CAVERN_TRANSFER_RESPONSE_INVALID", part.PartNumber, 0)
 		}
 		response.Body.Close()
 		if response.StatusCode < 200 || response.StatusCode >= 300 {
-			return zero, transferFailure("ALMIRA_TRANSFER_PART_REFUSED", part.PartNumber, response.StatusCode)
+			return zero, transferFailure("CAVERN_TRANSFER_PART_REFUSED", part.PartNumber, response.StatusCode)
 		}
 		etag := response.Header.Get("ETag")
 		if !validProviderReceipt(etag) {
-			return zero, transferFailure("ALMIRA_TRANSFER_RESPONSE_INVALID", part.PartNumber, 0)
+			return zero, transferFailure("CAVERN_TRANSFER_RESPONSE_INVALID", part.PartNumber, 0)
 		}
 		if descriptor.Protocol == "single_put" {
 			versions := make([]string, 0, 3)
@@ -118,7 +118,7 @@ func UploadDirect(
 			if len(versions) > 0 {
 				for _, value := range versions {
 					if !validProviderVersion(value) || value != versions[0] {
-						return zero, transferFailure("ALMIRA_TRANSFER_RESPONSE_INVALID", part.PartNumber, 0)
+						return zero, transferFailure("CAVERN_TRANSFER_RESPONSE_INVALID", part.PartNumber, 0)
 					}
 				}
 				value := versions[0]
@@ -149,7 +149,7 @@ func expectedDirectUploadPart(descriptor DirectUploadDescriptor, partNumber int)
 func directPartSHA256(body io.ReaderAt, offset, length int64) (string, error) {
 	hash := sha256.New()
 	if _, err := io.CopyN(hash, io.NewSectionReader(body, offset, length), length); err != nil {
-		return "", transferFailure("ALMIRA_TRANSFER_DESCRIPTOR_INVALID", 0, 0)
+		return "", transferFailure("CAVERN_TRANSFER_DESCRIPTOR_INVALID", 0, 0)
 	}
 	return "sha256:" + hex.EncodeToString(hash.Sum(nil)), nil
 }
@@ -157,10 +157,10 @@ func directPartSHA256(body io.ReaderAt, offset, length int64) (string, error) {
 func requireUnexpired(descriptor DirectUploadDescriptor, now time.Time) error {
 	expiresAt, err := time.Parse(time.RFC3339Nano, descriptor.ExpiresAt)
 	if err != nil || now.IsZero() {
-		return transferFailure("ALMIRA_TRANSFER_DESCRIPTOR_INVALID", 0, 0)
+		return transferFailure("CAVERN_TRANSFER_DESCRIPTOR_INVALID", 0, 0)
 	}
 	if !expiresAt.After(now) {
-		return transferFailure("ALMIRA_TRANSFER_DESCRIPTOR_EXPIRED", 0, 0)
+		return transferFailure("CAVERN_TRANSFER_DESCRIPTOR_EXPIRED", 0, 0)
 	}
 	return nil
 }

@@ -1,4 +1,4 @@
-package almira
+package cavern
 
 import (
 	"bytes"
@@ -291,7 +291,7 @@ type ServerClient struct {
 	http                    *http.Client
 }
 
-func (c *ServerClient) String() string { return "almira.ServerClient{workloadSession:[REDACTED]}" }
+func (c *ServerClient) String() string { return "cavern.ServerClient{workloadSession:[REDACTED]}" }
 
 func (c *ServerClient) GoString() string { return c.String() }
 
@@ -704,7 +704,7 @@ func serverJSON[T any](
 	if c.workloadSessionProvider != nil {
 		evidence, err = c.workloadSessionProvider(ctx)
 		if err != nil {
-			return zero, clientFailure("ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE")
+			return zero, clientFailure("CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE")
 		}
 	}
 	if len(evidence) < 2 || len(evidence) > 48*1024 || !workloadSessionPattern.MatchString(evidence) {
@@ -726,16 +726,16 @@ func serverJSON[T any](
 	if requireOperation {
 		request.Header.Set("Idempotency-Key", operationID)
 	}
-	request.Header.Set("X-Almira-Tenant-Id", tenantID)
+	request.Header.Set("X-Cavern-Tenant-Id", tenantID)
 	if body != nil {
 		request.Header.Set("Content-Type", "application/json")
 	}
 	response, err := c.http.Do(request)
 	if err != nil {
 		if ctx.Err() != nil {
-			return zero, clientFailure("ALMIRA_CLIENT_ABORTED")
+			return zero, clientFailure("CAVERN_CLIENT_ABORTED")
 		}
-		return zero, clientFailure("ALMIRA_CLIENT_NETWORK")
+		return zero, clientFailure("CAVERN_CLIENT_NETWORK")
 	}
 	if response == nil || response.Body == nil || response.StatusCode < 100 || response.StatusCode > 599 {
 		if response != nil && response.Body != nil {

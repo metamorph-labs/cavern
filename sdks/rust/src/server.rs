@@ -893,7 +893,7 @@ impl ServerClient {
         let evidence = match &self.workload_session {
             WorkloadSession::Value(value) => value.clone(),
             WorkloadSession::Provider(provider) => {
-                provider().ok_or_else(|| client_error("ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE"))?
+                provider().ok_or_else(|| client_error("CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE"))?
             }
         };
         if !valid_workload_session(&evidence) {
@@ -913,7 +913,7 @@ impl ServerClient {
             );
         }
         headers.insert(
-            "x-almira-tenant-id",
+            "x-cavern-tenant-id",
             HeaderValue::from_str(tenant_id).map_err(|_| invalid_input())?,
         );
         let url = self
@@ -928,7 +928,7 @@ impl ServerClient {
         let response = builder
             .send()
             .await
-            .map_err(|_| client_error("ALMIRA_CLIENT_NETWORK"))?;
+            .map_err(|_| client_error("CAVERN_CLIENT_NETWORK"))?;
         if !expected_statuses.contains(&response.status()) {
             return Err(api_error(response).await);
         }
@@ -979,7 +979,7 @@ fn validate_request(request: &CreateCapabilitySessionRequest) -> Result<(), Erro
 
 fn validate_grant(grant: &CapabilitySessionGrant) -> Result<(), Error> {
     if !valid_uuid_v7(&grant.session_id)
-        || !grant.token.starts_with("alm_cap_v1.")
+        || !grant.token.starts_with("cav_cap_v1.")
         || !valid_capability(&grant.token)
         || grant.operations.is_empty()
         || grant.operations.len() > 4

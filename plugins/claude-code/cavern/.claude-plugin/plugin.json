@@ -1,0 +1,17 @@
+{
+  "name": "cavern",
+  "version": "0.1.0-dev.64",
+  "description": "Configure and integrate Cavern application file storage with scoped Metamorph access.",
+  "author": {
+    "name": "Metamorph Labs",
+    "url": "https://github.com/metamorph-labs/cavern"
+  },
+  "homepage": "https://github.com/metamorph-labs/cavern",
+  "repository": "https://github.com/metamorph-labs/cavern",
+  "license": "Apache-2.0",
+  "keywords": [
+    "file-storage",
+    "media",
+    "developer-tools"
+  ]
+}

@@ -3,13 +3,13 @@ import test from "node:test";
 
 import { verifyWebhookSignature } from "../dist/index.js";
 
-const body = '{"event":"almira.file.available.v1"}';
+const body = '{"event":"cavern.file.available.v1"}';
 const headers = {
   "Metamorph-Webhook-Delivery-Id": "018f0000-0000-7000-8000-000000000011",
   "Metamorph-Webhook-Event-Id": "018f0000-0000-7000-8000-000000000012",
   "Metamorph-Webhook-Attempt": "2",
   "Metamorph-Webhook-Timestamp": "2026-10-17T12:00:00.000000Z",
-  "Metamorph-Webhook-Signature": "v1=PHaG4k_rjkr4itoseS10o0_znK6FR9aoArs7pPV2klI",
+  "Metamorph-Webhook-Signature": "v1=sSvGgftGstGOcfUXBQlMctCwL2sOqKiMhvJtD3KJeDg",
 };
 const now = new Date("2026-10-17T12:00:30.000Z");
 

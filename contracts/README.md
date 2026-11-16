@@ -1,7 +1,7 @@
-# Almira public contract bundle
+# Cavern public contract bundle
 
-This directory is the canonical Almira public contract bundle. It is authored in
-`metamorph-labs/almira-core` and promoted byte-for-byte to `metamorph-labs/almira`.
+This directory is the canonical Cavern public contract bundle. It is authored in
+`metamorph-labs/cavern-core` and promoted byte-for-byte to `metamorph-labs/cavern`.
 `manifest.json` is generated deterministically from every other file in this directory.
 
 The API bundle contains:
@@ -9,7 +9,7 @@ The API bundle contains:
 - `openapi.v1.json`: the provider-neutral management and trusted builder-backend contract;
 - `data-openapi.v1.json`: the browser/mobile capability, immutable delivery and bearer-share
   contract, deliberately isolated from management credentials;
-- `configuration/almira.v1.schema.json`: the closed additive `almira.yaml` v1 contract;
+- `configuration/cavern.v1.schema.json`: the closed additive `cavern.yaml` v1 contract;
 - `events/catalog.v1.json` and its payload schemas: the safe, revision-bound file-event vocabulary;
 - `errors.v1.json`: stable, redacted public error/status mappings; and
 - `conformance/vectors.v1.json`: executable closed-schema and error vectors.
@@ -20,7 +20,7 @@ management surface, and PATs, SAKs and product sessions cannot be used on the br
 The APIs never accept a provider, bucket, endpoint or object key from ordinary callers.
 
 APP-01 owns subscription delivery, signing, retry and dead-letter behavior. Event payloads carry
-stable Almira identifiers and revisions only; they provide no implicit read authority and exclude
+stable Cavern identifiers and revisions only; they provide no implicit read authority and exclude
 provider coordinates, credentials and extracted content. Application endpoints must verify the
 signature over the raw body before parsing, then reject replayed delivery attempts durably.
 
@@ -36,16 +36,16 @@ ordinary metadata.
 
 The optional asymmetric local-issuer flow returns only public protocol/configuration material. A
 builder workload caches the signing configuration and signs canonical claims with its own
-protected Ed25519 key; Almira never accepts or returns that private key. A stale-token refusal is
+protected Ed25519 key; Cavern never accepts or returns that private key. A stale-token refusal is
 the signal to refresh revisions, so ordinary file access still remains one data-plane call.
 
-In `almira-core`, run `pnpm contracts:generate` after changing a public artifact and `pnpm check`
+In `cavern-core`, run `pnpm contracts:generate` after changing a public artifact and `pnpm check`
 before review. Export a promotion candidate into a new empty directory with:
 
 ```sh
 pnpm contracts:export /absolute/path/to/empty-directory
 ```
 
-In `almira`, accept that directory with `pnpm contracts:accept /absolute/path/to/candidate` and run
+In `cavern`, accept that directory with `pnpm contracts:accept /absolute/path/to/candidate` and run
 `pnpm check`. Nothing under `contracts/internal`, `registrations`, deployment assets, private
 fixtures or qualification evidence belongs in this bundle.

@@ -1,101 +1,101 @@
 {
   "formatVersion": 1,
-  "product": "almira",
-  "contractVersion": "0.1.0-dev.60",
+  "product": "cavern",
+  "contractVersion": "0.1.0-dev.64",
   "source": {
-    "repository": "metamorph-labs/almira-core",
+    "repository": "metamorph-labs/cavern-core",
     "algorithm": "sha256",
-    "digest": "2dce7a753695ff28cb6abbae7108b75a12a7a89eac7e947e01cdac48bf8e8ff4"
+    "digest": "677d418c00361507c00e75946a59c58b9999c479a92a8eb9eb1bc302fb31a532"
   },
   "bundle": {
     "algorithm": "sha256",
-    "digest": "2dce7a753695ff28cb6abbae7108b75a12a7a89eac7e947e01cdac48bf8e8ff4"
+    "digest": "677d418c00361507c00e75946a59c58b9999c479a92a8eb9eb1bc302fb31a532"
   },
   "files": [
     {
       "path": "apps/conformance/vectors.v1.json",
       "size": 12256,
-      "digest": "838e45b577000b81492a0192da649ffcc3307a69f1a88b7983af22a6f70586fe"
+      "digest": "29d2b74bacf79ac04d0bb94e8cb8d0cc465cfe18975ffd620b402da8e30864a7"
     },
     {
       "path": "apps/product-surface.v1.json",
-      "size": 135299,
-      "digest": "ee77405cc61e906d321366e2bad452a067975d963e97f392a3a1de54cc39c11c"
+      "size": 137747,
+      "digest": "6608692f63e87de97533b438e58a0da6938e104ff7805f6fdcf6a33717899a44"
     },
     {
       "path": "apps/README.md",
       "size": 2615,
-      "digest": "a8d4bf8591b5af31978ffde8d713cede3febcdaca8e1c9bc629213edc3a6f93a"
+      "digest": "538d1b07c55a9734c74b7e2106cae35e63b8ce85312ec8eb1061e887d1bed4b3"
     },
     {
       "path": "bundle.schema.json",
       "size": 1728,
-      "digest": "fcafcbea1f9e1864fa6fc82e369dacd4a5010122de8225c8177e6d2604f97301"
+      "digest": "3296acf13f6e57fd42c2527bd8d192bc6dfea2522624a73a5d24c13713311e09"
     },
     {
-      "path": "configuration/almira.v1.schema.json",
+      "path": "configuration/cavern.v1.schema.json",
       "size": 7809,
-      "digest": "4c62feca39b61f36b3a8aed237aeddd87276c7092ee9832f884c8e9142ba7cf1"
+      "digest": "ba46bf9d7a98880e3bb12b60d4041242883072d96f5134a8b4bdeba26e856f12"
     },
     {
       "path": "configuration/vectors.v1.json",
       "size": 7277,
-      "digest": "e24f1a89a9d648f81f68052f9a6849d7ff3631c142432b606de97955cf20dc36"
+      "digest": "2cd48755bfbc0373a6281b11de2d8240b219c7f2852d57f487e2f5da9a6db977"
     },
     {
       "path": "conformance/vectors.v1.json",
-      "size": 76166,
-      "digest": "7ffd019c9d6e8e4f43007df351facd07915d797547486cfd3bb1a4ce0e262ff2"
+      "size": 76173,
+      "digest": "50eabb0a2e0301b5415f8d9a5045e5ba25199968e1090831bfa59611ceb8f07e"
     },
     {
       "path": "data-openapi.v1.json",
-      "size": 23277,
-      "digest": "aa092b851c10d9e81e1bbab91e54e9285c0078961430b3c33470a5820543001f"
+      "size": 23280,
+      "digest": "0c0cf8aef1052119617a15e0e3882eb7979883d537b9b291dce2ae0aa84e0d37"
     },
     {
       "path": "errors.v1.json",
       "size": 25041,
-      "digest": "02b9975a1df1daae2b53e882afea08a919b99d585d6589b5a513038259bf7542"
+      "digest": "0d8e39fd8f8c64326287d9963e229e6cb58cd65c153d56ce8bf5349d8abcdcf6"
     },
     {
       "path": "events/catalog.schema.json",
       "size": 1766,
-      "digest": "327752d4df1277baa3a9919364abc04ed3ff9c20283e6f0ba1b62f51e2c8512d"
+      "digest": "134dd97698615ef90d3008a2c2ea132fb32a37223f2e85d1ce281b05262e0e45"
     },
     {
       "path": "events/catalog.v1.json",
       "size": 4684,
-      "digest": "37842b59647af6b9c6d97c7a82d15455181b8ad1c175d3c0e77e72b0cd621f38"
+      "digest": "0886ef18064675da1f69844616102e364db3fdbfdaa69c0feb35a16f41f23b76"
     },
     {
       "path": "events/delivery-event.v1.schema.json",
       "size": 1525,
-      "digest": "eea6f23e260a42869ff90184b1b3db6379ed7ac5ae7972ffc7f7e3f67ae38cec"
+      "digest": "499b1ac88cff3f596d3343c9c7bdae28063a6e731d6aefa8d6395d59dadb9b0f"
     },
     {
       "path": "events/file-event.v1.schema.json",
       "size": 5022,
-      "digest": "ed229b8203b11cb632e9be4793336de1174df1f0c5f5461a7bd396df2b7be1d2"
+      "digest": "5d0fbd3a52bd8c896181e6760b63fb7f7f4dda1f7e7e290004473a1558930d15"
     },
     {
       "path": "events/vectors.v1.json",
       "size": 4181,
-      "digest": "7da1339e741b2ba4fb7335c2fdafe12a9490ae8da0c96685390ec881fd353e40"
+      "digest": "17f4ab86a6fea3c9af17fc461d02a11b8d97938b8440d5e2087e283cf24a7fbd"
     },
     {
       "path": "openapi.v1.json",
-      "size": 340764,
-      "digest": "d717df91ef7d32484258c6bbc195842a0020e732a6fe476743c9e30154a153f7"
+      "size": 340774,
+      "digest": "b6c622294be7964ac2ce183f79162f1b3476e795e2c6bd5f8a9bb46b7e6ac46d"
     },
     {
       "path": "README.md",
       "size": 3204,
-      "digest": "d68c4106cdc7d8e17508ff8da811ca6a761507c5734f23720d2bf6c9eb9c1c82"
+      "digest": "c968168cabc190aded1180e6a3bed78fa1c06df5bddd4f61f013e815a855f4fd"
     },
     {
       "path": "release.json",
       "size": 70,
-      "digest": "723736158b2432bded93f9a6812e3ccecab9bc8303bab06b283591ba3f0537ea"
+      "digest": "4665d401f6aa3ce6c5271f83599253f0555babf58a17d6d0ebdf83c181a1e6e6"
     }
   ]
 }

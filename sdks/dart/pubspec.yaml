@@ -1,7 +1,7 @@
-name: metamorph_almira
-description: Capability-only application SDK for Almira and Flutter.
-version: 0.1.0-dev.60
-repository: https://github.com/metamorph-labs/almira
+name: metamorph_cavern
+description: Capability-only application SDK for Cavern and Flutter.
+version: 0.1.0-dev.64
+repository: https://github.com/metamorph-labs/cavern
 environment:
   sdk: ">=3.5.0 <4.0.0"
 dependencies:

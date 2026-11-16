@@ -1,4 +1,4 @@
-import { AlmiraApiError, AlmiraClientError } from "./errors.js";
+import { CavernApiError, CavernClientError } from "./errors.js";
 import type {
   AccessDecision,
   AdoptCustomerStorageRequest,
@@ -137,14 +137,14 @@ import type {
 } from "./types.js";
 
 const UUID_V7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
-const API_ERROR = /^ALMIRA_[A-Z0-9_]{1,120}$/u;
+const API_ERROR = /^CAVERN_[A-Z0-9_]{1,120}$/u;
 const BYTE_RANGE = /^bytes=[0-9]+-[0-9]*$/u;
 const LOGICAL_PATH = /^(?![.]{1,2}(?:\/|$))(?!.+\/[.]{1,2}(?:\/|$))[A-Za-z0-9._~-]{1,255}(?:\/[A-Za-z0-9._~-]{1,255})*$/u;
 const MAXIMUM_JSON_RESPONSE_BYTES = 2 * 1024 * 1024;
 
 type EvidenceProvider = () => string | Promise<string>;
 
-/** Creates a UUIDv7 suitable for one new idempotent Almira mutation. */
+/** Creates a UUIDv7 suitable for one new idempotent Cavern mutation. */
 export function createOperationId(now = Date.now()): UuidV7 {
   if (!Number.isSafeInteger(now) || now < 0 || now > 281_474_976_710_655) invalidInput();
   const bytes = new Uint8Array(16);
@@ -160,7 +160,7 @@ export function createOperationId(now = Date.now()): UuidV7 {
   return `${hexadecimal.slice(0, 8)}-${hexadecimal.slice(8, 12)}-${hexadecimal.slice(12, 16)}-${hexadecimal.slice(16, 20)}-${hexadecimal.slice(20)}`;
 }
 
-export interface AlmiraClientOptions {
+export interface CavernClientOptions {
   baseUrl?: string;
   credential?: string | EvidenceProvider;
   workloadSession?: string | EvidenceProvider;
@@ -183,7 +183,7 @@ export interface PortableImportContentOptions extends MutationOptions {
   contentLength?: number;
 }
 
-export class AlmiraClient {
+export class CavernClient {
   readonly #baseUrl: string;
   readonly #authentication:
     | { readonly kind: "bearer" | "workload"; readonly provider: EvidenceProvider }
@@ -191,18 +191,18 @@ export class AlmiraClient {
   readonly #productSelection: string | null;
   readonly #fetch: typeof globalThis.fetch;
 
-  constructor(options: AlmiraClientOptions = {}) {
+  constructor(options: CavernClientOptions = {}) {
     const baseUrl = options.baseUrl ?? "";
     if (
       /[?#\\\u0000-\u0020\u007f]/u.test(baseUrl) ||
       (baseUrl.length > 0 && !baseUrl.startsWith("/") && !/^https?:\/\//u.test(baseUrl))
     ) {
-      throw new AlmiraClientError("ALMIRA_CLIENT_INPUT_INVALID");
+      throw new CavernClientError("CAVERN_CLIENT_INPUT_INVALID");
     }
     this.#baseUrl = baseUrl === "/" ? "" : baseUrl.replace(/\/+$/u, "");
     this.#fetch = options.fetch ?? globalThis.fetch;
     if (typeof this.#fetch !== "function") {
-      throw new AlmiraClientError("ALMIRA_CLIENT_INPUT_INVALID");
+      throw new CavernClientError("CAVERN_CLIENT_INPUT_INVALID");
     }
     if (options.credential !== undefined && options.workloadSession !== undefined) invalidInput();
     this.#authentication = options.credential !== undefined
@@ -220,7 +220,7 @@ export class AlmiraClient {
   async getVerificationPublicKeys(
     options: { signal?: AbortSignal } = {},
   ): Promise<VerificationPublicKeySet> {
-    return this.#publicJson("/.well-known/almira-verification-keys.json", options.signal);
+    return this.#publicJson("/.well-known/cavern-verification-keys.json", options.signal);
   }
 
   async bootstrapProject(
@@ -1383,9 +1383,9 @@ export class AlmiraClient {
       });
     } catch (error) {
       if (signal?.aborted || (error instanceof DOMException && error.name === "AbortError")) {
-        throw new AlmiraClientError("ALMIRA_CLIENT_ABORTED");
+        throw new CavernClientError("CAVERN_CLIENT_ABORTED");
       }
-      throw new AlmiraClientError("ALMIRA_CLIENT_NETWORK");
+      throw new CavernClientError("CAVERN_CLIENT_NETWORK");
     }
     return this.#decodeJson(response);
   }
@@ -1406,7 +1406,7 @@ export class AlmiraClient {
   async #request(path: string, options: JsonRequestOptions, tenantId: UuidV7): Promise<Response> {
     const headers = new Headers(options.headers);
     if (!headers.has("accept")) headers.set("accept", "application/json");
-    headers.set("x-almira-tenant-id", uuid(tenantId));
+    headers.set("x-cavern-tenant-id", uuid(tenantId));
     if (options.body !== undefined && options.rawBody !== undefined) invalidInput();
     let body: BodyInit | undefined = options.rawBody;
     if (options.body !== undefined) {
@@ -1422,7 +1422,7 @@ export class AlmiraClient {
       try {
         evidence = await this.#authentication.provider();
       } catch {
-        throw new AlmiraClientError("ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE");
+        throw new CavernClientError("CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE");
       }
       if (this.#authentication.kind === "bearer") {
         if (!validCredential(evidence)) invalidInput();
@@ -1447,9 +1447,9 @@ export class AlmiraClient {
       });
     } catch (error) {
       if (options.signal?.aborted || (error instanceof DOMException && error.name === "AbortError")) {
-        throw new AlmiraClientError("ALMIRA_CLIENT_ABORTED");
+        throw new CavernClientError("CAVERN_CLIENT_ABORTED");
       }
-      throw new AlmiraClientError("ALMIRA_CLIENT_NETWORK");
+      throw new CavernClientError("CAVERN_CLIENT_NETWORK");
     }
   }
 }
@@ -1521,10 +1521,10 @@ function subjectHeaders(subject: BuilderSubject | undefined): Record<string, str
     for (const byte of bytes) binary += String.fromCharCode(byte);
     encoded = globalThis.btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/u, "");
   } catch (error) {
-    if (error instanceof AlmiraClientError) throw error;
+    if (error instanceof CavernClientError) throw error;
     return invalidInput();
   }
-  return { "x-almira-subject-context": encoded };
+  return { "x-cavern-subject-context": encoded };
 }
 
 function validateSubjectReference(subject: SubjectReference): void {
@@ -1569,7 +1569,7 @@ function complianceProfilePath(
   profileId: ComplianceProfileId,
   suffix = "",
 ): string {
-  if (profileId !== "almira.storage.gdpr" && profileId !== "almira.storage.hipaa_eligible") {
+  if (profileId !== "cavern.storage.gdpr" && profileId !== "cavern.storage.hipaa_eligible") {
     invalidInput();
   }
   return `${environmentPath(reference, "/compliance-profiles")}/${profileId}${suffix}`;
@@ -1648,11 +1648,11 @@ function withQuery(path: string, query: URLSearchParams): string {
 }
 
 function invalidInput(): never {
-  throw new AlmiraClientError("ALMIRA_CLIENT_INPUT_INVALID");
+  throw new CavernClientError("CAVERN_CLIENT_INPUT_INVALID");
 }
 
 function invalidResponse(): never {
-  throw new AlmiraClientError("ALMIRA_CLIENT_RESPONSE_INVALID");
+  throw new CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID");
 }
 
 async function throwApiError(response: Response): Promise<never> {
@@ -1662,11 +1662,11 @@ async function throwApiError(response: Response): Promise<never> {
     if (bytes.length === 0 || bytes.length > 64 * 1024) invalidResponse();
     value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
   } catch (error) {
-    if (error instanceof AlmiraClientError) throw error;
+    if (error instanceof CavernClientError) throw error;
     return invalidResponse();
   }
   if (!isApiError(value)) invalidResponse();
-  throw new AlmiraApiError(
+  throw new CavernApiError(
     value.code,
     value.request_id,
     response.status,

@@ -1,11 +1,11 @@
 {
-  "name": "@metamorph-labs/almira-mcp",
-  "version": "0.1.0-dev.60",
-  "description": "MCP management server for Almira",
+  "name": "@metamorph-labs/cavern-mcp",
+  "version": "0.1.0-dev.64",
+  "description": "MCP management server for Cavern",
   "type": "module",
   "license": "Apache-2.0",
   "bin": {
-    "almira-mcp": "./dist/main.js"
+    "cavern-mcp": "./dist/main.js"
   },
   "files": [
     "dist",
@@ -16,7 +16,7 @@
     "test": "pnpm build && node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@metamorph-labs/almira-sdk": "workspace:*",
+    "@metamorph-labs/cavern-sdk": "workspace:*",
     "@modelcontextprotocol/server": "2.3.1",
     "zod": "4.6.7"
   },

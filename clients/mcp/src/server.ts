@@ -5,11 +5,11 @@ import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { McpServer } from "@modelcontextprotocol/server";
 import {
-  AlmiraApiError,
-  AlmiraClient,
-  AlmiraClientError,
-  AlmiraConfigurationError,
-  AlmiraTransferError,
+  CavernApiError,
+  CavernClient,
+  CavernClientError,
+  CavernConfigurationError,
+  CavernTransferError,
   applyConfiguration,
   createOperationId,
   openPortableExport,
@@ -17,7 +17,7 @@ import {
   type PortableExportStream,
   type SearchInput,
   type StartCollectionImportRequest,
-} from "@metamorph-labs/almira-sdk";
+} from "@metamorph-labs/cavern-sdk";
 import * as z from "zod/v4";
 
 const uuid = z
@@ -37,9 +37,9 @@ const tenancyProject = z
         tenant_id: uuid,
         project_id: uuid,
         space_id: uuid,
-        product_id: z.literal("almira"),
+        product_id: z.literal("cavern"),
         product_section_id: z.null(),
-        project_kind_id: z.literal("almira.storage"),
+        project_kind_id: z.literal("cavern.storage"),
         owner_region_id: z.string().regex(/^[a-z][a-z0-9._-]{0,63}$/u),
         name: z.string().min(1).max(200),
         visibility: z.enum(["private", "public"]),
@@ -63,7 +63,7 @@ const environmentDisplayName = z.string().refine((value) =>
   value === value.trim() &&
   !/[\u0000-\u001f\u007f]/u.test(value),
 );
-const complianceProfileId = z.enum(["almira.storage.gdpr", "almira.storage.hipaa_eligible"]);
+const complianceProfileId = z.enum(["cavern.storage.gdpr", "cavern.storage.hipaa_eligible"]);
 const catalogIdentifier = z.string().min(1).max(128)
   .regex(/^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$/u);
 const sortedCatalogIdentifiers = z.array(catalogIdentifier).min(1).max(64).refine(
@@ -116,7 +116,7 @@ const configurationCollection = z.object({
   media: collectionMediaInput.optional(),
 }).strict();
 const configuration = z.object({
-  api_version: z.literal("almira/v1"),
+  api_version: z.literal("cavern/v1"),
   environments: z.array(z.object({
     key: environmentKey,
     display_name: environmentDisplayName,
@@ -412,22 +412,22 @@ const outputSchema = z
   })
   .strict();
 
-export interface AlmiraMcpDependencies {
+export interface CavernMcpDependencies {
   fetch?: typeof globalThis.fetch;
 }
 
-/** Creates one stdio-safe MCP server over the canonical Almira SDK client. */
-export function createAlmiraMcpServer(
-  client: AlmiraClient,
-  dependencies: AlmiraMcpDependencies = {},
+/** Creates one stdio-safe MCP server over the canonical Cavern SDK client. */
+export function createCavernMcpServer(
+  client: CavernClient,
+  dependencies: CavernMcpDependencies = {},
 ): McpServer {
-  const server = new McpServer({ name: "almira", version: "0.1.0-dev.60" });
+  const server = new McpServer({ name: "cavern", version: "0.1.0-dev.64" });
 
   server.registerTool(
-    "almira_project_bootstrap",
+    "cavern_project_bootstrap",
     {
-      title: "Bootstrap Almira project",
-      description: "Converge Almira's default development and production environments for one existing Metamorph project.",
+      title: "Bootstrap Cavern project",
+      description: "Converge Cavern's default development and production environments for one existing Metamorph project.",
       inputSchema: z.object({ ...scope, tenancy_project: tenancyProject, operation_id: operationId }).strict(),
       outputSchema,
       annotations: mutationAnnotations,
@@ -446,10 +446,10 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_environment_list",
+    "cavern_environment_list",
     {
-      title: "List Almira environments",
-      description: "List the complete bounded environment set for one Almira project.",
+      title: "List Cavern environments",
+      description: "List the complete bounded environment set for one Cavern project.",
       inputSchema: z.object(scope).strict(),
       outputSchema,
       annotations: readAnnotations,
@@ -459,10 +459,10 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_configuration_preview",
+    "cavern_configuration_preview",
     {
-      title: "Preview Almira configuration",
-      description: "Read current state and return the deterministic additive diff for an almira.yaml v1 document.",
+      title: "Preview Cavern configuration",
+      description: "Read current state and return the deterministic additive diff for an cavern.yaml v1 document.",
       inputSchema: z.object({ ...scope, configuration }).strict(),
       outputSchema,
       annotations: readAnnotations,
@@ -476,10 +476,10 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_configuration_apply",
+    "cavern_configuration_apply",
     {
-      title: "Apply Almira configuration",
-      description: "Apply one additive almira.yaml v1 diff through ordinary scoped Almira operations.",
+      title: "Apply Cavern configuration",
+      description: "Apply one additive cavern.yaml v1 diff through ordinary scoped Cavern operations.",
       inputSchema: z.object({ ...scope, configuration, operation_id: operationId }).strict(),
       outputSchema,
       annotations: mutationAnnotations,
@@ -496,10 +496,10 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_environment_create",
+    "cavern_environment_create",
     {
-      title: "Create Almira environment",
-      description: "Create one additional managed environment in an Almira project, up to the project ceiling.",
+      title: "Create Cavern environment",
+      description: "Create one additional managed environment in an Cavern project, up to the project ceiling.",
       inputSchema: z.object({
         ...scope,
         environment_key: environmentKey,
@@ -523,9 +523,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_environment_update",
+    "cavern_environment_update",
     {
-      title: "Update Almira environment",
+      title: "Update Cavern environment",
       description: "Rename one environment using optimistic revision control.",
       inputSchema: z.object({
         ...scope,
@@ -551,9 +551,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_environment_delete",
+    "cavern_environment_delete",
     {
-      title: "Delete Almira environment",
+      title: "Delete Cavern environment",
       description: "Mark a non-system environment for deletion using optimistic revision control.",
       inputSchema: z.object({
         ...scope,
@@ -578,7 +578,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_browser_origins_get",
+    "cavern_browser_origins_get",
     {
       title: "Get browser origins",
       description: "Read the canonical browser-origin policy for one environment.",
@@ -591,7 +591,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_browser_origins_replace",
+    "cavern_browser_origins_replace",
     {
       title: "Replace browser origins",
       description: "Replace an environment's complete browser-origin policy using optimistic revision control.",
@@ -622,7 +622,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_compliance_profile_list",
+    "cavern_compliance_profile_list",
     {
       title: "List compliance profiles",
       description: "List product-owned technical environment profiles, their enforced constraints, and any active bindings. Profiles are engineering aids, not certification or reviewed claim admission.",
@@ -635,7 +635,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_compliance_profile_preview",
+    "cavern_compliance_profile_preview",
     {
       title: "Preview compliance profile",
       description: "Resolve current technical blockers, enforced effects, and customer responsibilities without changing the environment. This does not certify an application or organization.",
@@ -657,10 +657,10 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_compliance_profile_activate",
+    "cavern_compliance_profile_activate",
     {
       title: "Activate compliance profile",
-      description: "Activate one ready non-certifying technical profile with optimistic environment revision and replay identity. This enforces Almira constraints but does not admit a legal or regulatory claim.",
+      description: "Activate one ready non-certifying technical profile with optimistic environment revision and replay identity. This enforces Cavern constraints but does not admit a legal or regulatory claim.",
       inputSchema: z.object({
         ...scope,
         environment_id: uuid,
@@ -687,7 +687,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_compliance_profile_remove",
+    "cavern_compliance_profile_remove",
     {
       title: "Remove compliance profile",
       description: "Remove one active environment compliance binding with optimistic binding revision and an auditable reason.",
@@ -714,7 +714,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_storage_capabilities_get",
+    "cavern_storage_capabilities_get",
     {
       title: "Get storage capabilities",
       description: "Discover the current provider-neutral storage realizations and classes available to one active environment.",
@@ -733,7 +733,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_storage_enrollment_list",
+    "cavern_storage_enrollment_list",
     {
       title: "List customer storage enrollments",
       description: "List durable provider-opaque customer storage enrollment receipts for a project.",
@@ -746,7 +746,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_storage_adopt",
+    "cavern_storage_adopt",
     {
       title: "Adopt customer-owned storage",
       description: "Use one active normal-class enrollment after every existing collection has migrated to its exact realization. Empty environments adopt immediately; development remains managed.",
@@ -774,7 +774,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_storage_restore_managed",
+    "cavern_storage_restore_managed",
     {
       title: "Restore managed storage",
       description: "Return a customer-owned environment to managed storage after every collection has migrated to a current managed realization.",
@@ -801,7 +801,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_storage_enrollment_create",
+    "cavern_storage_enrollment_create",
     {
       title: "Enroll customer-owned storage",
       description: "Start FileService proof and workload federation for a credential-free S3, GCS, or Azure Blob target.",
@@ -829,7 +829,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_storage_enrollment_get",
+    "cavern_storage_enrollment_get",
     {
       title: "Get customer storage enrollment",
       description: "Reconcile one durable customer storage enrollment with FileService using its original operation identity.",
@@ -846,9 +846,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_collection_list",
+    "cavern_collection_list",
     {
-      title: "List Almira collections",
+      title: "List Cavern collections",
       description: "List a deterministic page of collections in one environment.",
       inputSchema: z.object({ ...scope, environment_id: uuid, ...page }).strict(),
       outputSchema,
@@ -867,9 +867,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_collection_create",
+    "cavern_collection_create",
     {
-      title: "Create Almira collection",
+      title: "Create Cavern collection",
       description: "Create one private normal or express collection with explicit malware-scanning policy.",
       inputSchema: z
         .object({
@@ -917,9 +917,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_collection_get",
+    "cavern_collection_get",
     {
-      title: "Get Almira collection",
+      title: "Get Cavern collection",
       description: "Read one exact environment-owned collection instance.",
       inputSchema: z
         .object({ ...scope, environment_id: uuid, collection_instance_id: uuid })
@@ -939,7 +939,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_collection_extraction_get",
+    "cavern_collection_extraction_get",
     {
       title: "Get collection extraction controls",
       description: "Read collection-level content, OCR, transcription, and vector-indexing controls; safe technical metadata is always enabled.",
@@ -954,7 +954,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_collection_extraction_replace",
+    "cavern_collection_extraction_replace",
     {
       title: "Replace collection extraction controls",
       description: "Replace the collection's opt-in content, OCR, and transcription extraction controls using optimistic revision control.",
@@ -983,7 +983,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_collection_media_get",
+    "cavern_collection_media_get",
     {
       title: "Get collection media controls",
       description: "Read collection-level image presets, document previews, and the optional video processing profile.",
@@ -998,7 +998,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_collection_media_replace",
+    "cavern_collection_media_replace",
     {
       title: "Replace collection media controls",
       description: "Replace bounded provider-neutral image, document, and video processing controls using optimistic revision control.",
@@ -1029,7 +1029,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_collection_lifecycle_replace",
+    "cavern_collection_lifecycle_replace",
     {
       title: "Replace collection lifecycle policy",
       description: "Set the collection's recycle retention for future deletions using optimistic revision control; existing recycle deadlines are unchanged.",
@@ -1056,7 +1056,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_collection_protection_get",
+    "cavern_collection_protection_get",
     {
       title: "Get collection protection policy",
       description: "Read whether malware scanning is required for future generations in one collection.",
@@ -1071,7 +1071,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_collection_protection_replace",
+    "cavern_collection_protection_replace",
     {
       title: "Replace collection protection policy",
       description: "Require or disable FileService malware scanning for new generations only, using optimistic revision control.",
@@ -1098,7 +1098,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_protection_cases_list",
+    "cavern_protection_cases_list",
     {
       title: "List protection cases",
       description: "List scan-gated generations across one environment with optional collection and safety-state filters.",
@@ -1127,7 +1127,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_protection_rescan",
+    "cavern_protection_rescan",
     {
       title: "Request exact-generation protection rescan",
       description: "Immediately gate one generation and ask FileService, the verdict authority, to rescan it.",
@@ -1158,7 +1158,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_protection_review_create",
+    "cavern_protection_review_create",
     {
       title: "Record protection review",
       description: "Record a content-free blocked-generation review; reviews never release content or override FileService.",
@@ -1191,7 +1191,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_processing_jobs_list",
+    "cavern_processing_jobs_list",
     {
       title: "List media-processing jobs",
       description: "List bounded job status and pinned processor provenance for one collection.",
@@ -1211,7 +1211,7 @@ export function createAlmiraMcpServer(
 
   for (const action of ["retry", "cancel"] as const) {
     server.registerTool(
-      `almira_processing_job_${action}`,
+      `cavern_processing_job_${action}`,
       {
         title: `${action === "retry" ? "Retry" : "Cancel"} media-processing job`,
         description: action === "retry"
@@ -1243,7 +1243,7 @@ export function createAlmiraMcpServer(
   }
 
   server.registerTool(
-    "almira_storage_migration_start",
+    "cavern_storage_migration_start",
     {
       title: "Start storage-class migration",
       description: "Start a governed collection migration to an available normal or express storage class and return its durable receipt.",
@@ -1287,7 +1287,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_storage_migration_get",
+    "cavern_storage_migration_get",
     {
       title: "Get storage-migration status",
       description: "Read the durable inventory, copy, verification, cutover, cleanup, or terminal migration receipt.",
@@ -1311,7 +1311,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_collection_import_start",
+    "cavern_collection_import_start",
     {
       title: "Start collection import",
       description: "Start a governed import from a FileService-issued opaque source binding and bounded credential-free manifest.",
@@ -1334,7 +1334,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_collection_export_start",
+    "cavern_collection_export_start",
     {
       title: "Start collection export",
       description: "Start a portable export containing only retained, available, safety-admitted generations and derivatives.",
@@ -1364,7 +1364,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_portability_import_upload",
+    "cavern_portability_import_upload",
     {
       title: "Upload portable-import object",
       description: "Stream one local file into an existing import manifest object without returning bytes or transfer credentials to model context.",
@@ -1405,7 +1405,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_portability_jobs_list",
+    "cavern_portability_jobs_list",
     {
       title: "List portability jobs",
       description: "List durable collection import and export progress without transfer credentials.",
@@ -1429,7 +1429,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_portability_job_get",
+    "cavern_portability_job_get",
     {
       title: "Get portability job",
       description: "Read durable import or export progress and its terminal credential-free receipt.",
@@ -1445,7 +1445,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_portability_export_download",
+    "cavern_portability_export_download",
     {
       title: "Download portable export",
       description: "Consume a fresh one-use export instruction, stream and verify it, and create a new local file without returning transfer secrets.",
@@ -1489,9 +1489,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_list",
+    "cavern_file_list",
     {
-      title: "List Almira files",
+      title: "List Cavern files",
       description: "List a deterministic metadata page in one collection; no file bytes or transfer secrets are returned.",
       inputSchema: z
         .object({
@@ -1558,9 +1558,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_search",
+    "cavern_file_search",
     {
-      title: "Search Almira files",
+      title: "Search Cavern files",
       description: "Search one collection using lexical, semantic, or hybrid retrieval; every hit is rechecked against current PostgreSQL lifecycle, safety, generation, metadata, and authorization state.",
       inputSchema: z.object({ ...collectionScope, ...searchInput.shape }).strict(),
       outputSchema,
@@ -1584,9 +1584,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_versions_list",
+    "cavern_file_versions_list",
     {
-      title: "List Almira file versions",
+      title: "List Cavern file versions",
       description: "List immutable generations for one stable file entry, newest first.",
       inputSchema: z.object({
         ...collectionScope,
@@ -1607,9 +1607,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_metadata_get",
+    "cavern_file_metadata_get",
     {
-      title: "Get Almira file metadata",
+      title: "Get Cavern file metadata",
       description: "Read safe metadata for one file entry.",
       inputSchema: z
         .object({
@@ -1635,7 +1635,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_customer_metadata_get",
+    "cavern_file_customer_metadata_get",
     {
       title: "Get customer file metadata",
       description: "Read the bounded customer-owned tags and typed metadata namespace for one stable file entry.",
@@ -1650,7 +1650,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_customer_metadata_replace",
+    "cavern_file_customer_metadata_replace",
     {
       title: "Replace customer file metadata",
       description: "Replace bounded tags and typed customer metadata using optimistic revision control.",
@@ -1675,7 +1675,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_extraction_get",
+    "cavern_file_extraction_get",
     {
       title: "Get file extraction status",
       description: "Read safe status and provenance for one exact immutable generation and extraction kind; raw content is excluded.",
@@ -1692,7 +1692,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_extracted_content_get",
+    "cavern_file_extracted_content_get",
     {
       title: "Get protected extracted content",
       description: "Read separately authorized content, OCR, or transcription text for one exact immutable generation.",
@@ -1709,7 +1709,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_derivatives_list",
+    "cavern_file_derivatives_list",
     {
       title: "List file derivatives",
       description: "List ready, immutable derivative metadata for one exact source generation.",
@@ -1725,9 +1725,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_batch",
+    "cavern_file_batch",
     {
-      title: "Mutate Almira files atomically",
+      title: "Mutate Cavern files atomically",
       description: "Apply up to 100 independent revision-bound rename, version-selection, delete, or restore actions as one atomic collection mutation.",
       inputSchema: z.object({
         ...collectionScope,
@@ -1748,9 +1748,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_copy",
+    "cavern_file_copy",
     {
-      title: "Copy an Almira file generation",
+      title: "Copy an Cavern file generation",
       description: "Create an independent server-side copy of one exact available retained generation at a new path. No file bytes or provider credentials pass through the agent.",
       inputSchema: z.object({
         ...collectionScope,
@@ -1774,9 +1774,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_verification_receipt_create",
+    "cavern_verification_receipt_create",
     {
-      title: "Verify an Almira file flow",
+      title: "Verify an Cavern file flow",
       description: "Replay finalization, hash the exact private generation, prove cross-environment refusal and safety, then issue a signed contract-bound receipt.",
       inputSchema: z.object({
         ...collectionScope,
@@ -1822,9 +1822,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_delete",
+    "cavern_file_delete",
     {
-      title: "Delete Almira file",
+      title: "Delete Cavern file",
       description: "Soft-delete one file entry using optimistic revision control.",
       inputSchema: z
         .object({
@@ -1868,9 +1868,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_rename",
+    "cavern_file_rename",
     {
-      title: "Rename Almira file",
+      title: "Rename Cavern file",
       description: "Rename or move one stable file identity without copying its generations.",
       inputSchema: z.object({
         ...collectionScope,
@@ -1893,9 +1893,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_generation_restore",
+    "cavern_file_generation_restore",
     {
-      title: "Select Almira file version",
+      title: "Select Cavern file version",
       description: "Make one retained immutable generation current for its stable file identity.",
       inputSchema: z.object({
         ...collectionScope,
@@ -1918,9 +1918,9 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_file_restore",
+    "cavern_file_restore",
     {
-      title: "Restore Almira file",
+      title: "Restore Cavern file",
       description: "Restore one file entry that is still inside its recycle window.",
       inputSchema: z.object({
         ...collectionScope,
@@ -1942,7 +1942,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_policy_get",
+    "cavern_policy_get",
     {
       title: "Get collection access policy",
       description: "Read the effective versioned access policy for one collection.",
@@ -1955,7 +1955,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_policy_replace",
+    "cavern_policy_replace",
     {
       title: "Replace collection access policy",
       description: "Replace the complete versioned access policy for one collection.",
@@ -1979,7 +1979,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_policy_simulate",
+    "cavern_policy_simulate",
     {
       title: "Simulate collection access",
       description: "Evaluate one proposed principal, operation, and target against the active policy without changing it.",
@@ -1998,7 +1998,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_delivery_get",
+    "cavern_delivery_get",
     {
       title: "Get CDN delivery configuration",
       description: "Read the collection's effective CDN delivery, cache, domain, and recent provider-neutral invalidation diagnostics.",
@@ -2011,7 +2011,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_delivery_replace",
+    "cavern_delivery_replace",
     {
       title: "Replace CDN delivery configuration",
       description: "Replace a collection's governed CDN mode and cache preset.",
@@ -2035,7 +2035,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_delivery_purge_create",
+    "cavern_delivery_purge_create",
     {
       title: "Purge collection CDN cache",
       description: "Queue one replay-safe collection-wide cache invalidation and return its durable diagnostic.",
@@ -2053,7 +2053,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_share_create",
+    "cavern_share_create",
     {
       title: "Create file share",
       description: "Create one bounded, revocable URL for an immutable file generation.",
@@ -2079,7 +2079,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_share_revoke",
+    "cavern_share_revoke",
     {
       title: "Revoke file share",
       description: "Immediately revoke one share URL.",
@@ -2097,7 +2097,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_local_issuer_list",
+    "cavern_local_issuer_list",
     {
       title: "List local capability issuers",
       description: "List the registered public keys and ceilings for one collection.",
@@ -2110,10 +2110,10 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_local_issuer_register",
+    "cavern_local_issuer_register",
     {
       title: "Register local capability issuer",
-      description: "Register an Ed25519 public key and bounded capability ceiling; private key material never enters Almira.",
+      description: "Register an Ed25519 public key and bounded capability ceiling; private key material never enters Cavern.",
       inputSchema: z.object({
         ...collectionScope,
         issuer_key: z.string().regex(/^[a-z][a-z0-9._-]{0,63}$/u),
@@ -2137,7 +2137,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_local_issuer_rotate",
+    "cavern_local_issuer_rotate",
     {
       title: "Rotate local issuer key",
       description: "Replace a local issuer public key using optimistic revision control.",
@@ -2161,7 +2161,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_local_issuer_revoke",
+    "cavern_local_issuer_revoke",
     {
       title: "Revoke local capability issuer",
       description: "Revoke a local issuer and all future use of its signing authority.",
@@ -2183,7 +2183,7 @@ export function createAlmiraMcpServer(
   );
 
   server.registerTool(
-    "almira_local_issuer_signing_configuration_get",
+    "cavern_local_issuer_signing_configuration_get",
     {
       title: "Get local issuer signing configuration",
       description: "Read the non-secret, revision-bound inputs needed to construct local capability claims.",
@@ -2221,9 +2221,9 @@ function fileReference(
 
 class McpDownloadError extends Error {
   readonly code:
-    | "ALMIRA_MCP_OUTPUT_EXISTS"
-    | "ALMIRA_MCP_OUTPUT_INVALID"
-    | "ALMIRA_MCP_OUTPUT_WRITE_FAILED";
+    | "CAVERN_MCP_OUTPUT_EXISTS"
+    | "CAVERN_MCP_OUTPUT_INVALID"
+    | "CAVERN_MCP_OUTPUT_WRITE_FAILED";
 
   constructor(code: McpDownloadError["code"]) {
     super(code);
@@ -2232,7 +2232,7 @@ class McpDownloadError extends Error {
 }
 
 class McpImportError extends Error {
-  readonly code = "ALMIRA_MCP_INPUT_INVALID";
+  readonly code = "CAVERN_MCP_INPUT_INVALID";
 }
 
 async function portableImportContent(
@@ -2258,7 +2258,7 @@ async function savePortableExport(
   descriptorId: string,
   stream: PortableExportStream,
 ): Promise<void> {
-  const temporary = `${output}.almira-${descriptorId}.partial`;
+  const temporary = `${output}.cavern-${descriptorId}.partial`;
   const hash = createHash("sha256");
   let size = 0;
   const meter = new Transform({
@@ -2275,7 +2275,7 @@ async function savePortableExport(
       createWriteStream(temporary, { flags: "wx", mode: 0o600 }),
     );
     if (size !== stream.sizeBytes || `sha256:${hash.digest("hex")}` !== stream.contentSha256) {
-      throw new McpDownloadError("ALMIRA_MCP_OUTPUT_INVALID");
+      throw new McpDownloadError("CAVERN_MCP_OUTPUT_INVALID");
     }
     await link(temporary, output);
     await unlink(temporary).catch(() => undefined);
@@ -2283,9 +2283,9 @@ async function savePortableExport(
     await unlink(temporary).catch(() => undefined);
     if (error instanceof McpDownloadError) throw error;
     if (isFileSystemError(error) && error.code === "EEXIST") {
-      throw new McpDownloadError("ALMIRA_MCP_OUTPUT_EXISTS");
+      throw new McpDownloadError("CAVERN_MCP_OUTPUT_EXISTS");
     }
-    throw new McpDownloadError("ALMIRA_MCP_OUTPUT_WRITE_FAILED");
+    throw new McpDownloadError("CAVERN_MCP_OUTPUT_WRITE_FAILED");
   }
 }
 
@@ -2314,7 +2314,7 @@ async function execute(call: () => Promise<unknown>, operationId?: string) {
 }
 
 function safeError(error: unknown, operationId?: string): Record<string, unknown> {
-  if (error instanceof AlmiraApiError) {
+  if (error instanceof CavernApiError) {
     return {
       code: error.code,
       request_id: error.requestId,
@@ -2323,20 +2323,20 @@ function safeError(error: unknown, operationId?: string): Record<string, unknown
       ...(operationId === undefined ? {} : { operation_id: operationId }),
     };
   }
-  if (error instanceof AlmiraClientError) {
+  if (error instanceof CavernClientError) {
     return {
       code: error.code,
       ...(operationId === undefined ? {} : { operation_id: operationId }),
     };
   }
-  if (error instanceof AlmiraConfigurationError) {
+  if (error instanceof CavernConfigurationError) {
     return {
       code: error.code,
       ...(operationId === undefined ? {} : { operation_id: operationId }),
       ...(error.plan === null ? {} : { plan: error.plan }),
     };
   }
-  if (error instanceof AlmiraTransferError) {
+  if (error instanceof CavernTransferError) {
     return {
       code: error.code,
       ...(operationId === undefined ? {} : { operation_id: operationId }),
@@ -2355,7 +2355,7 @@ function safeError(error: unknown, operationId?: string): Record<string, unknown
     };
   }
   return {
-    code: "ALMIRA_MCP_INTERNAL",
+    code: "CAVERN_MCP_INTERNAL",
     ...(operationId === undefined ? {} : { operation_id: operationId }),
   };
 }

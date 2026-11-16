@@ -1,11 +1,11 @@
 {
-  "name": "@metamorph-labs/almira-cli",
-  "version": "0.1.0-dev.60",
-  "description": "Composable management CLI for Almira",
+  "name": "@metamorph-labs/cavern-cli",
+  "version": "0.1.0-dev.64",
+  "description": "Composable management CLI for Cavern",
   "type": "module",
   "license": "Apache-2.0",
   "bin": {
-    "almira": "./dist/main.js"
+    "cavern": "./dist/main.js"
   },
   "files": [
     "dist",
@@ -16,7 +16,7 @@
     "test": "pnpm build && node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@metamorph-labs/almira-sdk": "workspace:*",
+    "@metamorph-labs/cavern-sdk": "workspace:*",
     "yaml": "2.8.3"
   },
   "devDependencies": {

@@ -9,9 +9,9 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "sdks" / "python" / "src"))
 
-from almira import (  # noqa: E402
-    AlmiraClientError,
-    AlmiraDataClient,
+from cavern import (  # noqa: E402
+    CavernClientError,
+    CavernDataClient,
     FileReference,
     HttpResponse,
     RetryPolicy,
@@ -37,7 +37,7 @@ class ApplicationConformanceTest(unittest.TestCase):
             observed.append(headers["authorization"])
             return wire(journey["positive"]["response"])
 
-        client = AlmiraDataClient(
+        client = CavernDataClient(
             base_url=journey["base_url"], capability=journey["positive"]["capability"],
             origin=journey["origin"], transport=positive,
         )
@@ -51,8 +51,8 @@ class ApplicationConformanceTest(unittest.TestCase):
             refusal_calls += 1
             return wire({})
 
-        refused = AlmiraDataClient(base_url=journey["base_url"], capability=journey["refusal"]["credential"], transport=should_not_call)
-        with self.assertRaises(AlmiraClientError) as caught:
+        refused = CavernDataClient(base_url=journey["base_url"], capability=journey["refusal"]["credential"], transport=should_not_call)
+        with self.assertRaises(CavernClientError) as caught:
             refused.get_file_metadata_with_capability(reference)
         self.assertEqual(caught.exception.code, journey["refusal"]["client_code"])
         self.assertEqual(refusal_calls, 0)
@@ -71,7 +71,7 @@ class ApplicationConformanceTest(unittest.TestCase):
                 return wire(journey["retry"]["first_error"], journey["retry"]["first_status"], {"retry-after": str(journey["retry"]["retry_after_seconds"])})
             return wire(journey["positive"]["response"], journey["retry"]["final_status"])
 
-        retrying = AlmiraDataClient(
+        retrying = CavernDataClient(
             base_url=journey["base_url"], capability=capability, transport=transient,
             retry=RetryPolicy(max_attempts=2, base_delay_seconds=0, maximum_delay_seconds=0),
         )

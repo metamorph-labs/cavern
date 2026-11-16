@@ -1,5 +1,4 @@
-import { readFile } from "node:fs/promises";
-import { access } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 
 const required = [
   "AGENTS.md",
@@ -15,14 +14,77 @@ const required = [
   "rust-toolchain.toml",
   "sdks/java/build.gradle.kts",
   "sdks/kotlin/build.gradle.kts",
-  "sdks/dotnet/Metamorph.Almira/Metamorph.Almira.csproj",
+  "sdks/dotnet/Metamorph.Cavern/Metamorph.Cavern.csproj",
   "sdks/swift/Package.swift",
   "sdks/php/composer.json",
   "sdks/dart/pubspec.yaml",
-  "sdks/ruby/almira.gemspec",
+  "sdks/ruby/cavern.gemspec",
 ];
 
+const handwrittenSourceExtensions = new Set([
+  ".cs",
+  ".dart",
+  ".java",
+  ".js",
+  ".jsx",
+  ".kt",
+  ".kts",
+  ".php",
+  ".rb",
+  ".rs",
+  ".swift",
+  ".ts",
+  ".tsx",
+]);
+const generatedDirectoryNames = new Set([
+  ".build",
+  ".dart_tool",
+  ".gradle",
+  "bin",
+  "build",
+  "node_modules",
+  "obj",
+  "target",
+  "vendor",
+]);
+const forbiddenCompatibilitySyntax = [
+  ["Rust serde alias", /#\s*\[\s*serde\s*\([^\]]*\balias\s*=/u],
+  ["Rust deprecation", /#\s*\[\s*deprecated(?:\s|=|\])/u],
+  ["JSDoc or PHP deprecation", /@deprecated\b/u],
+  ["Java, Kotlin or Dart deprecation", /@Deprecated\b/u],
+  ["C# deprecation", /\[\s*Obsolete(?:Attribute)?\b/u],
+  ["Swift deprecation", /@available\([^)]*\bdeprecated\b/u],
+  ["Jackson compatibility alias", /\bJsonAlias\s*\(/u],
+];
+
+function extension(path) {
+  const index = path.lastIndexOf(".");
+  return index < 0 ? "" : path.slice(index);
+}
+
+async function rejectCompatibilitySyntax(root) {
+  for (const relativePath of await readdir(root, { recursive: true })) {
+    if (relativePath.split(/[/\\]/u).some((part) => generatedDirectoryNames.has(part))) continue;
+    if (!handwrittenSourceExtensions.has(extension(relativePath))) continue;
+    const path = `${root}/${relativePath}`;
+    const source = await readFile(path, "utf8");
+    for (const [label, pattern] of forbiddenCompatibilitySyntax) {
+      if (pattern.test(source)) {
+        throw new Error(`${path} contains forbidden pre-release ${label} syntax`);
+      }
+    }
+  }
+}
+
 await Promise.all(required.map((path) => access(path)));
+await Promise.all([
+  rejectCompatibilitySyntax("clients"),
+  rejectCompatibilitySyntax("conformance"),
+  rejectCompatibilitySyntax("examples"),
+  rejectCompatibilitySyntax("plugins"),
+  rejectCompatibilitySyntax("sdks"),
+  rejectCompatibilitySyntax("tools"),
+]);
 
 const packageManifest = JSON.parse(await readFile("package.json", "utf8"));
 if (packageManifest.packageManager !== "pnpm@11.0.9") {
@@ -59,4 +121,4 @@ if (!readme.includes("public developer repository")) {
   throw new Error("README.md must identify the public repository boundary");
 }
 
-console.log("Almira public repository foundation is valid.");
+console.log("Cavern public repository foundation is valid.");

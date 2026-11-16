@@ -1,12 +1,12 @@
-export { AlmiraClient, createOperationId } from "./client.js";
+export { CavernClient, createOperationId } from "./client.js";
 export type {
-  AlmiraClientOptions,
+  CavernClientOptions,
   PortableImportContent,
   PortableImportContentOptions,
 } from "./client.js";
-export { AlmiraDataClient } from "./data-client.js";
+export { CavernDataClient } from "./data-client.js";
 export type {
-  AlmiraDataClientOptions,
+  CavernDataClientOptions,
   DataRetryPolicy,
   DataFileResponse,
   DataReadOptions,
@@ -17,9 +17,9 @@ export type {
   CapabilityDataClientOptions,
   CapabilityDataClientSession,
 } from "./capability-session.js";
-export { AlmiraApiError, AlmiraClientError, AlmiraTransferError } from "./errors.js";
+export { CavernApiError, CavernClientError, CavernTransferError } from "./errors.js";
 export {
-  AlmiraConfigurationError,
+  CavernConfigurationError,
   applyConfiguration,
   normalizeConfiguration,
   previewConfiguration,

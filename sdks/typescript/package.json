@@ -1,7 +1,7 @@
 {
-  "name": "@metamorph-labs/almira-sdk",
-  "version": "0.1.0-dev.60",
-  "description": "TypeScript client for the Almira application file-storage API",
+  "name": "@metamorph-labs/cavern-sdk",
+  "version": "0.1.0-dev.64",
+  "description": "TypeScript client for the Cavern application file-storage API",
   "type": "module",
   "license": "Apache-2.0",
   "sideEffects": false,

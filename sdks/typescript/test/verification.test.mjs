@@ -20,8 +20,8 @@ test("signed verification receipts validate offline and fail closed on substitut
   const pair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
   const publicKey = new Uint8Array(await crypto.subtle.exportKey("raw", pair.publicKey));
   const receipt = {
-    receipt_version: "almira.verification.v1",
-    contract_version: "0.1.0-dev.60",
+    receipt_version: "cavern.verification.v1",
+    contract_version: "0.1.0-dev.64",
     verification_id: id(1),
     realm_id: id(2),
     tenant_id: id(3),

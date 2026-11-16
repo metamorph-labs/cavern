@@ -1,0 +1,28 @@
+# Cavern for Codex
+
+This plugin gives Codex the product-neutral Metamorph bootstrap MCP, the Cavern management MCP, and
+the `build-with-cavern` integration skill. It is for coding agents working on a user's application;
+it does not add an application builder or deployment agent.
+
+Set `METAMORPH_BASE_URL`, `CAVERN_BASE_URL`, and a scoped `METAMORPH_TOKEN` in the Codex host
+environment before enabling the plugin. The Metamorph MCP performs device-bound sign-in, Tenancy
+project discovery/creation, and Identity customer-workload provisioning. The token may be a PAT or
+SAK for Cavern setup work. Application runtimes use short-lived Metamorph workload evidence instead.
+
+The MCP server package is pinned in `.mcp.json`. One-use direct-transfer capabilities remain in the
+application or MCP process and are never returned in model context. Governed imports accept only
+opaque FileService bindings and safe manifests. Each declared local object is streamed with the
+import-upload tool, without returning bytes or provider grants to model context. Portable-export downloads produce verified new
+local files without exposing signed URLs or overwriting existing paths.
+
+The management catalog includes collection protection, safe scan-case inspection, exact-generation
+rescan, and content-free review tools. FileService remains authoritative for verdicts and
+quarantine; the plugin has no release or verdict-override tool.
+
+CDN setup remains provider-neutral. The catalog can replace collection delivery configuration,
+enqueue a replay-safe collection-wide cache purge, and read its bounded diagnostic; it never
+exposes CDN credentials or raw provider receipts.
+
+The verification tool accepts only bounded replay evidence for an existing canary upload. Cavern
+exercises finalize retry, exact private bytes, cross-environment refusal and the safety gate before
+issuing an Ed25519-signed receipt. The plugin never treats resource creation alone as success.

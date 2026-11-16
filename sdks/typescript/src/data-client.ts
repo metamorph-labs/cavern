@@ -1,4 +1,4 @@
-import { AlmiraApiError, AlmiraClientError } from "./errors.js";
+import { CavernApiError, CavernClientError } from "./errors.js";
 import { validateSearchInput } from "./client.js";
 import type {
   CollectionReference,
@@ -18,7 +18,7 @@ import type {
 } from "./types.js";
 
 const UUID_V7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
-const API_ERROR = /^ALMIRA_[A-Z0-9_]{1,120}$/u;
+const API_ERROR = /^CAVERN_[A-Z0-9_]{1,120}$/u;
 const BYTE_RANGE = /^bytes=[0-9]+-[0-9]*$/u;
 type CapabilityProvider = () => string | Promise<string>;
 
@@ -31,7 +31,7 @@ export interface DataRetryPolicy {
   maximumDelayMilliseconds?: number;
 }
 
-export interface AlmiraDataClientOptions {
+export interface CavernDataClientOptions {
   baseUrl?: string;
   capability?: string | CapabilityProvider;
   /** Canonical application origin for non-browser runtimes. Browsers supply Origin themselves. */
@@ -74,14 +74,14 @@ export interface DataFilePageOptions extends PageOptions {
 }
 
 /** Capability-only application data client; it never accepts management credentials. */
-export class AlmiraDataClient {
+export class CavernDataClient {
   readonly #baseUrl: string;
   readonly #capability: CapabilityProvider | null;
   readonly #origin: string | null;
   readonly #fetch: typeof globalThis.fetch;
   readonly #retry: Required<DataRetryPolicy>;
 
-  constructor(options: AlmiraDataClientOptions = {}) {
+  constructor(options: CavernDataClientOptions = {}) {
     const baseUrl = options.baseUrl ?? "";
     if (
       /[?#\\\u0000-\u0020\u007f]/u.test(baseUrl) ||
@@ -184,7 +184,7 @@ export class AlmiraDataClient {
     shareToken: string,
     options: DataReadOptions = {},
   ): Promise<DataFileResponse> {
-    if (!/^alm_share_v1\.[A-Za-z0-9_-]{43}$/u.test(shareToken)) invalidInput();
+    if (!/^cav_share_v1\.[A-Za-z0-9_-]{43}$/u.test(shareToken)) invalidInput();
     return this.#bytes(`/v1/shares/${shareToken}`, options, "forbidden");
   }
 
@@ -263,9 +263,9 @@ export class AlmiraDataClient {
         try {
           capability = await this.#capability();
         } catch {
-          throw new AlmiraClientError("ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE");
+          throw new CavernClientError("CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE");
         }
-        if (!/^alm_(?:cap|local)_v1\.[A-Za-z0-9_.-]{20,24576}$/u.test(capability)) invalidInput();
+        if (!/^cav_(?:cap|local)_v1\.[A-Za-z0-9_.-]{20,24576}$/u.test(capability)) invalidInput();
         headers.set("authorization", `Bearer ${capability}`);
       } else if (capabilityMode === "required") {
         invalidInput();
@@ -286,15 +286,15 @@ export class AlmiraDataClient {
         await retryDelay(this.#retry, attempt, response.headers.get("retry-after"), signal);
       } catch (error) {
         if (signal?.aborted || (error instanceof DOMException && error.name === "AbortError")) {
-          throw new AlmiraClientError("ALMIRA_CLIENT_ABORTED");
+          throw new CavernClientError("CAVERN_CLIENT_ABORTED");
         }
         if (attempt === this.#retry.maxAttempts) {
-          throw new AlmiraClientError("ALMIRA_CLIENT_NETWORK");
+          throw new CavernClientError("CAVERN_CLIENT_NETWORK");
         }
         await retryDelay(this.#retry, attempt, null, signal);
       }
     }
-    throw new AlmiraClientError("ALMIRA_CLIENT_NETWORK");
+    throw new CavernClientError("CAVERN_CLIENT_NETWORK");
   }
 }
 
@@ -338,7 +338,7 @@ async function retryDelay(
     }
     function aborted(): void {
       clearTimeout(timeout);
-      reject(new AlmiraClientError("ALMIRA_CLIENT_ABORTED"));
+      reject(new CavernClientError("CAVERN_CLIENT_ABORTED"));
     }
   });
 }
@@ -397,11 +397,11 @@ function timestamp(value: string): string {
 }
 
 function invalidInput(): never {
-  throw new AlmiraClientError("ALMIRA_CLIENT_INPUT_INVALID");
+  throw new CavernClientError("CAVERN_CLIENT_INPUT_INVALID");
 }
 
 function invalidResponse(): never {
-  throw new AlmiraClientError("ALMIRA_CLIENT_RESPONSE_INVALID");
+  throw new CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID");
 }
 
 async function throwApiError(response: Response): Promise<never> {
@@ -411,7 +411,7 @@ async function throwApiError(response: Response): Promise<never> {
     if (bytes.length === 0 || bytes.length > 64 * 1024) invalidResponse();
     value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
   } catch (error) {
-    if (error instanceof AlmiraClientError) throw error;
+    if (error instanceof CavernClientError) throw error;
     return invalidResponse();
   }
   if (typeof value !== "object" || value === null || Array.isArray(value)) invalidResponse();
@@ -423,7 +423,7 @@ async function throwApiError(response: Response): Promise<never> {
     typeof record.request_id !== "string" ||
     !UUID_V7.test(record.request_id)
   ) invalidResponse();
-  throw new AlmiraApiError(record.code, record.request_id, response.status, retryAfter(response.headers.get("retry-after")));
+  throw new CavernApiError(record.code, record.request_id, response.status, retryAfter(response.headers.get("retry-after")));
 }
 
 function retryAfter(value: string | null): number | null {

@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
 
-import 'package:metamorph_almira/almira.dart';
-import 'package:metamorph_almira/almira_server.dart';
+import 'package:metamorph_cavern/cavern.dart';
+import 'package:metamorph_cavern/cavern_server.dart';
 import 'package:test/test.dart';
 
 const tenant = '018f0000-0000-7000-8000-000000000002';
@@ -12,9 +12,9 @@ const project = '018f0000-0000-7000-8000-000000000003';
 const environment = '018f0000-0000-7000-8000-000000000004';
 const collection = '018f0000-0000-7000-8000-000000000005';
 const operation = '018f0000-0000-7000-8000-000000000008';
-const capability = 'alm_cap_v1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const capability = 'cav_cap_v1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
-class RecordingTransport implements AlmiraTransport {
+class RecordingTransport implements CavernTransport {
   final calls = <({
     String method,
     Uri url,
@@ -43,7 +43,7 @@ class UploadRecorder implements DirectUploadTransport {
       const UploadResponse(200, {'etag': '"v1"'});
 }
 
-class JourneyTransport implements AlmiraTransport {
+class JourneyTransport implements CavernTransport {
   JourneyTransport(this.responses);
   final List<({int status, Object body, Map<String, String> headers})>
       responses;
@@ -63,30 +63,30 @@ class JourneyTransport implements AlmiraTransport {
 void main() {
   test('data client scopes capability and keeps shares anonymous', () async {
     expect(
-        () => AlmiraDataClient(
-            baseUrl: 'https://almira.test',
+        () => CavernDataClient(
+            baseUrl: 'https://cavern.test',
             capability: () => capability,
             origin: 'https://app.example/'),
-        throwsA(isA<AlmiraClientException>()));
+        throwsA(isA<CavernClientException>()));
     final transport = RecordingTransport();
     final reference = CollectionReference(
         tenantId: tenant,
         projectId: project,
         environmentId: environment,
         collectionInstanceId: collection);
-    final client = AlmiraDataClient(
-        baseUrl: 'https://almira.test',
+    final client = CavernDataClient(
+        baseUrl: 'https://cavern.test',
         capability: () => capability,
         origin: 'https://app.example',
         transport: transport);
     await client.listFilesWithCapability(reference, filters: {'limit': 25});
     await client
-        .readShare('alm_share_v1.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+        .readShare('cav_share_v1.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
     expect(
         () => client.readShare(
-            'alm_share_v1.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+            'cav_share_v1.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
             range: 'bytes=unsafe'),
-        throwsA(isA<AlmiraClientException>()));
+        throwsA(isA<CavernClientException>()));
     expect(transport.calls[0].headers['authorization'], 'Bearer $capability');
     expect(transport.calls[1].headers['authorization'], isNull);
   });
@@ -97,17 +97,17 @@ void main() {
         projectId: project,
         environmentId: environment,
         collectionInstanceId: collection);
-    final client = AlmiraServerClient(
-        baseUrl: 'https://almira.test',
+    final client = CavernServerClient(
+        baseUrl: 'https://cavern.test',
         workloadSession: () => 'workload_evidence',
         transport: transport);
     await client.createUpload(reference, {'path': 'avatar.png'}, operation);
     expect(transport.calls.single.headers['authorization'],
         'MetamorphWorkload workload_evidence');
-    expect(contractVersion, '0.1.0-dev.60');
+    expect(contractVersion, '0.1.0-dev.64');
   });
   test('direct transfer returns only finalize evidence', () async {
-    final directory = await Directory.systemTemp.createTemp('almira-test');
+    final directory = await Directory.systemTemp.createTemp('cavern-test');
     final source = File('${directory.path}/source.bin');
     await source.writeAsString('hello');
     try {
@@ -146,11 +146,11 @@ void main() {
       'metamorph-webhook-attempt': '2',
       'metamorph-webhook-timestamp': '2026-10-17T12:00:00.000000Z',
       'metamorph-webhook-signature':
-          'v1=PHaG4k_rjkr4itoseS10o0_znK6FR9aoArs7pPV2klI',
+          'v1=sSvGgftGstGOcfUXBQlMctCwL2sOqKiMhvJtD3KJeDg',
     };
     final verified = verifyWebhookSignature(
         secret: utf8.encode('topsecret'),
-        body: utf8.encode('{"event":"almira.file.available.v1"}'),
+        body: utf8.encode('{"event":"cavern.file.available.v1"}'),
         headers: headers,
         now: DateTime.parse('2026-10-17T12:00:30Z'));
     expect(verified?.attempt, 2);
@@ -159,7 +159,7 @@ void main() {
     expect(
         verifyWebhookSignature(
             secret: utf8.encode('topsecret'),
-            body: utf8.encode('{"event":"almira.file.available.v1"}'),
+            body: utf8.encode('{"event":"cavern.file.available.v1"}'),
             headers: headers,
             now: DateTime.parse('2026-10-17T12:00:30Z')),
         isNull);
@@ -202,7 +202,7 @@ void main() {
         entryId: ids['entry_id'] as String);
     final positiveTransport = JourneyTransport(
         [(status: 200, body: positive['response']!, headers: const {})]);
-    final positiveClient = AlmiraDataClient(
+    final positiveClient = CavernDataClient(
         baseUrl: journey['base_url'] as String,
         capability: () => positive['capability'] as String,
         origin: journey['origin'] as String,
@@ -214,13 +214,13 @@ void main() {
 
     final refusalTransport = JourneyTransport(
         [(status: 200, body: positive['response']!, headers: const {})]);
-    final refused = AlmiraDataClient(
+    final refused = CavernDataClient(
         baseUrl: journey['base_url'] as String,
         capability: () => refusal['credential'] as String,
         transport: refusalTransport);
     await expectLater(
         refused.getFileMetadataWithCapability(reference),
-        throwsA(isA<AlmiraClientException>()
+        throwsA(isA<CavernClientException>()
             .having((error) => error.code, 'code', refusal['client_code'])));
     expect(refusalTransport.authorities, isEmpty);
 
@@ -239,7 +239,7 @@ void main() {
         headers: const {}
       )
     ]);
-    final retrying = AlmiraDataClient(
+    final retrying = CavernDataClient(
         baseUrl: journey['base_url'] as String,
         capability: () => capabilities[capabilityAttempt++],
         transport: retryTransport,

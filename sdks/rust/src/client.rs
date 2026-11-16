@@ -352,7 +352,7 @@ impl Client {
                     Some(Capability::Token(value)) => Some(value.clone()),
                     Some(Capability::Provider(provider)) => Some(
                         provider()
-                            .ok_or_else(|| client_error("ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE"))?,
+                            .ok_or_else(|| client_error("CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE"))?,
                     ),
                     None => None,
                 };
@@ -389,10 +389,10 @@ impl Client {
                 Err(_) if attempt < self.retry.max_attempts => {
                     tokio::time::sleep(retry_delay(self.retry, attempt, None)).await;
                 }
-                Err(_) => return Err(client_error("ALMIRA_CLIENT_NETWORK")),
+                Err(_) => return Err(client_error("CAVERN_CLIENT_NETWORK")),
             }
         }
-        Err(client_error("ALMIRA_CLIENT_NETWORK"))
+        Err(client_error("CAVERN_CLIENT_NETWORK"))
     }
 
     fn url(&self, path: &str) -> Result<Url, Error> {
@@ -445,7 +445,7 @@ pub(crate) async fn bounded_body(
     while let Some(chunk) = response
         .chunk()
         .await
-        .map_err(|_| client_error("ALMIRA_CLIENT_NETWORK"))?
+        .map_err(|_| client_error("CAVERN_CLIENT_NETWORK"))?
     {
         if body.len().saturating_add(chunk.len()) > limit {
             return Err(invalid_response());
@@ -777,7 +777,7 @@ pub(crate) fn valid_capability(value: &str) -> bool {
     let Some((prefix, payload)) = value.split_once('.') else {
         return false;
     };
-    matches!(prefix, "alm_cap_v1" | "alm_local_v1")
+    matches!(prefix, "cav_cap_v1" | "cav_local_v1")
         && (20..=24_576).contains(&payload.len())
         && payload
             .bytes()
@@ -785,7 +785,7 @@ pub(crate) fn valid_capability(value: &str) -> bool {
 }
 
 fn valid_share_token(value: &str) -> bool {
-    value.strip_prefix("alm_share_v1.").is_some_and(|payload| {
+    value.strip_prefix("cav_share_v1.").is_some_and(|payload| {
         payload.len() == 43
             && payload
                 .bytes()
@@ -794,7 +794,7 @@ fn valid_share_token(value: &str) -> bool {
 }
 
 fn valid_api_code(value: &str) -> bool {
-    value.strip_prefix("ALMIRA_").is_some_and(|suffix| {
+    value.strip_prefix("CAVERN_").is_some_and(|suffix| {
         (1..=120).contains(&suffix.len())
             && suffix
                 .bytes()

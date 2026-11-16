@@ -1,13 +1,13 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Almira API",
-    "version": "0.1.0-dev.60",
+    "title": "Cavern API",
+    "version": "0.1.0-dev.64",
     "description": "Provider-neutral application file storage management and data API."
   },
   "servers": [
     {
-      "url": "/"
+      "url": "/api"
     }
   ],
   "security": [
@@ -22,13 +22,13 @@
     }
   ],
   "paths": {
-    "/.well-known/almira-verification-keys.json": {
+    "/.well-known/cavern-verification-keys.json": {
       "get": {
         "operationId": "getVerificationPublicKeys",
         "security": [],
         "responses": {
           "200": {
-            "description": "Current public keys for offline verification of Almira receipts.",
+            "description": "Current public keys for offline verification of Cavern receipts.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1974,7 +1974,7 @@
           "201": {
             "description": "Durable transfer prepared with bounded one-use requests.",
             "headers": {
-              "x-almira-commercial-reservation": {
+              "x-cavern-commercial-reservation": {
                 "$ref": "#/components/headers/CommercialReservationReceipt"
               }
             },
@@ -2046,7 +2046,7 @@
           "201": {
             "description": "Fresh checksum-bound one-use request for one exact multipart segment.",
             "headers": {
-              "x-almira-commercial-reservation": {
+              "x-cavern-commercial-reservation": {
                 "$ref": "#/components/headers/CommercialReservationReceipt"
               }
             },
@@ -2121,7 +2121,7 @@
           "200": {
             "description": "Upload finalized or exactly replayed.",
             "headers": {
-              "x-almira-commercial-reservation": {
+              "x-cavern-commercial-reservation": {
                 "$ref": "#/components/headers/CommercialReservationReceipt"
               }
             },
@@ -2415,7 +2415,7 @@
           "200": {
             "description": "Atomic batch applied or exactly replayed.",
             "headers": {
-              "x-almira-commercial-reservation": {
+              "x-cavern-commercial-reservation": {
                 "$ref": "#/components/headers/CommercialReservationReceipt"
               }
             },
@@ -2485,7 +2485,7 @@
           "201": {
             "description": "Independent copy applied or exactly replayed.",
             "headers": {
-              "x-almira-commercial-reservation": {
+              "x-cavern-commercial-reservation": {
                 "$ref": "#/components/headers/CommercialReservationReceipt"
               }
             },
@@ -3029,7 +3029,7 @@
           "201": {
             "description": "Immutable version transfer prepared with bounded one-use requests.",
             "headers": {
-              "x-almira-commercial-reservation": {
+              "x-cavern-commercial-reservation": {
                 "$ref": "#/components/headers/CommercialReservationReceipt"
               }
             },
@@ -3347,7 +3347,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Protected exact-generation extracted content. Requires almira.extracted_content.read.",
+            "description": "Protected exact-generation extracted content. Requires cavern.cavern_extracted_content.read.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3413,7 +3413,7 @@
           "200": {
             "description": "Selected retained generation made current or exactly replayed.",
             "headers": {
-              "x-almira-commercial-reservation": {
+              "x-cavern-commercial-reservation": {
                 "$ref": "#/components/headers/CommercialReservationReceipt"
               }
             },
@@ -3485,7 +3485,7 @@
           "200": {
             "description": "File restored from its unexpired recycle window or exactly replayed.",
             "headers": {
-              "x-almira-commercial-reservation": {
+              "x-cavern-commercial-reservation": {
                 "$ref": "#/components/headers/CommercialReservationReceipt"
               }
             },
@@ -4887,7 +4887,7 @@
       ],
       "get": {
         "operationId": "getLocalIssuerSigningConfiguration",
-        "description": "Returns non-secret protocol, scope, ceiling, and current revision material. A registered workload can cache this response and sign many short-lived browser capabilities locally; it refreshes after a stale-token refusal rather than calling Almira for every file access.",
+        "description": "Returns non-secret protocol, scope, ceiling, and current revision material. A registered workload can cache this response and sign many short-lived browser capabilities locally; it refreshes after a stale-token refusal rather than calling Cavern for every file access.",
         "parameters": [
           {
             "$ref": "#/components/parameters/ProjectId"
@@ -5027,7 +5027,7 @@
     },
     "parameters": {
       "TenantId": {
-        "name": "x-almira-tenant-id",
+        "name": "x-cavern-tenant-id",
         "in": "header",
         "required": true,
         "description": "Routing scope only; never authority without authenticated actor evidence and an Authorization decision.",
@@ -5369,7 +5369,7 @@
               "null"
             ],
             "maxLength": 128,
-            "pattern": "^ALMIRA_[A-Z0-9_]+$"
+            "pattern": "^CAVERN_[A-Z0-9_]+$"
           },
           "updated_at": {
             "$ref": "#/components/schemas/Timestamp"
@@ -5379,8 +5379,8 @@
       "ComplianceProfileId": {
         "type": "string",
         "enum": [
-          "almira.storage.gdpr",
-          "almira.storage.hipaa_eligible"
+          "cavern.storage.gdpr",
+          "cavern.storage.hipaa_eligible"
         ]
       },
       "ComplianceCatalogIdentity": {
@@ -5440,7 +5440,7 @@
             "minItems": 1,
             "maxItems": 64,
             "uniqueItems": true,
-            "x-almira-strictly-increasing": true,
+            "x-cavern-strictly-increasing": true,
             "items": {
               "$ref": "#/components/schemas/CatalogIdentifier"
             }
@@ -5450,7 +5450,7 @@
             "minItems": 1,
             "maxItems": 64,
             "uniqueItems": true,
-            "x-almira-strictly-increasing": true,
+            "x-cavern-strictly-increasing": true,
             "items": {
               "$ref": "#/components/schemas/CatalogIdentifier"
             }
@@ -5654,7 +5654,7 @@
             "type": "array",
             "minItems": 1,
             "maxItems": 2,
-            "x-almira-unique-by": "profile_id",
+            "x-cavern-unique-by": "profile_id",
             "items": {
               "$ref": "#/components/schemas/ComplianceProfileDefinition"
             }
@@ -5721,7 +5721,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 512,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           }
         }
       },
@@ -5831,7 +5831,7 @@
         "properties": {
           "code": {
             "type": "string",
-            "pattern": "^ALMIRA_[A-Z0-9_]{1,120}$"
+            "pattern": "^CAVERN_[A-Z0-9_]{1,120}$"
           },
           "request_id": {
             "$ref": "#/components/schemas/UuidV7"
@@ -6085,13 +6085,13 @@
             "$ref": "#/components/schemas/UuidV7"
           },
           "product_id": {
-            "const": "almira"
+            "const": "cavern"
           },
           "product_section_id": {
             "type": "null"
           },
           "project_kind_id": {
-            "const": "almira.storage"
+            "const": "cavern.storage"
           },
           "owner_region_id": {
             "type": "string",
@@ -6184,7 +6184,7 @@
         "minLength": 1,
         "maxLength": 255,
         "pattern": "^(https://[a-z0-9][a-z0-9.-]*(:[0-9]{1,5})?|http://(localhost|127[.]0[.]0[.]1)(:[0-9]{1,5})?)$",
-        "x-almira-canonical-origin": true
+        "x-cavern-canonical-origin": true
       },
       "ReplaceBrowserOriginsRequest": {
         "type": "object",
@@ -6838,7 +6838,7 @@
             "oneOf": [
               {
                 "type": "string",
-                "pattern": "^ALMIRA_EXTRACTION_[A-Z0-9_]{1,75}$"
+                "pattern": "^CAVERN_EXTRACTION_[A-Z0-9_]{1,75}$"
               },
               {
                 "type": "null"
@@ -7345,9 +7345,9 @@
             "minLength": 12,
             "maxLength": 1000,
             "pattern": "^[^\\u0000-\\u001F\\u007F]+$",
-            "x-almira-trimmed": true,
-            "x-almira-utf8-min-bytes": 12,
-            "x-almira-utf8-max-bytes": 1000
+            "x-cavern-trimmed": true,
+            "x-cavern-utf8-min-bytes": 12,
+            "x-cavern-utf8-max-bytes": 1000
           }
         }
       },
@@ -7382,9 +7382,9 @@
             "minLength": 12,
             "maxLength": 1000,
             "pattern": "^[^\\u0000-\\u001F\\u007F]+$",
-            "x-almira-trimmed": true,
-            "x-almira-utf8-min-bytes": 12,
-            "x-almira-utf8-max-bytes": 1000
+            "x-cavern-trimmed": true,
+            "x-cavern-utf8-min-bytes": 12,
+            "x-cavern-utf8-max-bytes": 1000
           },
           "generation_revision": {
             "type": "integer",
@@ -7497,7 +7497,7 @@
             "oneOf": [
               {
                 "type": "string",
-                "pattern": "^ALMIRA_PROTECTION_[A-Z0-9_]{1,77}$"
+                "pattern": "^CAVERN_PROTECTION_[A-Z0-9_]{1,77}$"
               },
               {
                 "type": "null"
@@ -7769,7 +7769,7 @@
             "oneOf": [
               {
                 "type": "string",
-                "pattern": "^ALMIRA_MEDIA_[A-Z0-9_]{1,83}$"
+                "pattern": "^CAVERN_MEDIA_[A-Z0-9_]{1,83}$"
               },
               {
                 "type": "null"
@@ -7905,7 +7905,7 @@
             "minLength": 1,
             "maxLength": 160,
             "pattern": "^(?!.*(?:^|/)\\.{1,2}(?:/|$))[a-z0-9]([a-z0-9._/-]*[a-z0-9])?$",
-            "description": "Opaque Almira variant key; never a provider coordinate."
+            "description": "Opaque Cavern variant key; never a provider coordinate."
           },
           "kind": {
             "$ref": "#/components/schemas/DerivativeKind"
@@ -8150,13 +8150,13 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 64,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           },
           "bucket": {
             "type": "string",
             "minLength": 1,
             "maxLength": 255,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           },
           "expected_bucket_owner": {
             "type": "string",
@@ -8166,7 +8166,7 @@
             "type": "string",
             "minLength": 20,
             "maxLength": 512,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           },
           "encryption": {
             "type": "string",
@@ -8182,7 +8182,7 @@
             ],
             "minLength": 1,
             "maxLength": 512,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           }
         },
         "if": {
@@ -8228,7 +8228,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 128,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           },
           "project_number": {
             "type": "string",
@@ -8238,19 +8238,19 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 255,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           },
           "location": {
             "type": "string",
             "minLength": 1,
             "maxLength": 64,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           },
           "service_account": {
             "type": "string",
             "minLength": 3,
             "maxLength": 320,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           },
           "encryption": {
             "type": "string",
@@ -8266,7 +8266,7 @@
             ],
             "minLength": 1,
             "maxLength": 1024,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           }
         },
         "if": {
@@ -8319,19 +8319,19 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 64,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           },
           "container": {
             "type": "string",
             "minLength": 1,
             "maxLength": 128,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           },
           "location": {
             "type": "string",
             "minLength": 1,
             "maxLength": 64,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           },
           "client_id": {
             "$ref": "#/components/schemas/CloudUuid"
@@ -8350,7 +8350,7 @@
             ],
             "minLength": 1,
             "maxLength": 256,
-            "x-almira-trimmed": true
+            "x-cavern-trimmed": true
           }
         },
         "if": {
@@ -9762,10 +9762,10 @@
         ],
         "properties": {
           "receipt_version": {
-            "const": "almira.verification.v1"
+            "const": "cavern.verification.v1"
           },
           "contract_version": {
-            "const": "0.1.0-dev.60"
+            "const": "0.1.0-dev.64"
           },
           "verification_id": {
             "$ref": "#/components/schemas/UuidV7"
@@ -9810,7 +9810,7 @@
             "type": "array",
             "minItems": 4,
             "maxItems": 4,
-            "x-almira-unique-by": "name",
+            "x-cavern-unique-by": "name",
             "items": {
               "$ref": "#/components/schemas/VerificationCheck"
             }
@@ -9887,7 +9887,7 @@
             "type": "array",
             "minItems": 1,
             "maxItems": 4,
-            "x-almira-unique-by": "key_id",
+            "x-cavern-unique-by": "key_id",
             "items": {
               "$ref": "#/components/schemas/VerificationPublicKey"
             }
@@ -10933,7 +10933,7 @@
           "rules": {
             "type": "array",
             "maxItems": 64,
-            "x-almira-unique-by": "rule_id",
+            "x-cavern-unique-by": "rule_id",
             "items": {
               "$ref": "#/components/schemas/AccessRule"
             }
@@ -11708,7 +11708,7 @@
             "type": "string",
             "format": "uri",
             "maxLength": 2048,
-            "x-almira-canonical-origin": true
+            "x-cavern-canonical-origin": true
           },
           "lifetime_seconds": {
             "type": "integer",
@@ -11738,7 +11738,7 @@
             "type": "string",
             "minLength": 32,
             "maxLength": 24576,
-            "pattern": "^alm_cap_v1\\.[A-Za-z0-9_-]+$",
+            "pattern": "^cav_cap_v1\\.[A-Za-z0-9_-]+$",
             "x-sensitive": true
           },
           "operations": {
@@ -11751,7 +11751,7 @@
             "type": "string",
             "format": "uri",
             "maxLength": 2048,
-            "x-almira-canonical-origin": true
+            "x-cavern-canonical-origin": true
           },
           "policy_revision": {
             "type": "integer",
@@ -11880,7 +11880,7 @@
               "type": "string",
               "format": "uri",
               "maxLength": 2048,
-              "x-almira-canonical-origin": true
+              "x-cavern-canonical-origin": true
             }
           },
           "maximum_lifetime_seconds": {
@@ -12067,11 +12067,11 @@
           },
           "token_prefix": {
             "type": "string",
-            "const": "alm_local_v1."
+            "const": "cav_local_v1."
           },
           "signature_context_base64url": {
             "type": "string",
-            "const": "YWxtaXJhOmxvY2FsLWNhcGFiaWxpdHk6djEA",
+            "const": "Y2F2ZXJuOmxvY2FsLWNhcGFiaWxpdHk6djEA",
             "description": "Canonical unpadded base64url bytes prepended to canonical JCS claims before Ed25519 signing."
           },
           "maximum_clock_skew_seconds": {
@@ -12138,12 +12138,12 @@
             "minLength": 1,
             "maxLength": 255,
             "pattern": "^[^\\u0000-\\u001f\\u007f]+$",
-            "x-almira-trimmed": true,
-            "x-almira-utf8-min-bytes": 1,
-            "x-almira-utf8-max-bytes": 255
+            "x-cavern-trimmed": true,
+            "x-cavern-utf8-min-bytes": 1,
+            "x-cavern-utf8-max-bytes": 255
           }
         },
-        "description": "Builder-owned opaque lifecycle reference; never an Almira authorization identity."
+        "description": "Builder-owned opaque lifecycle reference; never an Cavern authorization identity."
       },
       "SubjectBinding": {
         "type": "object",
@@ -12498,7 +12498,7 @@
             ]
           }
         },
-        "description": "Content paths are authenticated Almira-relative routes, never provider URLs or credentials."
+        "description": "Content paths are authenticated Cavern-relative routes, never provider URLs or credentials."
       },
       "SubjectLifecyclePage": {
         "type": "object",

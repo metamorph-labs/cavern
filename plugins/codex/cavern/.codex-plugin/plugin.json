@@ -1,0 +1,32 @@
+{
+  "name": "cavern",
+  "version": "0.1.0-dev.64",
+  "description": "Configure and integrate Cavern application file storage with scoped Metamorph access.",
+  "author": {
+    "name": "Metamorph Labs",
+    "url": "https://github.com/metamorph-labs/cavern"
+  },
+  "homepage": "https://github.com/metamorph-labs/cavern",
+  "repository": "https://github.com/metamorph-labs/cavern",
+  "license": "Apache-2.0",
+  "keywords": [
+    "file-storage",
+    "media",
+    "developer-tools"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Cavern",
+    "shortDescription": "Add secure application file storage",
+    "longDescription": "Create and configure Cavern storage resources, integrate the public SDK, and verify the application's file journey.",
+    "developerName": "Metamorph Labs",
+    "category": "Developer Tools",
+    "capabilities": [
+      "MCP management tools",
+      "Application integration guidance"
+    ],
+    "websiteURL": "https://github.com/metamorph-labs/cavern",
+    "defaultPrompt": "Set up Cavern storage for this application and verify the integration."
+  },
+  "mcpServers": "./.mcp.json"
+}

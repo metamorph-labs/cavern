@@ -72,7 +72,7 @@ impl ReqwestDirectUploadTransport {
         let http = reqwest::Client::builder()
             .redirect(reqwest::redirect::Policy::none())
             .build()
-            .map_err(|_| transfer_error("ALMIRA_TRANSFER_DESCRIPTOR_INVALID", None, None))?;
+            .map_err(|_| transfer_error("CAVERN_TRANSFER_DESCRIPTOR_INVALID", None, None))?;
         Ok(Self { http })
     }
 }
@@ -87,7 +87,7 @@ impl DirectUploadTransport for ReqwestDirectUploadTransport {
         async move {
             let mut file = tokio::fs::File::open(source_path).await.map_err(|_| {
                 transfer_error(
-                    "ALMIRA_TRANSFER_SOURCE_UNAVAILABLE",
+                    "CAVERN_TRANSFER_SOURCE_UNAVAILABLE",
                     Some(part.part_number),
                     None,
                 )
@@ -96,7 +96,7 @@ impl DirectUploadTransport for ReqwestDirectUploadTransport {
                 .await
                 .map_err(|_| {
                     transfer_error(
-                        "ALMIRA_TRANSFER_SOURCE_UNAVAILABLE",
+                        "CAVERN_TRANSFER_SOURCE_UNAVAILABLE",
                         Some(part.part_number),
                         None,
                     )
@@ -107,14 +107,14 @@ impl DirectUploadTransport for ReqwestDirectUploadTransport {
                 headers.insert(
                     HeaderName::from_bytes(header.name.as_bytes()).map_err(|_| {
                         transfer_error(
-                            "ALMIRA_TRANSFER_DESCRIPTOR_INVALID",
+                            "CAVERN_TRANSFER_DESCRIPTOR_INVALID",
                             Some(part.part_number),
                             None,
                         )
                     })?,
                     HeaderValue::from_str(&header.value).map_err(|_| {
                         transfer_error(
-                            "ALMIRA_TRANSFER_DESCRIPTOR_INVALID",
+                            "CAVERN_TRANSFER_DESCRIPTOR_INVALID",
                             Some(part.part_number),
                             None,
                         )
@@ -131,7 +131,7 @@ impl DirectUploadTransport for ReqwestDirectUploadTransport {
                 .await
                 .map_err(|_| {
                     transfer_error(
-                        "ALMIRA_TRANSFER_OUTCOME_UNKNOWN",
+                        "CAVERN_TRANSFER_OUTCOME_UNKNOWN",
                         Some(part.part_number),
                         None,
                     )
@@ -173,7 +173,7 @@ pub async fn upload_direct_file(
         &transport,
         &|_| async {
             Err(transfer_error(
-                "ALMIRA_TRANSFER_DESCRIPTOR_INVALID",
+                "CAVERN_TRANSFER_DESCRIPTOR_INVALID",
                 None,
                 None,
             ))
@@ -197,18 +197,18 @@ where
 {
     if !valid_direct_upload_descriptor(descriptor) {
         return Err(transfer_error(
-            "ALMIRA_TRANSFER_DESCRIPTOR_INVALID",
+            "CAVERN_TRANSFER_DESCRIPTOR_INVALID",
             None,
             None,
         ));
     }
     let size = tokio::fs::metadata(source_path)
         .await
-        .map_err(|_| transfer_error("ALMIRA_TRANSFER_SOURCE_UNAVAILABLE", None, None))?
+        .map_err(|_| transfer_error("CAVERN_TRANSFER_SOURCE_UNAVAILABLE", None, None))?
         .len();
     if size != descriptor.expected_size_bytes {
         return Err(transfer_error(
-            "ALMIRA_TRANSFER_DESCRIPTOR_INVALID",
+            "CAVERN_TRANSFER_DESCRIPTOR_INVALID",
             None,
             None,
         ));
@@ -235,7 +235,7 @@ where
                 || part.length_bytes != expected.length_bytes
             {
                 return Err(transfer_error(
-                    "ALMIRA_TRANSFER_DESCRIPTOR_INVALID",
+                    "CAVERN_TRANSFER_DESCRIPTOR_INVALID",
                     Some(part_number),
                     None,
                 ));
@@ -246,14 +246,14 @@ where
         let response = transport.put(&part, source_path).await?;
         if !(100..=599).contains(&response.status) {
             return Err(transfer_error(
-                "ALMIRA_TRANSFER_RESPONSE_INVALID",
+                "CAVERN_TRANSFER_RESPONSE_INVALID",
                 Some(part.part_number),
                 None,
             ));
         }
         if !(200..300).contains(&response.status) {
             return Err(transfer_error(
-                "ALMIRA_TRANSFER_PART_REFUSED",
+                "CAVERN_TRANSFER_PART_REFUSED",
                 Some(part.part_number),
                 Some(response.status),
             ));
@@ -263,7 +263,7 @@ where
             .filter(|value| valid_provider_receipt(value))
             .ok_or_else(|| {
                 transfer_error(
-                    "ALMIRA_TRANSFER_RESPONSE_INVALID",
+                    "CAVERN_TRANSFER_RESPONSE_INVALID",
                     Some(part.part_number),
                     None,
                 )
@@ -279,7 +279,7 @@ where
                     .any(|pair| pair[0] != pair[1])
             {
                 return Err(transfer_error(
-                    "ALMIRA_TRANSFER_RESPONSE_INVALID",
+                    "CAVERN_TRANSFER_RESPONSE_INVALID",
                     Some(part.part_number),
                     None,
                 ));
@@ -325,7 +325,7 @@ fn expected_part(descriptor: &DirectUploadDescriptor, part_number: u16) -> Direc
 async fn part_sha256(source_path: &Path, part: &DirectUploadPart) -> Result<String, TransferError> {
     let mut file = tokio::fs::File::open(source_path).await.map_err(|_| {
         transfer_error(
-            "ALMIRA_TRANSFER_SOURCE_UNAVAILABLE",
+            "CAVERN_TRANSFER_SOURCE_UNAVAILABLE",
             Some(part.part_number),
             None,
         )
@@ -334,7 +334,7 @@ async fn part_sha256(source_path: &Path, part: &DirectUploadPart) -> Result<Stri
         .await
         .map_err(|_| {
             transfer_error(
-                "ALMIRA_TRANSFER_SOURCE_UNAVAILABLE",
+                "CAVERN_TRANSFER_SOURCE_UNAVAILABLE",
                 Some(part.part_number),
                 None,
             )
@@ -346,14 +346,14 @@ async fn part_sha256(source_path: &Path, part: &DirectUploadPart) -> Result<Stri
         let limit = usize::try_from(remaining.min(buffer.len() as u64)).unwrap_or(buffer.len());
         let read = file.read(&mut buffer[..limit]).await.map_err(|_| {
             transfer_error(
-                "ALMIRA_TRANSFER_SOURCE_UNAVAILABLE",
+                "CAVERN_TRANSFER_SOURCE_UNAVAILABLE",
                 Some(part.part_number),
                 None,
             )
         })?;
         if read == 0 {
             return Err(transfer_error(
-                "ALMIRA_TRANSFER_DESCRIPTOR_INVALID",
+                "CAVERN_TRANSFER_DESCRIPTOR_INVALID",
                 Some(part.part_number),
                 None,
             ));
@@ -369,10 +369,10 @@ fn require_unexpired(
     now: OffsetDateTime,
 ) -> Result<(), TransferError> {
     let expires_at = OffsetDateTime::parse(&descriptor.expires_at, &Rfc3339)
-        .map_err(|_| transfer_error("ALMIRA_TRANSFER_DESCRIPTOR_INVALID", None, None))?;
+        .map_err(|_| transfer_error("CAVERN_TRANSFER_DESCRIPTOR_INVALID", None, None))?;
     if expires_at <= now {
         return Err(transfer_error(
-            "ALMIRA_TRANSFER_DESCRIPTOR_EXPIRED",
+            "CAVERN_TRANSFER_DESCRIPTOR_EXPIRED",
             None,
             None,
         ));

@@ -1,5 +1,5 @@
 {
-  "name": "metamorph/almira-laravel-example",
+  "name": "metamorph/cavern-laravel-example",
   "type": "project",
   "license": "Apache-2.0",
   "repositories": [
@@ -12,6 +12,6 @@
   "require": {
     "php": ">=8.3",
     "laravel/framework": "13.39.0",
-    "metamorph/almira": "dev-main"
+    "metamorph/cavern": "dev-main"
   }
 }

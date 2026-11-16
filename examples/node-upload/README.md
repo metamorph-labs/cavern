@@ -1,19 +1,19 @@
 # Node.js direct upload example
 
-This executable example demonstrates the complete application path: create an Almira upload,
+This executable example demonstrates the complete application path: create an Cavern upload,
 execute its single-put or on-demand checksum-bound multipart requests without forwarding Metamorph credentials, finalize the
-immutable generation, obtain and cryptographically verify Almira's signed behavior receipt, and
+immutable generation, obtain and cryptographically verify Cavern's signed behavior receipt, and
 move the command-line canary into its configured recycle window using a fresh file revision.
 
 ```sh
-export ALMIRA_BASE_URL=https://almira.example
+export CAVERN_BASE_URL=https://cavern.example
 export METAMORPH_TOKEN=mm_pat_v1...
 pnpm build
 node dist/main.js ./photo.jpg TENANT_ID PROJECT_ID DEVELOPMENT_ENVIRONMENT_ID COLLECTION_INSTANCE_ID PRODUCTION_ENVIRONMENT_ID images/photo.jpg
 ```
 
 For the managed local FileService fixture only, set
-`ALMIRA_DEVELOPMENT_ALLOW_LOOPBACK_UPLOAD_URLS=1`. The example then accepts only an HTTP
+`CAVERN_DEVELOPMENT_ALLOW_LOOPBACK_UPLOAD_URLS=1`. The example then accepts only an HTTP
 `127.0.0.1` or `localhost` transfer URL with an explicit port; ordinary SDK use remains HTTPS-only.
 
 The small example reads one file into memory to keep the integration clear. Production callers can
@@ -22,11 +22,11 @@ contain geometry rather than prefetched credentials; the example uses `createUpl
 part is hashed. Transfer URLs and headers remain one-use secrets and should never be logged or
 persisted.
 
-The second environment is a refusal target, not a source or destination. Almira replays the exact
+The second environment is a refusal target, not a source or destination. Cavern replays the exact
 finalize operation, hashes a bounded private read of the immutable generation, requires that the
 same resource cannot be read through that other environment, checks the configured malware gate,
 and signs a receipt bound to the resource and contract version. The example fetches public keys
-from the same Almira origin and verifies the Ed25519 signature offline before reporting success.
+from the same Cavern origin and verifies the Ed25519 signature offline before reporting success.
 Files above 8 MiB should use application-specific verification sampling; the V1 canonical receipt
 intentionally refuses them instead of turning verification into an unbounded download.
 The command-line example performs cleanup after verification and reports the deletion outcome. The
@@ -36,7 +36,7 @@ their own application lifecycle rather than inheriting canary cleanup.
 `src/next-route-handler.ts` is a Next.js App Router-compatible server handler factory for the
 representative `avatar`, `private_document`, and `video` flows. Supply the application's own
 authorization callback and path mapping, then export the returned function as `POST` from an
-`app/api/files/route.ts` module. The injected `AlmiraClient` must obtain short-lived workload
+`app/api/files/route.ts` module. The injected `CavernClient` must obtain short-lived workload
 evidence in a deployed application; never put a PAT or SAK in browser code. The handler rejects
 unauthorized callers and oversized inputs before creating storage work, returns no transfer
 descriptor, and reports success only after the signed receipt verifies.

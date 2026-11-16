@@ -3,9 +3,9 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
-  AlmiraApiError,
-  AlmiraClient,
-  AlmiraClientError,
+  CavernApiError,
+  CavernClient,
+  CavernClientError,
   createOperationId,
 } from "../dist/index.js";
 
@@ -32,7 +32,7 @@ test("SDK version and methods cover the promoted contract exactly", async () => 
     .filter((operation) => !Array.isArray(operation) && typeof operation?.operationId === "string")
     .map((operation) => operation.operationId)
     .sort();
-  const methods = Object.getOwnPropertyNames(AlmiraClient.prototype)
+  const methods = Object.getOwnPropertyNames(CavernClient.prototype)
     .filter((name) => name !== "constructor")
     .sort();
   assert.equal(packageManifest.version, contract.info.version);
@@ -48,8 +48,8 @@ function json(value, init = {}) {
 
 test("bearer management request is exact and omits browser credentials", async () => {
   const calls = [];
-  const client = new AlmiraClient({
-    baseUrl: "https://almira.test/",
+  const client = new CavernClient({
+    baseUrl: "https://cavern.test/",
     credential: async () => "mm_sak_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -74,13 +74,13 @@ test("bearer management request is exact and omits browser credentials", async (
   assert.equal(calls.length, 1);
   assert.equal(
     calls[0].input,
-    `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections`,
+    `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections`,
   );
   assert.equal(calls[0].init.method, "POST");
   assert.equal(calls[0].init.credentials, "omit");
   assert.equal(calls[0].init.redirect, "error");
   assert.equal(calls[0].init.headers.get("authorization"), "Bearer mm_sak_v1.test");
-  assert.equal(calls[0].init.headers.get("x-almira-tenant-id"), tenantId);
+  assert.equal(calls[0].init.headers.get("x-cavern-tenant-id"), tenantId);
   assert.equal(calls[0].init.headers.get("idempotency-key"), operationId);
   assert.deepEqual(JSON.parse(calls[0].init.body), {
     collection_key: "assets",
@@ -92,7 +92,7 @@ test("bearer management request is exact and omits browser credentials", async (
 
 test("environment mutations use the canonical methods, paths, and concurrency headers", async () => {
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -159,7 +159,7 @@ test("storage capability discovery is one exact environment-scoped read", async 
     realization_catalog_digest: `sha256:${"c".repeat(64)}`,
     realizations: [],
   };
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       call = { input, init };
@@ -177,12 +177,12 @@ test("storage capability discovery is one exact environment-scoped read", async 
   );
   assert.equal(call.init.method, "GET");
   assert.equal(call.init.headers.get("idempotency-key"), null);
-  assert.equal(call.init.headers.get("x-almira-tenant-id"), tenantId);
+  assert.equal(call.init.headers.get("x-cavern-tenant-id"), tenantId);
 });
 
 test("compliance profile methods preserve preview, approval, replay, and removal boundaries", async () => {
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -190,7 +190,7 @@ test("compliance profile methods preserve preview, approval, replay, and removal
     },
   });
   const reference = { tenantId, projectId, environmentId };
-  const profileId = "almira.storage.gdpr";
+  const profileId = "cavern.storage.gdpr";
   const declaration = {
     data_category_ids: ["personal.contact"],
     purpose_ids: ["customer.support"],
@@ -226,7 +226,7 @@ test("compliance profile methods preserve preview, approval, replay, and removal
 
   await assert.rejects(
     client.previewComplianceProfile(reference, "unreviewed.profile", {}),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
   assert.equal(calls.length, 4);
 });
@@ -235,12 +235,12 @@ test("verification receipt and public key discovery use their distinct credentia
   const calls = [];
   const receipt = { receipt: {}, algorithm: "ed25519", signature: "A".repeat(86) };
   const keySet = { format_version: 1, keys: [] };
-  const client = new AlmiraClient({
-    baseUrl: "https://almira.test",
+  const client = new CavernClient({
+    baseUrl: "https://cavern.test",
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
-      return json(input.endsWith("almira-verification-keys.json") ? keySet : receipt);
+      return json(input.endsWith("cavern-verification-keys.json") ? keySet : receipt);
     },
   });
   const reference = { tenantId, projectId, environmentId, collectionInstanceId };
@@ -263,11 +263,11 @@ test("verification receipt and public key discovery use their distinct credentia
   }), receipt);
   assert.deepEqual(await client.getVerificationPublicKeys(), keySet);
 
-  assert.equal(calls[0].input, `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionInstanceId}/verifications`);
+  assert.equal(calls[0].input, `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionInstanceId}/verifications`);
   assert.equal(calls[0].init.headers.get("authorization"), "Bearer mm_pat_v1.test");
-  assert.equal(calls[0].init.headers.get("x-almira-tenant-id"), tenantId);
+  assert.equal(calls[0].init.headers.get("x-cavern-tenant-id"), tenantId);
   assert.equal(calls[0].init.headers.get("idempotency-key"), null);
-  assert.equal(calls[1].input, "https://almira.test/.well-known/almira-verification-keys.json");
+  assert.equal(calls[1].input, "https://cavern.test/.well-known/cavern-verification-keys.json");
   assert.equal(calls[1].init.credentials, "omit");
   assert.deepEqual(calls[1].init.headers, { accept: "application/json" });
 });
@@ -289,7 +289,7 @@ test("customer storage enrollment uses project scope and credential-free provide
     created_at: "2026-10-17T00:00:00Z",
     updated_at: "2026-10-17T00:01:00Z",
   };
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -309,7 +309,7 @@ test("customer storage enrollment uses project scope and credential-free provide
       region: "us-east-1",
       bucket: "customer-files",
       expected_bucket_owner: "123456789012",
-      role_arn: "arn:aws:iam::123456789012:role/almira",
+      role_arn: "arn:aws:iam::123456789012:role/cavern",
       encryption: "aws_sse_s3",
       encryption_key: null,
     },
@@ -345,7 +345,7 @@ test("customer storage adoption binds one environment, enrollment, revision, and
     created_at: "2026-10-17T00:00:00Z",
     updated_at: "2026-10-17T00:01:00Z",
   };
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -387,7 +387,7 @@ test("managed storage restoration binds one environment, revision, and replay id
     created_at: "2026-10-17T00:00:00Z",
     updated_at: "2026-10-17T00:02:00Z",
   };
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -423,7 +423,7 @@ test("storage migration start and status use the collection-scoped contract", as
     collection_instance_id: collectionInstanceId,
     phase: "inventory",
   };
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -473,7 +473,7 @@ test("multipart part grants bind the exact transfer, part, checksum, and operati
     headers: [{ name: "x-upload-token", value: "secret" }],
     one_use: true,
   };
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       call = { input, init };
@@ -518,7 +518,7 @@ test("portable import, export, status, and download use exact collection scope",
     one_use: true,
     expires_at: "2099-10-17T00:00:00Z",
   };
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -570,7 +570,7 @@ test("portable import content streams exact bytes with its declared length and r
     collection_instance_id: collectionInstanceId,
     kind: "import",
   };
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init, bytes: new Uint8Array(await new Response(init.body).arrayBuffer()) });
@@ -608,13 +608,13 @@ test("portable import content streams exact bytes with its declared length and r
 
   await assert.rejects(
     client.putPortabilityImportContent(reference, new ReadableStream(), { operationId }),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
 });
 
 test("management search sends one bounded collection request with optional subject context", async () => {
   let call;
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     workloadSession: "workload_session",
     fetch: async (input, init) => {
       call = { input, init };
@@ -642,7 +642,7 @@ test("management search sends one bounded collection request with optional subje
   assert.equal(call.init.method, "POST");
   assert.deepEqual(JSON.parse(call.init.body), input);
   assert.equal(
-    Buffer.from(call.init.headers.get("x-almira-subject-context"), "base64url").toString("utf8"),
+    Buffer.from(call.init.headers.get("x-cavern-subject-context"), "base64url").toString("utf8"),
     '{"subject_id":"customer-42"}',
   );
   await assert.rejects(
@@ -650,21 +650,21 @@ test("management search sends one bounded collection request with optional subje
       { tenantId, projectId, environmentId, collectionInstanceId },
       { query: " report\n" },
     ),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
 });
 
 test("workload evidence uses its distinct framing and is resolved for every call", async () => {
   const evidence = ["eyJzY2hlbWFfdmVyc2lvbiI6MX0", "eyJzY2hlbWFfdmVyc2lvbiI6Mn0"];
   let calls = 0;
-  const client = new AlmiraClient({
-    baseUrl: "https://almira.test",
+  const client = new CavernClient({
+    baseUrl: "https://cavern.test",
     workloadSession: () => evidence[calls],
     fetch: async (input, init) => {
-      assert.equal(input, `https://almira.test/v1/projects/${projectId}/environments`);
+      assert.equal(input, `https://cavern.test/v1/projects/${projectId}/environments`);
       assert.equal(init.credentials, "omit");
       assert.equal(init.headers.get("authorization"), `MetamorphWorkload ${evidence[calls]}`);
-      assert.equal(init.headers.get("x-almira-tenant-id"), tenantId);
+      assert.equal(init.headers.get("x-cavern-tenant-id"), tenantId);
       calls += 1;
       return json({ environments: [] });
     },
@@ -687,7 +687,7 @@ test("workload-only subject bindings stay distinct from authorization identity",
     entry_lifecycle: "active",
     created_at: "2026-10-17T12:00:00Z",
   };
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     workloadSession: "workload_session",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -713,8 +713,8 @@ test("workload-only subject bindings stay distinct from authorization identity",
       return json({
         descriptor_id: operationId,
         method: "GET",
-        url: `https://almira.test/v1/subject-export-downloads/${operationId}`,
-        headers: [{ name: "Authorization", value: "AlmiraTransfer redacted" }],
+        url: `https://cavern.test/v1/subject-export-downloads/${operationId}`,
+        headers: [{ name: "Authorization", value: "CavernTransfer redacted" }],
         expected_size_bytes: 3072,
         content_sha256: `sha256:${"b".repeat(64)}`,
         one_use: true,
@@ -784,34 +784,34 @@ test("workload-only subject bindings stay distinct from authorization identity",
       { tenantId, projectId },
       { namespace: "Auth0 Primary", subject_id: "opaque|user-42" },
     ),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
 });
 
 test("authentication modes and PAT or SAK framing fail closed", async () => {
   assert.throws(
-    () => new AlmiraClient({ credential: "mm_pat_v1.test", workloadSession: "e30" }),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    () => new CavernClient({ credential: "mm_pat_v1.test", workloadSession: "e30" }),
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
   assert.throws(
-    () => new AlmiraClient({ credential: "mm_pat_v1.test", productSelection: "selection_reference_1234567890" }),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    () => new CavernClient({ credential: "mm_pat_v1.test", productSelection: "selection_reference_1234567890" }),
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
   for (const credential of ["Bearer secret", "pat_secret", "mm_pat_v2.secret", "mm_sak_v1."]) {
-    const client = new AlmiraClient({
+    const client = new CavernClient({
       credential,
       fetch: async () => assert.fail("must reject malformed evidence before fetch"),
     });
     await assert.rejects(
       client.listEnvironments({ tenantId, projectId }),
-      (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+      (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
     );
   }
 });
 
-test("browser reads are one Almira call and include same-origin credentials", async () => {
+test("browser reads are one Cavern call and include same-origin credentials", async () => {
   let count = 0;
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     productSelection: "selection_reference_1234567890",
     fetch: async (input, init) => {
       count += 1;
@@ -822,7 +822,7 @@ test("browser reads are one Almira call and include same-origin credentials", as
       assert.equal(init.credentials, "include");
       assert.equal(init.headers.get("authorization"), null);
       assert.equal(init.headers.get("x-metamorph-product-selection"), "selection_reference_1234567890");
-      assert.equal(init.headers.get("x-almira-tenant-id"), tenantId);
+      assert.equal(init.headers.get("x-cavern-tenant-id"), tenantId);
       assert.equal(init.headers.get("range"), "bytes=10-19");
       return new Response(new Uint8Array([1, 2]), {
         status: 206,
@@ -852,7 +852,7 @@ test("browser reads are one Almira call and include same-origin credentials", as
 });
 
 test("list query encoding cannot change the request path", async () => {
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     fetch: async (input) => {
       assert.equal(
         input,
@@ -869,7 +869,7 @@ test("list query encoding cannot change the request path", async () => {
 
 test("metadata and extraction methods preserve exact scope, filtering, and separate content access", async () => {
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -932,7 +932,7 @@ test("metadata and extraction methods preserve exact scope, filtering, and separ
 
 test("media methods preserve collection and immutable generation scope", async () => {
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -971,7 +971,7 @@ test("media methods preserve collection and immutable generation scope", async (
 
 test("collection lifecycle replacement uses the collection route and optimistic revision", async () => {
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -997,7 +997,7 @@ test("collection lifecycle replacement uses the collection route and optimistic 
 
 test("protection methods preserve environment, collection, and exact-generation scope", async () => {
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -1068,25 +1068,25 @@ test("protection methods preserve environment, collection, and exact-generation 
 });
 
 test("metadata filters fail locally when paired fields or ranges are incoherent", async () => {
-  const client = new AlmiraClient({ fetch: async () => assert.fail("invalid filters must not call the API") });
+  const client = new CavernClient({ fetch: async () => assert.fail("invalid filters must not call the API") });
   const reference = { tenantId, projectId, environmentId, collectionInstanceId };
   await assert.rejects(
     client.listFiles(reference, { metadataKey: "account_id" }),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
   await assert.rejects(
     client.listFiles(reference, { minimumSizeBytes: 100, maximumSizeBytes: 10 }),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
   await assert.rejects(
     client.listFiles(reference, { extractionKind: "content" }),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
 });
 
 test("file lifecycle methods use stable entry paths and optimistic revisions", async () => {
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: "mm_pat_v1.test",
     fetch: async (input, init) => {
       calls.push({ input, init });
@@ -1180,13 +1180,13 @@ test("file lifecycle methods use stable entry paths and optimistic revisions", a
       ] },
       { operationId },
     ),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
 });
 
 test("recycle listing is management-only", async () => {
   const calls = [];
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     fetch: async (input) => {
       calls.push(input);
       return json({ entries: [], next_cursor: null });
@@ -1197,16 +1197,16 @@ test("recycle listing is management-only", async () => {
   assert.equal(calls[0], `/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionInstanceId}/files?include_deleted=true`);
   await assert.rejects(
     client.listFiles(reference, { includeDeleted: true, subject: { subject_id: "builder-user" } }),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
   assert.equal(calls.length, 1);
 });
 
 test("typed API errors expose no response body", async () => {
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     fetch: async () =>
       json(
-        { code: "ALMIRA_AUTHORIZATION_REFUSED", request_id: requestId },
+        { code: "CAVERN_AUTHORIZATION_REFUSED", request_id: requestId },
         { status: 403, headers: { "retry-after": "7" } },
       ),
   });
@@ -1214,59 +1214,59 @@ test("typed API errors expose no response body", async () => {
   await assert.rejects(
     client.listEnvironments({ tenantId, projectId }),
     (error) => {
-      assert.ok(error instanceof AlmiraApiError);
-      assert.equal(error.code, "ALMIRA_AUTHORIZATION_REFUSED");
+      assert.ok(error instanceof CavernApiError);
+      assert.equal(error.code, "CAVERN_AUTHORIZATION_REFUSED");
       assert.equal(error.requestId, requestId);
       assert.equal(error.status, 403);
       assert.equal(error.retryAfterMilliseconds, 7_000);
-      assert.equal(error.message, "ALMIRA_AUTHORIZATION_REFUSED");
+      assert.equal(error.message, "CAVERN_AUTHORIZATION_REFUSED");
       return true;
     },
   );
 });
 
 test("malformed errors and invalid identifiers fail closed", async () => {
-  const malformed = new AlmiraClient({
+  const malformed = new CavernClient({
     fetch: async () => json({ code: "forbidden", detail: "secret" }, { status: 403 }),
   });
   await assert.rejects(
     malformed.listEnvironments({ tenantId, projectId }),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_RESPONSE_INVALID",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_RESPONSE_INVALID",
   );
 
-  const client = new AlmiraClient({ fetch: async () => assert.fail("must not call fetch") });
+  const client = new CavernClient({ fetch: async () => assert.fail("must not call fetch") });
   await assert.rejects(
     client.listEnvironments({ tenantId, projectId: "not-a-uuid" }),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_INPUT_INVALID",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_INPUT_INVALID",
   );
 });
 
 test("abort and network failure have distinct safe client errors", async () => {
   const controller = new AbortController();
   controller.abort();
-  const aborted = new AlmiraClient({
+  const aborted = new CavernClient({
     fetch: async () => {
       throw new DOMException("secret", "AbortError");
     },
   });
   await assert.rejects(
     aborted.listEnvironments({ tenantId, projectId }, { signal: controller.signal }),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_ABORTED",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_ABORTED",
   );
 
-  const failed = new AlmiraClient({
+  const failed = new CavernClient({
     fetch: async () => {
       throw new Error("socket contained a secret");
     },
   });
   await assert.rejects(
     failed.listEnvironments({ tenantId, projectId }),
-    (error) => error instanceof AlmiraClientError && error.code === "ALMIRA_CLIENT_NETWORK",
+    (error) => error instanceof CavernClientError && error.code === "CAVERN_CLIENT_NETWORK",
   );
 });
 
 test("credential-provider failures do not expose provider errors", async () => {
-  const client = new AlmiraClient({
+  const client = new CavernClient({
     credential: async () => {
       throw new Error("secret from vault");
     },
@@ -1275,8 +1275,8 @@ test("credential-provider failures do not expose provider errors", async () => {
   await assert.rejects(
     client.listEnvironments({ tenantId, projectId }),
     (error) =>
-      error instanceof AlmiraClientError &&
-      error.code === "ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE" &&
-      error.message === "ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE",
+      error instanceof CavernClientError &&
+      error.code === "CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE" &&
+      error.message === "CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE",
   );
 });

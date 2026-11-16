@@ -1,11 +1,11 @@
 [package]
-name = "metamorph-almira"
-version = "0.1.0-dev.60"
+name = "metamorph-cavern"
+version = "0.1.0-dev.64"
 edition = "2024"
 rust-version = "1.88"
-description = "Official Rust application SDK for Almira file storage"
+description = "Official Rust application SDK for Cavern file storage"
 license = "Apache-2.0"
-repository = "https://github.com/metamorph-labs/almira"
+repository = "https://github.com/metamorph-labs/cavern"
 readme = "README.md"
 
 [dependencies]

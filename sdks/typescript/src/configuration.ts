@@ -1,5 +1,5 @@
-import { AlmiraClientError } from "./errors.js";
-import type { AlmiraClient } from "./client.js";
+import { CavernClientError } from "./errors.js";
+import type { CavernClient } from "./client.js";
 import type {
   Collection,
   CollectionMediaConfig,
@@ -15,7 +15,7 @@ const UUID_V7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f
 const ENVIRONMENT_KEY = /^[a-z][a-z0-9-]{0,46}[a-z0-9]$/u;
 const COLLECTION_KEY = /^[a-z]([a-z0-9_-]{0,62}[a-z0-9])?$/u;
 
-export interface AlmiraConfigurationCollectionV1 {
+export interface CavernConfigurationCollectionV1 {
   readonly key: string;
   readonly display_name: string;
   readonly malware_scan_required: boolean;
@@ -30,19 +30,19 @@ export interface AlmiraConfigurationCollectionV1 {
   readonly media?: Required<CollectionMediaInput>;
 }
 
-export interface AlmiraConfigurationEnvironmentV1 {
+export interface CavernConfigurationEnvironmentV1 {
   readonly key: string;
   readonly display_name: string;
   readonly browser_origins?: readonly string[];
-  readonly collections: readonly AlmiraConfigurationCollectionV1[];
+  readonly collections: readonly CavernConfigurationCollectionV1[];
 }
 
-export interface AlmiraConfigurationV1 {
-  readonly api_version: "almira/v1";
-  readonly environments: readonly AlmiraConfigurationEnvironmentV1[];
+export interface CavernConfigurationV1 {
+  readonly api_version: "cavern/v1";
+  readonly environments: readonly CavernConfigurationEnvironmentV1[];
 }
 
-export type AlmiraConfigurationAction =
+export type CavernConfigurationAction =
   | {
       readonly action_id: string;
       readonly operation: "environment.create";
@@ -97,7 +97,7 @@ export type AlmiraConfigurationAction =
       readonly collection_instance_id: UuidV7 | null;
       readonly collection_key: string;
       readonly expected_revision: number | null;
-      readonly config: NonNullable<AlmiraConfigurationCollectionV1["extraction"]>;
+      readonly config: NonNullable<CavernConfigurationCollectionV1["extraction"]>;
     }
   | {
       readonly action_id: string;
@@ -107,7 +107,7 @@ export type AlmiraConfigurationAction =
       readonly collection_instance_id: UuidV7 | null;
       readonly collection_key: string;
       readonly expected_revision: number | null;
-      readonly config: NonNullable<AlmiraConfigurationCollectionV1["media"]>;
+      readonly config: NonNullable<CavernConfigurationCollectionV1["media"]>;
     }
   | {
       readonly action_id: string;
@@ -130,29 +130,29 @@ export type AlmiraConfigurationAction =
       readonly config: { readonly malware_scan_required: boolean };
     };
 
-export interface AlmiraConfigurationConflict {
+export interface CavernConfigurationConflict {
   readonly code:
-    | "ALMIRA_CONFIGURATION_COLLECTION_CHANGE_UNSUPPORTED"
-    | "ALMIRA_CONFIGURATION_ENVIRONMENT_LIMIT_EXCEEDED"
-    | "ALMIRA_CONFIGURATION_ENVIRONMENT_NOT_ACTIVE"
-    | "ALMIRA_CONFIGURATION_ENVIRONMENT_NOT_MANAGED"
-    | "ALMIRA_CONFIGURATION_COLLECTION_NOT_READY"
-    | "ALMIRA_CONFIGURATION_STORAGE_CLASS_UNAVAILABLE";
+    | "CAVERN_CONFIGURATION_COLLECTION_CHANGE_UNSUPPORTED"
+    | "CAVERN_CONFIGURATION_ENVIRONMENT_LIMIT_EXCEEDED"
+    | "CAVERN_CONFIGURATION_ENVIRONMENT_NOT_ACTIVE"
+    | "CAVERN_CONFIGURATION_ENVIRONMENT_NOT_MANAGED"
+    | "CAVERN_CONFIGURATION_COLLECTION_NOT_READY"
+    | "CAVERN_CONFIGURATION_STORAGE_CLASS_UNAVAILABLE";
   readonly environment_key: string;
   readonly collection_key: string | null;
 }
 
-export interface AlmiraConfigurationPlan {
-  readonly api_version: "almira.configuration-plan/v1";
+export interface CavernConfigurationPlan {
+  readonly api_version: "cavern.configuration-plan/v1";
   readonly plan_digest: `sha256:${string}`;
-  readonly configuration: AlmiraConfigurationV1;
-  readonly actions: readonly AlmiraConfigurationAction[];
-  readonly conflicts: readonly AlmiraConfigurationConflict[];
+  readonly configuration: CavernConfigurationV1;
+  readonly actions: readonly CavernConfigurationAction[];
+  readonly conflicts: readonly CavernConfigurationConflict[];
   readonly preserves_unlisted_resources: true;
 }
 
-export interface AlmiraConfigurationApplyReceipt {
-  readonly api_version: "almira.configuration-apply-receipt/v1";
+export interface CavernConfigurationApplyReceipt {
+  readonly api_version: "cavern.configuration-apply-receipt/v1";
   readonly operation_id: UuidV7;
   readonly plan_digest: `sha256:${string}`;
   readonly disposition: "applied" | "converged";
@@ -163,43 +163,43 @@ export interface AlmiraConfigurationApplyReceipt {
   }[];
 }
 
-export class AlmiraConfigurationError extends Error {
+export class CavernConfigurationError extends Error {
   readonly code:
-    | "ALMIRA_CONFIGURATION_CONFLICT"
-    | "ALMIRA_CONFIGURATION_INPUT_INVALID"
-    | "ALMIRA_CONFIGURATION_STORAGE_CLASS_UNAVAILABLE";
-  readonly plan: AlmiraConfigurationPlan | null;
+    | "CAVERN_CONFIGURATION_CONFLICT"
+    | "CAVERN_CONFIGURATION_INPUT_INVALID"
+    | "CAVERN_CONFIGURATION_STORAGE_CLASS_UNAVAILABLE";
+  readonly plan: CavernConfigurationPlan | null;
 
-  constructor(code: AlmiraConfigurationError["code"], plan: AlmiraConfigurationPlan | null = null) {
+  constructor(code: CavernConfigurationError["code"], plan: CavernConfigurationPlan | null = null) {
     super(code);
-    this.name = "AlmiraConfigurationError";
+    this.name = "CavernConfigurationError";
     this.code = code;
     this.plan = plan;
   }
 }
 
-export function normalizeConfiguration(value: unknown): AlmiraConfigurationV1 {
+export function normalizeConfiguration(value: unknown): CavernConfigurationV1 {
   const root = exactRecord(value, ["api_version", "environments"]);
-  if (root.api_version !== "almira/v1" || !Array.isArray(root.environments) || root.environments.length > 10) {
+  if (root.api_version !== "cavern/v1" || !Array.isArray(root.environments) || root.environments.length > 10) {
     invalidConfiguration();
   }
   const environments = root.environments.map(normalizeEnvironment);
   environments.sort((left, right) => compareAscii(left.key, right.key));
   requireUnique(environments.map((environment) => environment.key));
-  return { api_version: "almira/v1", environments };
+  return { api_version: "cavern/v1", environments };
 }
 
 export async function previewConfiguration(
-  client: AlmiraClient,
+  client: CavernClient,
   reference: ProjectReference,
   value: unknown,
   options: { signal?: AbortSignal } = {},
-): Promise<AlmiraConfigurationPlan> {
+): Promise<CavernConfigurationPlan> {
   const configuration = normalizeConfiguration(value);
   const current = await client.listEnvironments(reference, options);
   const environmentByKey = new Map(current.environments.map((environment) => [environment.environment_key, environment]));
-  const actions: AlmiraConfigurationAction[] = [];
-  const conflicts: AlmiraConfigurationConflict[] = [];
+  const actions: CavernConfigurationAction[] = [];
+  const conflicts: CavernConfigurationConflict[] = [];
   const missingEnvironmentKeys = configuration.environments
     .filter((environment) => !environmentByKey.has(environment.key))
     .map((environment) => environment.key);
@@ -209,7 +209,7 @@ export async function previewConfiguration(
     const environment = environmentByKey.get(desired.key);
     if (environment === undefined) {
       if (environmentLimitExceeded) {
-        conflicts.push(conflict("ALMIRA_CONFIGURATION_ENVIRONMENT_LIMIT_EXCEEDED", desired.key));
+        conflicts.push(conflict("CAVERN_CONFIGURATION_ENVIRONMENT_LIMIT_EXCEEDED", desired.key));
         continue;
       }
       actions.push({
@@ -237,11 +237,11 @@ export async function previewConfiguration(
       continue;
     }
     if (environment.lifecycle !== "active") {
-      conflicts.push(conflict("ALMIRA_CONFIGURATION_ENVIRONMENT_NOT_ACTIVE", desired.key));
+      conflicts.push(conflict("CAVERN_CONFIGURATION_ENVIRONMENT_NOT_ACTIVE", desired.key));
       continue;
     }
     if (environment.operating_model !== "managed") {
-      conflicts.push(conflict("ALMIRA_CONFIGURATION_ENVIRONMENT_NOT_MANAGED", desired.key));
+      conflicts.push(conflict("CAVERN_CONFIGURATION_ENVIRONMENT_NOT_MANAGED", desired.key));
       continue;
     }
     if (environment.display_name !== desired.display_name) {
@@ -275,7 +275,7 @@ export async function previewConfiguration(
       if (existing !== undefined) {
         if (!collectionSettingsMatch(existing, collection)) {
           conflicts.push(conflict(
-            "ALMIRA_CONFIGURATION_COLLECTION_CHANGE_UNSUPPORTED",
+            "CAVERN_CONFIGURATION_COLLECTION_CHANGE_UNSUPPORTED",
             desired.key,
             collection.key,
           ));
@@ -332,13 +332,13 @@ export async function previewConfiguration(
           const targetRealizationGeneration = realizationGeneration(capabilities, collection.storage_class, true);
           if (existing.storage_binding_state !== "ready" && existing.storage_binding_state !== "migrating") {
             conflicts.push(conflict(
-              "ALMIRA_CONFIGURATION_COLLECTION_NOT_READY",
+              "CAVERN_CONFIGURATION_COLLECTION_NOT_READY",
               desired.key,
               collection.key,
             ));
           } else if (targetRealizationGeneration === null) {
             conflicts.push(conflict(
-              "ALMIRA_CONFIGURATION_STORAGE_CLASS_UNAVAILABLE",
+              "CAVERN_CONFIGURATION_STORAGE_CLASS_UNAVAILABLE",
               desired.key,
               collection.key,
             ));
@@ -365,7 +365,7 @@ export async function previewConfiguration(
       );
       if (storageRealizationGeneration === null) {
         conflicts.push(conflict(
-          "ALMIRA_CONFIGURATION_STORAGE_CLASS_UNAVAILABLE",
+          "CAVERN_CONFIGURATION_STORAGE_CLASS_UNAVAILABLE",
           desired.key,
           collection.key,
         ));
@@ -409,7 +409,7 @@ export async function previewConfiguration(
   }
 
   const digestInput = {
-    api_version: "almira.configuration-plan/v1",
+    api_version: "cavern.configuration-plan/v1",
     configuration,
     actions,
     conflicts,
@@ -422,15 +422,15 @@ export async function previewConfiguration(
 }
 
 export async function applyConfiguration(
-  client: AlmiraClient,
+  client: CavernClient,
   reference: ProjectReference,
   value: unknown,
   options: { operationId: UuidV7; signal?: AbortSignal },
-): Promise<AlmiraConfigurationApplyReceipt> {
+): Promise<CavernConfigurationApplyReceipt> {
   if (!UUID_V7.test(options.operationId)) invalidConfiguration();
   const signalOptions = options.signal === undefined ? {} : { signal: options.signal };
   const plan = await previewConfiguration(client, reference, value, signalOptions);
-  if (plan.conflicts.length > 0) throw new AlmiraConfigurationError("ALMIRA_CONFIGURATION_CONFLICT", plan);
+  if (plan.conflicts.length > 0) throw new CavernConfigurationError("CAVERN_CONFIGURATION_CONFLICT", plan);
   const environmentIds = new Map<string, UuidV7>();
   const createdCollections = new Map<string, { id: UuidV7; revision: number }>();
   for (const action of plan.actions) {
@@ -450,7 +450,7 @@ export async function applyConfiguration(
       continue;
     }
     const environmentId = environmentIds.get(action.environment_key);
-    if (environmentId === undefined) throw new AlmiraClientError("ALMIRA_CLIENT_RESPONSE_INVALID");
+    if (environmentId === undefined) throw new CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID");
     const environment = { ...reference, environmentId };
     if (action.operation === "environment.update") {
       const outcome = await client.updateEnvironment(
@@ -488,7 +488,7 @@ export async function applyConfiguration(
       const collectionInstanceId = action.collection_instance_id ?? created?.id;
       const expectedRevision = action.expected_revision ?? created?.revision;
       if (collectionInstanceId === undefined || expectedRevision === undefined) {
-        throw new AlmiraClientError("ALMIRA_CLIENT_RESPONSE_INVALID");
+        throw new CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID");
       }
       const outcome = await client.replaceCollectionExtraction(
         { ...environment, collectionInstanceId },
@@ -502,7 +502,7 @@ export async function applyConfiguration(
       const collectionInstanceId = action.collection_instance_id ?? created?.id;
       const expectedRevision = action.expected_revision ?? created?.revision;
       if (collectionInstanceId === undefined || expectedRevision === undefined) {
-        throw new AlmiraClientError("ALMIRA_CLIENT_RESPONSE_INVALID");
+        throw new CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID");
       }
       const outcome = await client.replaceCollectionMedia(
         { ...environment, collectionInstanceId },
@@ -516,7 +516,7 @@ export async function applyConfiguration(
       const collectionInstanceId = action.collection_instance_id ?? created?.id;
       const expectedRevision = action.expected_revision ?? created?.revision;
       if (collectionInstanceId === undefined || expectedRevision === undefined) {
-        throw new AlmiraClientError("ALMIRA_CLIENT_RESPONSE_INVALID");
+        throw new CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID");
       }
       const outcome = await client.replaceCollectionLifecycle(
         { ...environment, collectionInstanceId },
@@ -530,7 +530,7 @@ export async function applyConfiguration(
       const collectionInstanceId = action.collection_instance_id ?? created?.id;
       const expectedRevision = action.expected_revision ?? created?.revision;
       if (collectionInstanceId === undefined || expectedRevision === undefined) {
-        throw new AlmiraClientError("ALMIRA_CLIENT_RESPONSE_INVALID");
+        throw new CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID");
       }
       const outcome = await client.replaceCollectionProtection(
         { ...environment, collectionInstanceId },
@@ -547,7 +547,7 @@ export async function applyConfiguration(
         false,
       );
       if (storageRealizationGeneration === null) {
-        throw new AlmiraConfigurationError("ALMIRA_CONFIGURATION_STORAGE_CLASS_UNAVAILABLE", plan);
+        throw new CavernConfigurationError("CAVERN_CONFIGURATION_STORAGE_CLASS_UNAVAILABLE", plan);
       }
       const outcome = await client.createCollection(
         environment,
@@ -568,7 +568,7 @@ export async function applyConfiguration(
     }
   }
   return {
-    api_version: "almira.configuration-apply-receipt/v1",
+    api_version: "cavern.configuration-apply-receipt/v1",
     operation_id: options.operationId,
     plan_digest: plan.plan_digest,
     disposition: receipts.length === 0 ? "converged" : "applied",
@@ -576,7 +576,7 @@ export async function applyConfiguration(
   };
 }
 
-function normalizeEnvironment(value: unknown): AlmiraConfigurationEnvironmentV1 {
+function normalizeEnvironment(value: unknown): CavernConfigurationEnvironmentV1 {
   const item = exactRecord(value, ["key", "display_name", "browser_origins", "collections"]);
   if (!validName(item.display_name, 80) || typeof item.key !== "string" || !ENVIRONMENT_KEY.test(item.key)) {
     invalidConfiguration();
@@ -603,7 +603,7 @@ function normalizeEnvironment(value: unknown): AlmiraConfigurationEnvironmentV1 
   };
 }
 
-function normalizeCollection(value: unknown): AlmiraConfigurationCollectionV1 {
+function normalizeCollection(value: unknown): CavernConfigurationCollectionV1 {
   const item = exactRecord(value, ["key", "display_name", "malware_scan_required", "storage_class", "recycle_retention_days", "extraction", "media"]);
   const storageClass = item.storage_class ?? "normal";
   const recycleRetentionDays = item.recycle_retention_days ?? 30;
@@ -618,7 +618,7 @@ function normalizeCollection(value: unknown): AlmiraConfigurationCollectionV1 {
     recycleRetentionDays < 1 ||
     recycleRetentionDays > 3650
   ) invalidConfiguration();
-  let extraction: AlmiraConfigurationCollectionV1["extraction"];
+  let extraction: CavernConfigurationCollectionV1["extraction"];
   if (item.extraction !== undefined) {
     const raw = exactRecord(item.extraction, ["content", "ocr", "transcription", "vector_indexing"]);
     if (
@@ -727,7 +727,7 @@ function requireUnique(values: readonly string[]): void {
 }
 
 function invalidConfiguration(): never {
-  throw new AlmiraConfigurationError("ALMIRA_CONFIGURATION_INPUT_INVALID");
+  throw new CavernConfigurationError("CAVERN_CONFIGURATION_INPUT_INVALID");
 }
 
 function environmentReference(reference: ProjectReference, environment: Environment) {
@@ -735,7 +735,7 @@ function environmentReference(reference: ProjectReference, environment: Environm
 }
 
 async function listAllCollections(
-  client: AlmiraClient,
+  client: CavernClient,
   reference: ProjectReference,
   environment: Environment,
   signal?: AbortSignal,
@@ -746,7 +746,7 @@ async function listAllCollections(
   let cursor: string | undefined;
   do {
     if (cursor !== undefined && !seenCursors.add(cursor)) {
-      throw new AlmiraClientError("ALMIRA_CLIENT_RESPONSE_INVALID");
+      throw new CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID");
     }
     const page = await client.listCollections(environmentReference(reference, environment), {
       limit: 100,
@@ -755,7 +755,7 @@ async function listAllCollections(
     });
     for (const collection of page.collections) {
       if (!seenKeys.add(collection.collection_key)) {
-        throw new AlmiraClientError("ALMIRA_CLIENT_RESPONSE_INVALID");
+        throw new CavernClientError("CAVERN_CLIENT_RESPONSE_INVALID");
       }
       collections.push(collection);
     }
@@ -764,13 +764,13 @@ async function listAllCollections(
   return collections;
 }
 
-function collectionSettingsMatch(existing: Collection, desired: AlmiraConfigurationCollectionV1): boolean {
+function collectionSettingsMatch(existing: Collection, desired: CavernConfigurationCollectionV1): boolean {
   return existing.display_name === desired.display_name;
 }
 
 function extractionSettingsMatch(
   existing: Collection,
-  desired: NonNullable<AlmiraConfigurationCollectionV1["extraction"]>,
+  desired: NonNullable<CavernConfigurationCollectionV1["extraction"]>,
 ): boolean {
   return existing.content_extraction === desired.content &&
     existing.ocr_extraction === desired.ocr &&
@@ -780,7 +780,7 @@ function extractionSettingsMatch(
 
 function mediaSettingsMatch(
   existing: CollectionMediaConfig,
-  desired: NonNullable<AlmiraConfigurationCollectionV1["media"]>,
+  desired: NonNullable<CavernConfigurationCollectionV1["media"]>,
 ): boolean {
   if (
     existing.document_previews !== desired.document_previews ||
@@ -801,14 +801,14 @@ function mediaSettingsMatch(
 }
 
 function classAvailable(
-  capabilities: Awaited<ReturnType<AlmiraClient["getStorageCapabilities"]>> | null,
+  capabilities: Awaited<ReturnType<CavernClient["getStorageCapabilities"]>> | null,
   storageClass: "normal" | "express",
 ): boolean {
   return realizationGeneration(capabilities, storageClass, false) !== null;
 }
 
 function realizationGeneration(
-  capabilities: Awaited<ReturnType<AlmiraClient["getStorageCapabilities"]>> | null,
+  capabilities: Awaited<ReturnType<CavernClient["getStorageCapabilities"]>> | null,
   storageClass: "normal" | "express",
   migration: boolean,
 ): number | null {
@@ -820,10 +820,10 @@ function realizationGeneration(
 }
 
 function originAction(
-  environment: AlmiraConfigurationEnvironmentV1,
+  environment: CavernConfigurationEnvironmentV1,
   environmentId: UuidV7 | null,
   expectedRevision: number | null,
-): AlmiraConfigurationAction {
+): CavernConfigurationAction {
   return {
     action_id: `browser_origins.replace:${environment.key}`,
     operation: "browser_origins.replace",
@@ -837,10 +837,10 @@ function originAction(
 function collectionAction(
   environmentKey: string,
   environmentId: UuidV7 | null,
-  collection: AlmiraConfigurationCollectionV1,
+  collection: CavernConfigurationCollectionV1,
   capability: "verified" | "check_on_apply",
   storageRealizationGeneration: number | null,
-): AlmiraConfigurationAction {
+): CavernConfigurationAction {
   return {
     action_id: `collection.create:${environmentKey}:${collection.key}`,
     operation: "collection.create",
@@ -859,9 +859,9 @@ function extractionAction(
   environmentKey: string,
   environmentId: UuidV7 | null,
   collectionInstanceId: UuidV7 | null,
-  collection: AlmiraConfigurationCollectionV1,
+  collection: CavernConfigurationCollectionV1,
   expectedRevision: number | null,
-): AlmiraConfigurationAction {
+): CavernConfigurationAction {
   if (collection.extraction === undefined) invalidConfiguration();
   return {
     action_id: `collection_extraction.replace:${environmentKey}:${collection.key}`,
@@ -879,9 +879,9 @@ function mediaAction(
   environmentKey: string,
   environmentId: UuidV7 | null,
   collectionInstanceId: UuidV7 | null,
-  collection: AlmiraConfigurationCollectionV1,
+  collection: CavernConfigurationCollectionV1,
   expectedRevision: number | null,
-): AlmiraConfigurationAction {
+): CavernConfigurationAction {
   if (collection.media === undefined) invalidConfiguration();
   return {
     action_id: `collection_media.replace:${environmentKey}:${collection.key}`,
@@ -899,9 +899,9 @@ function lifecycleAction(
   environmentKey: string,
   environmentId: UuidV7 | null,
   collectionInstanceId: UuidV7 | null,
-  collection: AlmiraConfigurationCollectionV1,
+  collection: CavernConfigurationCollectionV1,
   expectedRevision: number | null,
-): AlmiraConfigurationAction {
+): CavernConfigurationAction {
   return {
     action_id: `collection_lifecycle.replace:${environmentKey}:${collection.key}`,
     operation: "collection_lifecycle.replace",
@@ -918,9 +918,9 @@ function protectionAction(
   environmentKey: string,
   environmentId: UuidV7 | null,
   collectionInstanceId: UuidV7 | null,
-  collection: AlmiraConfigurationCollectionV1,
+  collection: CavernConfigurationCollectionV1,
   expectedRevision: number | null,
-): AlmiraConfigurationAction {
+): CavernConfigurationAction {
   return {
     action_id: `collection_protection.replace:${environmentKey}:${collection.key}`,
     operation: "collection_protection.replace",
@@ -938,10 +938,10 @@ function collectionMapKey(environmentKey: string, collectionKey: string): string
 }
 
 function conflict(
-  code: AlmiraConfigurationConflict["code"],
+  code: CavernConfigurationConflict["code"],
   environmentKey: string,
   collectionKey: string | null = null,
-): AlmiraConfigurationConflict {
+): CavernConfigurationConflict {
   return { code, environment_key: environmentKey, collection_key: collectionKey };
 }
 
@@ -958,7 +958,7 @@ function compareAscii(left: string, right: string): number {
 }
 
 function receipt(
-  action: AlmiraConfigurationAction,
+  action: CavernConfigurationAction,
   operationId: UuidV7,
   disposition: string,
 ) {
@@ -969,7 +969,7 @@ async function deriveOperationId(root: UuidV7, actionId: string): Promise<UuidV7
   const rootBytes = uuidBytes(root);
   const digest = new Uint8Array(await globalThis.crypto.subtle.digest(
     "SHA-256",
-    new TextEncoder().encode(`almira:configuration:v1\0${root}\0${actionId}`),
+    new TextEncoder().encode(`cavern:configuration:v1\0${root}\0${actionId}`),
   ));
   const bytes = digest.slice(0, 16);
   bytes.set(rootBytes.slice(0, 6), 0);

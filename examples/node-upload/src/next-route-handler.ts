@@ -1,9 +1,9 @@
-import type { AlmiraClient, CollectionReference } from "@metamorph-labs/almira-sdk";
+import type { CavernClient, CollectionReference } from "@metamorph-labs/cavern-sdk";
 
 import { uploadAndVerifyFile } from "./upload.js";
 
 export interface NextUploadRouteOptions extends CollectionReference {
-  client: AlmiraClient;
+  client: CavernClient;
   refusalEnvironmentId: string;
   directFetch?: typeof globalThis.fetch;
   authorize(request: Request): boolean | Promise<boolean>;
@@ -15,13 +15,13 @@ export type UploadKind = "avatar" | "private_document" | "video";
 /** Creates a Next.js-compatible App Router POST handler without embedding developer credentials. */
 export function createNextUploadRoute(options: NextUploadRouteOptions) {
   return async function POST(request: Request): Promise<Response> {
-    if (!await options.authorize(request)) return safeJson(403, "ALMIRA_EXAMPLE_FORBIDDEN");
+    if (!await options.authorize(request)) return safeJson(403, "CAVERN_EXAMPLE_FORBIDDEN");
     try {
       const form = await request.formData();
       const file = form.get("file");
       const kind = form.get("kind");
       if (!(file instanceof File) || !isUploadKind(kind) || file.size < 1 || file.size > 8 * 1024 * 1024) {
-        return safeJson(400, "ALMIRA_EXAMPLE_INPUT_INVALID");
+        return safeJson(400, "CAVERN_EXAMPLE_INPUT_INVALID");
       }
       const result = await uploadAndVerifyFile({
         ...options,
@@ -38,7 +38,7 @@ export function createNextUploadRoute(options: NextUploadRouteOptions) {
         headers: { "content-type": "application/json", "cache-control": "no-store" },
       });
     } catch {
-      return safeJson(502, "ALMIRA_EXAMPLE_STORAGE_FAILED");
+      return safeJson(502, "CAVERN_EXAMPLE_STORAGE_FAILED");
     }
   };
 }

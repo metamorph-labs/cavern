@@ -1,6 +1,6 @@
-# Contributing to Almira
+# Contributing to Cavern
 
-Almira is under active pre-release development. Contributions to its public SDKs, clients,
+Cavern is under active pre-release development. Contributions to its public SDKs, clients,
 plugins, examples and documentation are welcome.
 
 Read [`AGENTS.md`](AGENTS.md) before making a material change. Public wire behavior is defined by

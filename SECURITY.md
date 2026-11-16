@@ -10,7 +10,7 @@ Include the affected package and version or commit, the impact, a minimal redact
 and any suggested mitigation. Do not send live credentials, private keys, customer content or
 unredacted production data.
 
-Almira is currently pre-release. Supported release versions and response commitments will be
+Cavern is currently pre-release. Supported release versions and response commitments will be
 published before general availability; this file does not create an unstated support or bounty
 commitment.
 

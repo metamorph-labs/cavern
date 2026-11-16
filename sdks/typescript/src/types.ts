@@ -48,9 +48,9 @@ export interface TenancyProject {
   tenant_id: UuidV7;
   project_id: UuidV7;
   space_id: UuidV7;
-  product_id: "almira";
+  product_id: "cavern";
   product_section_id: null;
-  project_kind_id: "almira.storage";
+  project_kind_id: "cavern.storage";
   owner_region_id: string;
   name: string;
   visibility: "private" | "public";
@@ -93,7 +93,7 @@ export interface ReplaceBrowserOriginsOutcome {
   policy: BrowserOriginPolicy;
 }
 
-export type ComplianceProfileId = "almira.storage.gdpr" | "almira.storage.hipaa_eligible";
+export type ComplianceProfileId = "cavern.storage.gdpr" | "cavern.storage.hipaa_eligible";
 
 export interface ComplianceCatalogIdentity {
   catalog_epoch: string;
@@ -841,8 +841,8 @@ export interface VerificationCheck {
 }
 
 export interface VerificationReceipt {
-  receipt_version: "almira.verification.v1";
-  contract_version: "0.1.0-dev.60";
+  receipt_version: "cavern.verification.v1";
+  contract_version: "0.1.0-dev.64";
   verification_id: UuidV7;
   realm_id: UuidV7;
   tenant_id: UuidV7;
@@ -1527,8 +1527,8 @@ export interface LocalIssuerReference extends CollectionReference {
 
 export interface LocalIssuerSigningConfiguration {
   claims_schema_version: 1;
-  token_prefix: "alm_local_v1.";
-  signature_context_base64url: "YWxtaXJhOmxvY2FsLWNhcGFiaWxpdHk6djEA";
+  token_prefix: "cav_local_v1.";
+  signature_context_base64url: "Y2F2ZXJuOmxvY2FsLWNhcGFiaWxpdHk6djEA";
   maximum_clock_skew_seconds: 30;
   realm_id: UuidV7;
   tenant_id: UuidV7;

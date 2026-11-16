@@ -1,8 +1,8 @@
-# Almira .NET SDK
+# Cavern .NET SDK
 
-`Metamorph.Almira` is the .NET 8+ application SDK for promoted Almira contract
-`0.1.0-dev.60`. It exposes the complete capability-data plane and a separate
-`AlmiraServerClient` for short-lived workload exchange, upload ceremonies and builder-subject
+`Metamorph.Cavern` is the .NET 8+ application SDK for promoted Cavern contract
+`0.1.0-dev.64`. It exposes the complete capability-data plane and a separate
+`CavernServerClient` for short-lived workload exchange, upload ceremonies and builder-subject
 lifecycle operations. It contains no management API.
 
 Binary responses remain streaming and disposable. Capability providers are resolved for every
@@ -12,4 +12,4 @@ and APP-01 webhook verification operates on exact raw bytes.
 `VerificationReceiptVerifier.Verify` validates the closed receipt shape, canonical JSON, Ed25519
 signature and an optional `VerificationReceiptExpectation` using an explicitly trusted key set.
 
-Run `dotnet test sdks/dotnet/Metamorph.Almira.Tests` from the repository root.
+Run `dotnet test sdks/dotnet/Metamorph.Cavern.Tests` from the repository root.

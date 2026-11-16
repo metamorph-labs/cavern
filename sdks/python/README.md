@@ -1,15 +1,15 @@
-# `metamorph-almira`
+# `metamorph-cavern`
 
-The official dependency-free Python 3.11+ application data SDK for Almira. This package implements
+The official dependency-free Python 3.11+ application data SDK for Cavern. This package implements
 every operation in the promoted data-plane OpenAPI contract and deliberately accepts only
-short-lived `alm_cap_v1` or `alm_local_v1` capability tokens. It cannot accept a Metamorph PAT,
+short-lived `cav_cap_v1` or `cav_local_v1` capability tokens. It cannot accept a Metamorph PAT,
 SAK, product cookie, provider credential, or local-issuer private key.
 
 ```python
-from almira import AlmiraDataClient, ImmutableGenerationReference
+from cavern import CavernDataClient, ImmutableGenerationReference
 
-client = AlmiraDataClient(
-    base_url="https://almira.example",
+client = CavernDataClient(
+    base_url="https://cavern.example",
     capability=lambda: current_capability(),
     origin="https://app.example",
 )
@@ -38,7 +38,7 @@ Pass `retry=RetryPolicy(...)` to opt safe reads and read-only search into bounde
 are disabled by default, re-resolve rotating capabilities on each attempt, honor bounded numeric
 `Retry-After`, and never retry after a streaming response has been handed to the caller.
 
-`AlmiraServerClient` accepts only short-lived `MetamorphWorkload` session evidence. Its
+`CavernServerClient` accepts only short-lived `MetamorphWorkload` session evidence. Its
 `create_capability_data_client` exchange returns the sensitive bounded grant and a ready
 capability-only client, without copying workload evidence into browser/mobile requests. Revoke the
 session with the original explicit operation identity when it is no longer needed.
@@ -47,11 +47,11 @@ one-use transfer URLs, signed headers and capability tokens are redacted from SD
 Pass that descriptor and a seekable binary source to `upload_direct`. For multipart, provide a
 `grant_part` callback backed by `create_upload_part`; the helper hashes each exact slice before it
 requests that checksum-bound one-use grant. It streams only the admitted bytes to the object
-provider, never adds an Almira credential or follows a redirect, does not retry an ambiguous write,
+provider, never adds an Cavern credential or follows a redirect, does not retry an ambiguous write,
 and returns the typed evidence for `finalize_upload`.
 `bind_subject` and `list_subject_bindings` persist and discover namespaced opaque builder-user
 lifecycle associations under workload evidence. They support the builder's privacy workflows;
-subjects are lifecycle metadata, never Almira authorization identities, and opaque identifiers are
+subjects are lifecycle metadata, never Cavern authorization identities, and opaque identifiers are
 redacted from SDK representations. `start_subject_lifecycle_operation` and
 `read_subject_lifecycle_operation` provide idempotent restrict/export/delete operations and paged
 complete/pending manifests. A completed export exposes an immutable archive commitment;
@@ -64,12 +64,12 @@ HMAC-SHA256 transcript, identifiers, attempt bound and default five-minute clock
 the returned `(delivery_id, attempt)` to reject replays. A verified delivery is not file-read
 authority and does not make its JSON payload safe without schema and application validation.
 
-Management and resource provisioning remain in the Almira CLI/MCP or the management client. The
+Management and resource provisioning remain in the Cavern CLI/MCP or the management client. The
 builder application's backend obtains bounded capability sessions under its short-lived Metamorph
 customer-workload identity; this data client does not create an authentication system for the
 application's users.
 
-Call `verify_verification_receipt` with Almira's trusted public key set and an explicit
+Call `verify_verification_receipt` with Cavern's trusted public key set and an explicit
 `VerificationReceiptExpectation` before accepting a signed behavior receipt. The helper validates
 the closed V1 shape, canonical JSON, Ed25519 signature and exact tested resource binding.
 

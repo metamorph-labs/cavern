@@ -1,4 +1,4 @@
-//! Closed-shape Ed25519 verification for Almira V1 behavior receipts.
+//! Closed-shape Ed25519 verification for Cavern V1 behavior receipts.
 
 use base64::Engine;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
@@ -131,7 +131,7 @@ pub fn verify_verification_receipt(
 }
 
 fn valid_receipt(receipt: &VerificationReceipt) -> bool {
-    receipt.receipt_version == "almira.verification.v1"
+    receipt.receipt_version == "cavern.verification.v1"
         && receipt.contract_version == CONTRACT_VERSION
         && valid_key_id(&receipt.signing_key_id)
         && receipt.content_sha256.len() == 71

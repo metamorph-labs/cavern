@@ -2,13 +2,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "AlmiraSwiftUIExample",
+    name: "CavernSwiftUIExample",
     platforms: [.macOS(.v13)],
     dependencies: [.package(path: "../../../sdks/swift")],
     targets: [
         .executableTarget(
-            name: "AlmiraSwiftUIExample",
-            dependencies: [.product(name: "Almira", package: "swift")]
+            name: "CavernSwiftUIExample",
+            dependencies: [.product(name: "Cavern", package: "swift")]
         ),
     ]
 )

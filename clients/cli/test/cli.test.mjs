@@ -27,8 +27,8 @@ function io() {
 }
 
 const environment = {
-  ALMIRA_BASE_URL: "https://almira.test",
-  ALMIRA_CONTEXT_FILE: join(tmpdir(), `almira-cli-no-context-${process.pid}.json`),
+  CAVERN_BASE_URL: "https://cavern.test",
+  CAVERN_CONTEXT_FILE: join(tmpdir(), `cavern-cli-no-context-${process.pid}.json`),
   METAMORPH_TOKEN: "mm_pat_v1.test",
 };
 
@@ -41,9 +41,9 @@ const tenancyProject = {
     tenant_id: tenantId,
     project_id: projectId,
     space_id: "018f0000-0000-7000-8000-000000000011",
-    product_id: "almira",
+    product_id: "cavern",
     product_section_id: null,
-    project_kind_id: "almira.storage",
+    project_kind_id: "cavern.storage",
     owner_region_id: "region.one",
     name: "Files",
     visibility: "private",
@@ -69,13 +69,13 @@ test("CLI package version matches the promoted API", async () => {
 });
 
 test("non-secret contexts select base URL and scope without duplicating credentials", async (context) => {
-  const directory = await mkdtemp(join(tmpdir(), "almira-context-"));
+  const directory = await mkdtemp(join(tmpdir(), "cavern-context-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
   const contextFile = join(directory, "contexts.json");
-  const contextEnvironment = { ALMIRA_CONTEXT_FILE: contextFile };
+  const contextEnvironment = { CAVERN_CONTEXT_FILE: contextFile };
   const setStream = io();
   assert.equal(await runCli([
-    "context", "set", "--context", "managed", "--base-url", "https://managed.almira.test",
+    "context", "set", "--context", "managed", "--base-url", "https://managed.cavern.test",
     "--tenant", tenantId, "--project", projectId, "--environment", environmentId,
     "--collection", "018f0000-0000-7000-8000-000000000012",
   ], { environment: contextEnvironment, io: setStream.value }), 0);
@@ -92,8 +92,8 @@ test("non-secret contexts select base URL and scope without duplicating credenti
     },
   });
   assert.equal(exitCode, 0, listStream.output.stderr.join(""));
-  assert.equal(calls[0].url, `https://managed.almira.test/v1/projects/${projectId}/environments`);
-  assert.equal(calls[0].init.headers.get("x-almira-tenant-id"), tenantId);
+  assert.equal(calls[0].url, `https://managed.cavern.test/v1/projects/${projectId}/environments`);
+  assert.equal(calls[0].init.headers.get("x-cavern-tenant-id"), tenantId);
   const stored = await readFile(contextFile, "utf8");
   assert.doesNotMatch(stored, /mm_pat|token|credential/iu);
 
@@ -106,7 +106,7 @@ test("non-secret contexts select base URL and scope without duplicating credenti
     io: refused.value,
     fetch: async () => assert.fail("an overridden parent scope must not inherit child IDs"),
   }), 2);
-  assert.equal(JSON.parse(refused.output.stderr.join("")).code, "ALMIRA_CLI_USAGE_INVALID");
+  assert.equal(JSON.parse(refused.output.stderr.join("")).code, "CAVERN_CLI_USAGE_INVALID");
 });
 
 test("stdin request bodies and mutation dry-run produce one safe exact request", async () => {
@@ -128,7 +128,7 @@ test("stdin request bodies and mutation dry-run produce one safe exact request",
     dry_run: true,
     request: {
       method: "PUT",
-      url: `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/018f0000-0000-7000-8000-000000000012/policy`,
+      url: `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/018f0000-0000-7000-8000-000000000012/policy`,
       body: policy,
     },
   });
@@ -168,7 +168,7 @@ test("verification command preserves the original finalize replay and refusal ta
     },
   });
   assert.equal(exitCode, 0, stream.output.stderr.join(""));
-  assert.equal(request.input, `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/verifications`);
+  assert.equal(request.input, `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/verifications`);
   assert.equal(request.init.headers.get("idempotency-key"), null);
   assert.deepEqual(JSON.parse(request.init.body), body);
   assert.equal(JSON.parse(stream.output.stdout.join("")).algorithm, "ed25519");
@@ -199,7 +199,7 @@ test("watch emits revision changes until durable migration terminal state", asyn
 
 test("project bootstrap generates a replayable operation ID and JSON only", async (context) => {
   const stream = io();
-  const directory = await mkdtemp(join(tmpdir(), "almira-cli-"));
+  const directory = await mkdtemp(join(tmpdir(), "cavern-cli-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
   const snapshotPath = join(directory, "project.json");
   await writeFile(snapshotPath, JSON.stringify(tenancyProject));
@@ -223,7 +223,7 @@ test("project bootstrap generates a replayable operation ID and JSON only", asyn
   assert.match(output.operation_id, /^[0-9a-f]{8}-[0-9a-f]{4}-7/u);
   assert.equal(request.init.headers.get("idempotency-key"), output.operation_id);
   assert.equal(request.init.headers.get("authorization"), "Bearer mm_pat_v1.test");
-  assert.equal(request.init.headers.get("x-almira-tenant-id"), tenantId);
+  assert.equal(request.init.headers.get("x-cavern-tenant-id"), tenantId);
   assert.deepEqual(JSON.parse(request.init.body), { tenancy_project: tenancyProject });
 });
 
@@ -298,7 +298,7 @@ test("storage migration start and status preserve exact scope, revision, and ope
 
   assert.equal(started.operation_id, operationId);
   assert.equal(status.migration_id, migrationId);
-  const path = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/storage-migrations`;
+  const path = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/storage-migrations`;
   assert.deepEqual(requests.map(({ input, init }) => ({
     input,
     method: init.method,
@@ -347,7 +347,7 @@ test("customer storage enrollment commands preserve project scope and exact repl
       region: "us-east-1",
       bucket: "customer-files",
       expected_bucket_owner: "123456789012",
-      role_arn: "arn:aws:iam::123456789012:role/almira",
+      role_arn: "arn:aws:iam::123456789012:role/cavern",
       encryption: "aws_sse_s3",
       encryption_key: null,
     },
@@ -374,7 +374,7 @@ test("customer storage enrollment commands preserve project scope and exact repl
   ], JSON.stringify(request));
   await invoke(["enrollment", "get", ...scope, "--enrollment", enrollmentOperationId]);
 
-  const path = `https://almira.test/v1/projects/${projectId}/storage-enrollments`;
+  const path = `https://cavern.test/v1/projects/${projectId}/storage-enrollments`;
   assert.deepEqual(requests.map(({ input, init }) => ({
     input,
     method: init.method,
@@ -429,7 +429,7 @@ test("storage adopt binds the exact environment, enrollment, revision, and repla
     operationId: init.headers.get("idempotency-key"),
     body: JSON.parse(init.body),
   })), [{
-    input: `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/storage-binding`,
+    input: `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/storage-binding`,
     method: "PUT",
     operationId: adoptionOperationId,
     body: { enrollment_operation_id: enrollmentOperationId, expected_revision: 3 },
@@ -476,7 +476,7 @@ test("storage restore-managed binds the exact environment, revision, and replay 
     operationId: init.headers.get("idempotency-key"),
     body: JSON.parse(init.body),
   })), [{
-    input: `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/managed-storage-binding`,
+    input: `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/managed-storage-binding`,
     method: "PUT",
     operationId: restorationOperationId,
     body: { expected_revision: 4 },
@@ -484,7 +484,7 @@ test("storage restore-managed binds the exact environment, revision, and replay 
 });
 
 test("portability commands preserve credential-free manifests, scope, and replay identity", async (context) => {
-  const directory = await mkdtemp(join(tmpdir(), "almira-portability-"));
+  const directory = await mkdtemp(join(tmpdir(), "cavern-portability-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
   const collectionId = "018f0000-0000-7000-8000-000000000012";
   const portabilityJobId = "018f0000-0000-7000-8000-000000000013";
@@ -554,7 +554,7 @@ test("portability commands preserve credential-free manifests, scope, and replay
   await invoke(["portability", "get", ...scope, "--portability-job", portabilityJobId]);
 
   assert.equal(imported.operation_id, operationId);
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
   assert.deepEqual(requests.map(({ url, init, bytes }) => ({
     url,
     method: init.method,
@@ -588,7 +588,7 @@ test("portability commands preserve credential-free manifests, scope, and replay
 });
 
 test("portable export download streams, verifies, and never overwrites the target", async (context) => {
-  const directory = await mkdtemp(join(tmpdir(), "almira-export-"));
+  const directory = await mkdtemp(join(tmpdir(), "cavern-export-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
   const output = join(directory, "archive.tar");
   const collectionId = "018f0000-0000-7000-8000-000000000012";
@@ -651,7 +651,7 @@ test("portable export download streams, verifies, and never overwrites the targe
   const second = await invoke();
   assert.equal(second.exitCode, 5);
   assert.deepEqual(JSON.parse(second.output.stderr.join("")), {
-    code: "ALMIRA_CLI_OUTPUT_EXISTS",
+    code: "CAVERN_CLI_OUTPUT_EXISTS",
     operation_id: operationId,
     recovery: "choose a new --output path",
   });
@@ -660,7 +660,7 @@ test("portable export download streams, verifies, and never overwrites the targe
 });
 
 test("policy replacement accepts an exact JSON document and uses the collection route", async (context) => {
-  const directory = await mkdtemp(join(tmpdir(), "almira-policy-"));
+  const directory = await mkdtemp(join(tmpdir(), "cavern-policy-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
   const input = join(directory, "policy.json");
   const requestBody = { expected_revision: 2, document: { template: "private", rules: [] } };
@@ -685,7 +685,7 @@ test("policy replacement accepts an exact JSON document and uses the collection 
     },
   });
   assert.equal(exitCode, 0);
-  assert.equal(request.url, `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/policy`);
+  assert.equal(request.url, `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/policy`);
   assert.equal(request.init.method, "PUT");
   assert.equal(request.init.headers.get("idempotency-key"), operationId);
   assert.deepEqual(JSON.parse(request.init.body), requestBody);
@@ -724,7 +724,7 @@ test("delivery purge queues one collection-wide invalidation with replay identit
   assert.equal(exitCode, 0, stream.output.stderr.join(""));
   assert.equal(
     request.url,
-    `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/delivery`,
+    `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/delivery`,
   );
   assert.equal(request.init.method, "POST");
   assert.equal(request.init.headers.get("idempotency-key"), operationId);
@@ -733,7 +733,7 @@ test("delivery purge queues one collection-wide invalidation with replay identit
 });
 
 test("metadata and extraction commands expose exact scoped management operations", async (context) => {
-  const directory = await mkdtemp(join(tmpdir(), "almira-metadata-"));
+  const directory = await mkdtemp(join(tmpdir(), "cavern-metadata-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
   const extractionInput = join(directory, "extraction.json");
   const metadataInput = join(directory, "metadata.json");
@@ -773,7 +773,7 @@ test("metadata and extraction commands expose exact scoped management operations
   await invoke(["extraction", "status", ...fileScope, "--generation", generationId, "--kind", "content"]);
   await invoke(["extraction", "content", ...fileScope, "--generation", generationId, "--kind", "content"]);
 
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
   const fileBase = `${base}/files/${entryId}`;
   assert.deepEqual(requests.map(({ input, init }) => ({
     input,
@@ -797,7 +797,7 @@ test("metadata and extraction commands expose exact scoped management operations
 });
 
 test("media, job, and derivative commands expose exact scoped management operations", async (context) => {
-  const directory = await mkdtemp(join(tmpdir(), "almira-media-"));
+  const directory = await mkdtemp(join(tmpdir(), "cavern-media-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
   const mediaInput = join(directory, "media.json");
   const mediaRequest = {
@@ -839,7 +839,7 @@ test("media, job, and derivative commands expose exact scoped management operati
   await invoke(["job", "cancel", ...scope, "--job", jobId, "--revision", "4", "--operation-id", operationId]);
   await invoke(["derivative", "list", ...scope, "--entry", entryId, "--generation", generationId]);
 
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}`;
   assert.deepEqual(requests.map(({ input, init }) => ({
     input,
     method: init.method,
@@ -855,7 +855,7 @@ test("media, job, and derivative commands expose exact scoped management operati
 });
 
 test("protection and scan commands expose policy, cases, rescan, and review without release", async (context) => {
-  const directory = await mkdtemp(join(tmpdir(), "almira-protection-"));
+  const directory = await mkdtemp(join(tmpdir(), "cavern-protection-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
   const reviewInput = join(directory, "review.json");
   const reviewRequest = {
@@ -911,7 +911,7 @@ test("protection and scan commands expose policy, cases, rescan, and review with
     "--input", reviewInput, "--operation-id", operationId,
   ]);
 
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}`;
   const collectionBase = `${base}/collections/${collectionId}`;
   const generationBase = `${collectionBase}/files/${entryId}/versions/${generationId}`;
   assert.deepEqual(requests.map(({ input, init }) => ({
@@ -971,7 +971,7 @@ test("file search exposes hybrid retrieval, filters, facets, and paging as one c
   assert.equal(exitCode, 0, stream.output.stderr.join(""));
   assert.equal(
     request.input,
-    `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/search`,
+    `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/search`,
   );
   assert.equal(request.init.method, "POST");
   assert.deepEqual(JSON.parse(request.init.body), {
@@ -984,11 +984,11 @@ test("file search exposes hybrid retrieval, filters, facets, and paging as one c
   });
 });
 
-test("configuration preview and apply consume almira.yaml without a second API", async (context) => {
-  const directory = await mkdtemp(join(tmpdir(), "almira-config-"));
+test("configuration preview and apply consume cavern.yaml without a second API", async (context) => {
+  const directory = await mkdtemp(join(tmpdir(), "cavern-config-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
-  const configurationPath = join(directory, "almira.yaml");
-  await writeFile(configurationPath, "api_version: almira/v1\nenvironments: []\n");
+  const configurationPath = join(directory, "cavern.yaml");
+  await writeFile(configurationPath, "api_version: cavern/v1\nenvironments: []\n");
   const invoke = async (verb) => {
     const stream = io();
     const exitCode = await runCli([
@@ -1001,7 +1001,7 @@ test("configuration preview and apply consume almira.yaml without a second API",
       environment,
       io: stream.value,
       fetch: async (input, init) => {
-        assert.equal(input, `https://almira.test/v1/projects/${projectId}/environments`);
+        assert.equal(input, `https://cavern.test/v1/projects/${projectId}/environments`);
         assert.equal(init.method, "GET");
         return json({ environments: [] });
       },
@@ -1046,9 +1046,9 @@ test("environment lifecycle commands preserve exact body and revision semantics"
     ifMatch: init.headers.get("if-match"),
     body: init.body === undefined ? undefined : JSON.parse(init.body),
   })), [
-    { input: `https://almira.test/v1/projects/${projectId}/environments`, method: "POST", ifMatch: null, body: { environment_key: "preview-one", display_name: "Preview one" } },
-    { input: `https://almira.test/v1/projects/${projectId}/environments/${environmentId}`, method: "PATCH", ifMatch: null, body: { display_name: "Preview renamed", expected_revision: 2 } },
-    { input: `https://almira.test/v1/projects/${projectId}/environments/${environmentId}`, method: "DELETE", ifMatch: "3", body: undefined },
+    { input: `https://cavern.test/v1/projects/${projectId}/environments`, method: "POST", ifMatch: null, body: { environment_key: "preview-one", display_name: "Preview one" } },
+    { input: `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}`, method: "PATCH", ifMatch: null, body: { display_name: "Preview renamed", expected_revision: 2 } },
+    { input: `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}`, method: "DELETE", ifMatch: "3", body: undefined },
   ]);
 });
 
@@ -1077,7 +1077,7 @@ test("collection lifecycle command sets bounded recycle retention", async () => 
   assert.equal(requests.length, 1);
   assert.equal(
     requests[0].input,
-    `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/lifecycle`,
+    `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/lifecycle`,
   );
   assert.deepEqual(JSON.parse(requests[0].init.body), {
     expected_revision: 4,
@@ -1089,7 +1089,7 @@ test("file lifecycle commands expose recycle, versions, rename, copy, batch, and
   const collectionId = "018f0000-0000-7000-8000-000000000012";
   const entryId = "018f0000-0000-7000-8000-000000000013";
   const generationId = "018f0000-0000-7000-8000-000000000014";
-  const directory = await mkdtemp(join(tmpdir(), "almira-cli-batch-"));
+  const directory = await mkdtemp(join(tmpdir(), "cavern-cli-batch-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
   const batchInput = join(directory, "batch.json");
   await writeFile(batchInput, JSON.stringify({
@@ -1125,7 +1125,7 @@ test("file lifecycle commands expose recycle, versions, rename, copy, batch, and
   await invoke(["file", "batch", ...common, "--input", batchInput, "--operation-id", operationId]);
   await invoke(["file", "copy", ...file, "--generation", generationId, "--path", "archive/file-copy.txt", "--revision", "6", "--operation-id", operationId]);
 
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/files`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/collections/${collectionId}/files`;
   assert.deepEqual(requests.map(({ input, init }) => ({
     input,
     method: init.method,
@@ -1179,7 +1179,7 @@ test("storage capability discovery uses the selected environment and remains rea
   assert.equal(exitCode, 0);
   assert.equal(
     request.input,
-    `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/storage-capabilities`,
+    `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/storage-capabilities`,
   );
   assert.equal(request.init.method, "GET");
   assert.equal(request.init.headers.get("idempotency-key"), null);
@@ -1198,8 +1198,8 @@ test("credentials are not accepted as command-line options", async () => {
   assert.equal(exitCode, 2);
   assert.equal(stream.output.stdout.length, 0);
   assert.deepEqual(JSON.parse(stream.output.stderr.join("")), {
-    code: "ALMIRA_CLI_USAGE_INVALID",
-    recovery: "run almira --help",
+    code: "CAVERN_CLI_USAGE_INVALID",
+    recovery: "run cavern --help",
   });
   assert.doesNotMatch(stream.output.stderr.join(""), /secret/u);
 });
@@ -1214,9 +1214,9 @@ test("compliance commands keep preview read-only and bind profile mutations to r
   };
   const commands = [
     ["compliance", "list"],
-    ["compliance", "preview", "--profile", "almira.storage.gdpr", "--input", "-"],
-    ["compliance", "activate", "--profile", "almira.storage.gdpr", "--input", "-", "--operation-id", operationId],
-    ["compliance", "remove", "--profile", "almira.storage.gdpr", "--input", "-", "--operation-id", operationId],
+    ["compliance", "preview", "--profile", "cavern.storage.gdpr", "--input", "-"],
+    ["compliance", "activate", "--profile", "cavern.storage.gdpr", "--input", "-", "--operation-id", operationId],
+    ["compliance", "remove", "--profile", "cavern.storage.gdpr", "--input", "-", "--operation-id", operationId],
   ];
   const bodies = [undefined, declaration, { expected_environment_revision: 4, ...declaration }, {
     expected_binding_revision: 2,
@@ -1236,7 +1236,7 @@ test("compliance commands keep preview read-only and bind profile mutations to r
     });
     assert.equal(exitCode, 0, stream.output.stderr.join(""));
   }
-  const base = `https://almira.test/v1/projects/${projectId}/environments/${environmentId}/compliance-profiles`;
+  const base = `https://cavern.test/v1/projects/${projectId}/environments/${environmentId}/compliance-profiles`;
   assert.deepEqual(calls.map(({ input, init }) => ({
     input,
     method: init.method,
@@ -1244,9 +1244,9 @@ test("compliance commands keep preview read-only and bind profile mutations to r
     body: init.body === undefined ? undefined : JSON.parse(init.body),
   })), [
     { input: base, method: "GET", operationId: null, body: undefined },
-    { input: `${base}/almira.storage.gdpr/preview`, method: "POST", operationId: null, body: declaration },
-    { input: `${base}/almira.storage.gdpr`, method: "PUT", operationId, body: bodies[2] },
-    { input: `${base}/almira.storage.gdpr`, method: "DELETE", operationId, body: bodies[3] },
+    { input: `${base}/cavern.storage.gdpr/preview`, method: "POST", operationId: null, body: declaration },
+    { input: `${base}/cavern.storage.gdpr`, method: "PUT", operationId, body: bodies[2] },
+    { input: `${base}/cavern.storage.gdpr`, method: "DELETE", operationId, body: bodies[3] },
   ]);
 });
 
@@ -1257,14 +1257,14 @@ test("options from another command are rejected instead of ignored", async () =>
     { environment, io: stream.value, fetch: async () => assert.fail("no request") },
   );
   assert.equal(exitCode, 2);
-  assert.equal(JSON.parse(stream.output.stderr.join("")).code, "ALMIRA_CLI_USAGE_INVALID");
+  assert.equal(JSON.parse(stream.output.stderr.join("")).code, "CAVERN_CLI_USAGE_INVALID");
 });
 
 test("missing connection configuration is actionable and distinct from usage", async () => {
   const stream = io();
   const exitCode = await runCli(["environment", "list", "--tenant", tenantId, "--project", projectId], {
     environment: {
-      ALMIRA_CONTEXT_FILE: join(tmpdir(), `almira-cli-no-context-${process.pid}.json`),
+      CAVERN_CONTEXT_FILE: join(tmpdir(), `cavern-cli-no-context-${process.pid}.json`),
       METAMORPH_TOKEN: "mm_pat_v1.test",
     },
     io: stream.value,
@@ -1272,8 +1272,8 @@ test("missing connection configuration is actionable and distinct from usage", a
   });
   assert.equal(exitCode, 2);
   assert.deepEqual(JSON.parse(stream.output.stderr.join("")), {
-    code: "ALMIRA_CLI_BASE_URL_REQUIRED",
-    recovery: "pass --base-url, select a context, or set ALMIRA_BASE_URL",
+    code: "CAVERN_CLI_BASE_URL_REQUIRED",
+    recovery: "pass --base-url, select a context, or set CAVERN_BASE_URL",
   });
 });
 
@@ -1284,14 +1284,14 @@ test("API refusal uses stable exit code and safe diagnostics", async () => {
     io: stream.value,
     fetch: async () =>
       json(
-        { code: "ALMIRA_AUTHORIZATION_REFUSED", request_id: requestId },
+        { code: "CAVERN_AUTHORIZATION_REFUSED", request_id: requestId },
         403,
       ),
   });
   assert.equal(exitCode, 3);
   assert.equal(stream.output.stdout.length, 0);
   assert.deepEqual(JSON.parse(stream.output.stderr.join("")), {
-    code: "ALMIRA_AUTHORIZATION_REFUSED",
+    code: "CAVERN_AUTHORIZATION_REFUSED",
     request_id: requestId,
     status: 403,
     retry_after_milliseconds: null,
@@ -1320,7 +1320,7 @@ test("ambiguous mutation diagnostics retain the generated operation ID", async (
   );
   assert.equal(exitCode, 8);
   const diagnostic = JSON.parse(stream.output.stderr.join(""));
-  assert.equal(diagnostic.code, "ALMIRA_CLIENT_NETWORK");
+  assert.equal(diagnostic.code, "CAVERN_CLIENT_NETWORK");
   assert.match(diagnostic.operation_id, /^[0-9a-f]{8}-[0-9a-f]{4}-7/u);
   assert.doesNotMatch(stream.output.stderr.join(""), /socket|secret/u);
 });

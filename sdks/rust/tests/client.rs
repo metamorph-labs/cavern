@@ -1,4 +1,4 @@
-use metamorph_almira::{
+use metamorph_cavern::{
     ApiError, BuilderSubject, CONTRACT_VERSION, CapabilityDataClientOptions, CapabilityResource,
     Client, ClientError, ClientOptions, CollectionReference, CreateCapabilitySessionRequest,
     CreateUploadRequest, CustomMetadataValue, DerivativeReference, DirectUploadDescriptor,
@@ -28,7 +28,7 @@ const COLLECTION: &str = "018f0000-0000-7000-8000-000000000005";
 const ENTRY: &str = "018f0000-0000-7000-8000-000000000006";
 const GENERATION: &str = "018f0000-0000-7000-8000-000000000007";
 const REQUEST: &str = "018f0000-0000-7000-8000-000000000008";
-const CAPABILITY: &str = "alm_cap_v1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+const CAPABILITY: &str = "cav_cap_v1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
 #[derive(Debug)]
 struct Request {
@@ -184,7 +184,7 @@ async fn exact_routes_filters_streaming_and_credential_free_share() {
         .unwrap();
     client
         .read_share(
-            &format!("alm_share_v1.{}", "b".repeat(43)),
+            &format!("cav_share_v1.{}", "b".repeat(43)),
             &ReadOptions::default(),
         )
         .await
@@ -370,7 +370,7 @@ async fn common_managed_development_positive_refusal_retry_and_cleanup_journey()
 #[tokio::test]
 async fn invalid_input_and_provider_failure_are_local_and_stable() {
     let client =
-        Client::new(ClientOptions::new("https://almira.test").capability(CAPABILITY)).unwrap();
+        Client::new(ClientOptions::new("https://cavern.test").capability(CAPABILITY)).unwrap();
     let invalid = ListFilesOptions {
         metadata_key: Some("tier".into()),
         ..ListFilesOptions::default()
@@ -380,7 +380,7 @@ async fn invalid_input_and_provider_failure_are_local_and_stable() {
             .list_files_with_capability(&collection(), &invalid)
             .await
             .unwrap_err(),
-        "ALMIRA_CLIENT_INPUT_INVALID",
+        "CAVERN_CLIENT_INPUT_INVALID",
     );
     let derivative = DerivativeReference {
         generation: generation(),
@@ -393,16 +393,16 @@ async fn invalid_input_and_provider_failure_are_local_and_stable() {
         Err(error) => error,
         Ok(_) => panic!("invalid derivative was accepted"),
     };
-    assert_client_code(error, "ALMIRA_CLIENT_INPUT_INVALID");
+    assert_client_code(error, "CAVERN_CLIENT_INPUT_INVALID");
     assert!(
         Client::new(
-            ClientOptions::new("https://almira.test").origin("https://app.example\nforwarded: bad")
+            ClientOptions::new("https://cavern.test").origin("https://app.example\nforwarded: bad")
         )
         .is_err()
     );
 
     let provider = Client::new(
-        ClientOptions::new("https://almira.test").capability_provider(Arc::new(|| None)),
+        ClientOptions::new("https://cavern.test").capability_provider(Arc::new(|| None)),
     )
     .unwrap();
     assert_client_code(
@@ -410,7 +410,7 @@ async fn invalid_input_and_provider_failure_are_local_and_stable() {
             .get_file_metadata_with_capability(&generation().file)
             .await
             .unwrap_err(),
-        "ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE",
+        "CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE",
     );
 }
 
@@ -422,7 +422,7 @@ async fn api_errors_are_bounded_and_typed() {
             status: "403 Forbidden",
             content_type: "application/json",
             headers: vec![("Retry-After", "7")],
-            body: format!(r#"{{"code":"ALMIRA_CAPABILITY_REFUSED","request_id":"{REQUEST}"}}"#),
+            body: format!(r#"{{"code":"CAVERN_CAPABILITY_REFUSED","request_id":"{REQUEST}"}}"#),
         }),
     );
     let client = Client::new(ClientOptions::new(base_url).capability(CAPABILITY)).unwrap();
@@ -437,7 +437,7 @@ async fn api_errors_are_bounded_and_typed() {
             status: 403,
             retry_after_seconds: Some(7),
         }) => {
-            assert_eq!(code, "ALMIRA_CAPABILITY_REFUSED");
+            assert_eq!(code, "CAVERN_CAPABILITY_REFUSED");
             assert_eq!(request_id, REQUEST);
         }
         other => panic!("unexpected error: {other:?}"),
@@ -457,7 +457,7 @@ async fn opt_in_retry_re_resolves_capability_and_replays_safe_request() {
                     content_type: "application/json",
                     headers: vec![("Retry-After", "0")],
                     body: format!(
-                        r#"{{"code":"ALMIRA_TEMPORARILY_UNAVAILABLE","request_id":"{REQUEST}"}}"#
+                        r#"{{"code":"CAVERN_TEMPORARILY_UNAVAILABLE","request_id":"{REQUEST}"}}"#
                     ),
                 };
             }
@@ -475,7 +475,7 @@ async fn opt_in_retry_re_resolves_capability_and_replays_safe_request() {
         ClientOptions::new(base_url)
             .capability_provider(Arc::new(move || {
                 let call = credential_counter.fetch_add(1, Ordering::SeqCst) + 1;
-                Some(format!("alm_cap_v1.{}{call}", "a".repeat(42)))
+                Some(format!("cav_cap_v1.{}{call}", "a".repeat(42)))
             }))
             .retry(RetryPolicy::new(3, Duration::ZERO, Duration::ZERO)),
     )
@@ -568,13 +568,13 @@ async fn workload_exchange_returns_capability_only_client_and_revokes_exactly() 
         exchange.headers["authorization"],
         "MetamorphWorkload workload_session_evidence"
     );
-    assert_eq!(exchange.headers["x-almira-tenant-id"], TENANT);
+    assert_eq!(exchange.headers["x-cavern-tenant-id"], TENANT);
     assert_eq!(
         data.headers["authorization"],
         format!("Bearer {CAPABILITY}")
     );
     assert_eq!(data.headers["origin"], "https://app.example");
-    assert!(!data.headers.contains_key("x-almira-tenant-id"));
+    assert!(!data.headers.contains_key("x-cavern-tenant-id"));
     assert_eq!(revoke.method, "DELETE");
     assert_eq!(
         revoke.headers["authorization"],
@@ -706,7 +706,7 @@ async fn workload_subject_bindings_are_namespaced_and_operation_scoped() {
                 headers: vec![],
                 body: if subject_download {
                     format!(
-                        r#"{{"descriptor_id":"{REQUEST}","method":"GET","url":"https://almira.test/v1/subject-export-downloads/{REQUEST}","headers":[{{"name":"authorization","value":"AlmiraTransfer redacted"}}],"expected_size_bytes":3072,"content_sha256":"sha256:{}","one_use":true,"expires_at":"2026-10-17T12:05:00Z"}}"#,
+                        r#"{{"descriptor_id":"{REQUEST}","method":"GET","url":"https://cavern.test/v1/subject-export-downloads/{REQUEST}","headers":[{{"name":"authorization","value":"CavernTransfer redacted"}}],"expected_size_bytes":3072,"content_sha256":"sha256:{}","one_use":true,"expires_at":"2026-10-17T12:05:00Z"}}"#,
                         "b".repeat(64)
                     )
                 } else if lifecycle_search {
@@ -798,7 +798,7 @@ async fn workload_subject_bindings_are_namespaced_and_operation_scoped() {
     assert_eq!(lifecycle.operation.state, "pending");
     assert_eq!(manifest.operation.operation_id, REQUEST);
     assert_eq!(descriptor.expected_size_bytes, 3072);
-    assert!(!format!("{descriptor:?}").contains("AlmiraTransfer"));
+    assert!(!format!("{descriptor:?}").contains("CavernTransfer"));
     assert!(!format!("{subject:?}").contains("opaque|user-42"));
 
     let bind = requests.recv().unwrap();
@@ -871,7 +871,7 @@ async fn server_multipart_part_grant_binds_transfer_checksum_and_operation() {
         .create_upload_part(
             &collection(),
             REQUEST,
-            &metamorph_almira::CreateMultipartPartGrantRequest {
+            &metamorph_cavern::CreateMultipartPartGrantRequest {
                 part_number: 2,
                 content_sha256: content_sha256.clone(),
             },
@@ -921,9 +921,9 @@ impl DirectUploadTransport for RecordingDirectTransport {
 }
 
 #[tokio::test]
-async fn direct_upload_streams_exact_file_parts_without_almira_credentials() {
+async fn direct_upload_streams_exact_file_parts_without_cavern_credentials() {
     let path = std::env::temp_dir().join(format!(
-        "almira-rust-direct-upload-{}-{}",
+        "cavern-rust-direct-upload-{}-{}",
         std::process::id(),
         REQUEST
     ));
@@ -943,7 +943,7 @@ async fn direct_upload_streams_exact_file_parts_without_almira_credentials() {
         bodies: Mutex::new(vec![]),
     };
     let grants = Mutex::new(Vec::new());
-    let grant_part = |request: metamorph_almira::CreateMultipartPartGrantRequest| {
+    let grant_part = |request: metamorph_cavern::CreateMultipartPartGrantRequest| {
         grants.lock().unwrap().push(request.clone());
         async move {
             let offset = u64::from(request.part_number - 1) * 2;
@@ -1020,8 +1020,8 @@ fn assert_client_code(error: Error, code: &str) {
         error,
         Error::Client(ClientError {
             code: match code {
-                "ALMIRA_CLIENT_INPUT_INVALID" => "ALMIRA_CLIENT_INPUT_INVALID",
-                "ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE" => "ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE",
+                "CAVERN_CLIENT_INPUT_INVALID" => "CAVERN_CLIENT_INPUT_INVALID",
+                "CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE" => "CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE",
                 _ => panic!("unexpected test code"),
             }
         })

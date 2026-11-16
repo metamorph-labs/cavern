@@ -1,6 +1,6 @@
-import { AlmiraClient } from "./client.js";
-import { AlmiraDataClient } from "./data-client.js";
-import type { AlmiraDataClientOptions } from "./data-client.js";
+import { CavernClient } from "./client.js";
+import { CavernDataClient } from "./data-client.js";
+import type { CavernDataClientOptions } from "./data-client.js";
 import type {
   CapabilitySessionGrant,
   CollectionReference,
@@ -9,13 +9,13 @@ import type {
 } from "./types.js";
 
 export interface CapabilityDataClientOptions
-  extends Omit<AlmiraDataClientOptions, "capability" | "origin"> {}
+  extends Omit<CavernDataClientOptions, "capability" | "origin"> {}
 
 export interface CapabilityDataClientSession {
   /** Sensitive grant returned only to the builder backend. Do not persist or log its token. */
   grant: CapabilitySessionGrant;
   /** Capability-only client ready for the browser/mobile audience in the grant. */
-  dataClient: AlmiraDataClient;
+  dataClient: CavernDataClient;
 }
 
 /**
@@ -24,7 +24,7 @@ export interface CapabilityDataClientSession {
  * copied into the returned data client.
  */
 export async function createCapabilityDataClient(
-  managementClient: AlmiraClient,
+  managementClient: CavernClient,
   reference: CollectionReference,
   request: CreateCapabilitySessionRequest,
   mutation: MutationOptions,
@@ -33,7 +33,7 @@ export async function createCapabilityDataClient(
   const grant = await managementClient.createCapabilitySession(reference, request, mutation);
   return {
     grant,
-    dataClient: new AlmiraDataClient({
+    dataClient: new CavernDataClient({
       ...dataOptions,
       capability: grant.token,
       origin: grant.audience,

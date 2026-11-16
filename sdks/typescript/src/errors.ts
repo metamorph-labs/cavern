@@ -1,6 +1,6 @@
 import type { UuidV7 } from "./types.js";
 
-export class AlmiraApiError extends Error {
+export class CavernApiError extends Error {
   readonly code: string;
   readonly requestId: UuidV7;
   readonly retryAfterMilliseconds: number | null;
@@ -13,7 +13,7 @@ export class AlmiraApiError extends Error {
     retryAfterMilliseconds: number | null,
   ) {
     super(code);
-    this.name = "AlmiraApiError";
+    this.name = "CavernApiError";
     this.code = code;
     this.requestId = requestId;
     this.status = status;
@@ -21,38 +21,38 @@ export class AlmiraApiError extends Error {
   }
 }
 
-export class AlmiraClientError extends Error {
+export class CavernClientError extends Error {
   readonly code:
-    | "ALMIRA_CLIENT_ABORTED"
-    | "ALMIRA_CLIENT_CREDENTIAL_UNAVAILABLE"
-    | "ALMIRA_CLIENT_INPUT_INVALID"
-    | "ALMIRA_CLIENT_NETWORK"
-    | "ALMIRA_CLIENT_RESPONSE_INVALID";
+    | "CAVERN_CLIENT_ABORTED"
+    | "CAVERN_CLIENT_CREDENTIAL_UNAVAILABLE"
+    | "CAVERN_CLIENT_INPUT_INVALID"
+    | "CAVERN_CLIENT_NETWORK"
+    | "CAVERN_CLIENT_RESPONSE_INVALID";
 
-  constructor(code: AlmiraClientError["code"]) {
+  constructor(code: CavernClientError["code"]) {
     super(code);
-    this.name = "AlmiraClientError";
+    this.name = "CavernClientError";
     this.code = code;
   }
 }
 
-export class AlmiraTransferError extends Error {
+export class CavernTransferError extends Error {
   readonly code:
-    | "ALMIRA_TRANSFER_DESCRIPTOR_EXPIRED"
-    | "ALMIRA_TRANSFER_DESCRIPTOR_INVALID"
-    | "ALMIRA_TRANSFER_OUTCOME_UNKNOWN"
-    | "ALMIRA_TRANSFER_PART_REFUSED"
-    | "ALMIRA_TRANSFER_RESPONSE_INVALID";
+    | "CAVERN_TRANSFER_DESCRIPTOR_EXPIRED"
+    | "CAVERN_TRANSFER_DESCRIPTOR_INVALID"
+    | "CAVERN_TRANSFER_OUTCOME_UNKNOWN"
+    | "CAVERN_TRANSFER_PART_REFUSED"
+    | "CAVERN_TRANSFER_RESPONSE_INVALID";
   readonly partNumber: number | null;
   readonly status: number | null;
 
   constructor(
-    code: AlmiraTransferError["code"],
+    code: CavernTransferError["code"],
     partNumber: number | null = null,
     status: number | null = null,
   ) {
     super(code);
-    this.name = "AlmiraTransferError";
+    this.name = "CavernTransferError";
     this.code = code;
     this.partNumber = partNumber;
     this.status = status;

@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 
-use metamorph_almira::{
+use metamorph_cavern::{
     SignedVerificationReceipt, VerificationPublicKeySet, VerificationReceiptExpectation,
     verify_verification_receipt,
 };
